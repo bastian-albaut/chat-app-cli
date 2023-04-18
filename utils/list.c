@@ -20,7 +20,7 @@ int is_empty(Node** head){
 }
 
 /**** Add an element at start of the list ****/
-void insert_first(Node** head, int number){
+Node* insert_first(Node** head, int number){
     Node *newHead = (Node*) malloc(sizeof(Node));
     
     // Set newHead attributes
@@ -34,6 +34,8 @@ void insert_first(Node** head, int number){
 
     // Increment number of elements in list (count)
     (*head)->number++;
+
+    return newHead;
 }
 
 /**** Remove an element from the list ****/
