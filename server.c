@@ -3,6 +3,12 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./utils/list.h"
+
+#define NB_CARACTERES 32
+
+/**** Prototype des fonctions ****/
+void *ThreadClient(void *dSClient);
 
 int main(int argc, char *argv[]) {
   
@@ -23,9 +29,9 @@ int main(int argc, char *argv[]) {
 
   /**** Nommage de la socket ****/
 	struct sockaddr_in ad;
-	ad.sin_family = AF_INET;
-	ad.sin_addr.s_addr = INADDR_ANY; // Attache la socket à toutes les interfaces réseaux locales
-	ad.sin_port = htons(atoi(argv[1]));
+	ad.sin_family = AF_INET; // Domaine de communication "IPv4"
+	ad.sin_addr.s_addr = INADDR_ANY; // Attache le socket à toutes les interfaces réseaux locales
+	ad.sin_port = htons(atoi(argv[1])); // Port d'écoute
 	if(bind(descripteurServeur, (struct sockaddr*)&ad, sizeof(ad)) == -1) {
     perror("Erreur: Nommage de la socket");
     exit(1);
@@ -41,39 +47,31 @@ int main(int argc, char *argv[]) {
   printf("Mode écoute\n");
 
 
-  /**** Accepter une connexion d'un client ****/
-  struct sockaddr_in aC ;
-  socklen_t lg = sizeof(struct sockaddr_in) ;
-  int descripteurClient = accept(descripteurServeur, (struct sockaddr*) &aC,&lg) ;
-  if(descripteurClient == -1) {
-    perror("Erreur: Acceptation de la connexion du client");
-  }
-  printf("Client Connecté\n");
+  /**** Initialize the client list ****/
+  Node* listClient = NULL;
+  init_head(&listClient);
 
+  /**** Prepare acceptation of client ****/
+  struct sockaddr_in aC;
+  socklen_t lg = sizeof(struct sockaddr_in);
+  int descripteurClient = -1;
 
-  int nbOctetsLu = 1;
-  while(nbOctetsLu != 0) {
+  while(1) {
 
-    /**** Réception du message du client ****/
-    char msg[20];
-    int nbOctetsLu = recv(descripteurClient, msg, sizeof(msg), 0);
-    if(nbOctetsLu == -1) {
-      perror("Erreur: réception du message");
-      exit(1);
-    } else if(nbOctetsLu == 0) {
-      printf("La socket a été fermée par le client\n");
-      break;
+    /**** Accept a client connection ****/
+    descripteurClient = accept(descripteurServeur, (struct sockaddr*) &aC,&lg) ;
+    if(descripteurClient == -1) {
+      perror("Erreur: Acceptation de la connexion du client");
     }
-    printf("Message reçu : %s\n", msg) ;
-    
 
-    /**** Envoi du message au client ****/
-    int r = 10 ;
-    if(send(descripteurClient, &r, sizeof(int), 0) == -1) {
-      perror("Erreur: Envoi du message");
-      exit(1);
-    }
-    printf("Message Envoyé\n");
+    /**** Add the client to the list ****/
+    Node* currentClient = insert_first(&listClient, descripteurClient);
+    printf("Client Connecté\n");
+    display_list(&listClient);
+
+    /**** Create a thread for the client ****/
+    pthread_create(&(currentClient->thread), NULL, ThreadClient, &(currentClient->number));
+
   }
 
   /**** Fermeture des sockets ****/
@@ -81,4 +79,34 @@ int main(int argc, char *argv[]) {
   shutdown(descripteurServeur, 2);
 
   printf("Fin du programme\n");
+}
+
+void *ThreadClient(void *dSClient) {
+  int *socketClient = (int*) dSClient;
+
+  while(1) {
+
+    /**** Receive message from client ****/
+    char message[NB_CARACTERES];
+    int nbOctetsLu = recv(*socketClient, message, sizeof(message), 0);
+    if(nbOctetsLu == -1) {
+      perror("Erreur: réception du message");
+      exit(1);
+    } else if(nbOctetsLu == 0) {
+      printf("La socket a été fermée par le client\n");
+      break;
+    }
+    printf("Message reçu : %s\n", message) ;
+    
+
+    /**** Send message to client ****/
+    int r = 10 ;
+    if(send(*socketClient, &r, sizeof(int), 0) == -1) {
+      perror("Erreur: Envoi du message");
+      exit(1);
+    }
+    printf("Message Envoyé\n");
+  }
+
+  pthread_exit(0);
 }
