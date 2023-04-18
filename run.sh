@@ -1,11 +1,8 @@
 #!/bin/bash
 
 # Compile client.c and server.c
-gcc client.c -o client
-gcc server.c -o server
-
-# Display message to let the user know how to stop the processes
-echo "Type 'stop' in terminal window to stop the process."
+gcc -o client client.c -lpthread
+gcc -o server server.c -lpthread ./utils/list.c
 
 # Open another new terminal window and run server
 if gnome-terminal --title="Server" -- bash -c "./server 5324"; then
