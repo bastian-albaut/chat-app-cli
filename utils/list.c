@@ -61,6 +61,26 @@ void remove_element(Node** head, Node* element) {
     (*head)->number--;
 }
 
+/**** Search an element in the list and return it ****/
+Node* search_element(Node** head, int number) {
+    // Check if list is empty
+    if(is_empty(head)) {
+        perror("List is empty");
+        return NULL;
+    }
+
+    // Search element
+    Node *current_element = (*head)->next;
+    while(current_element != *head) {
+        if(current_element->number == number) {
+            return current_element;
+        }
+        current_element = current_element->next;
+    }
+    return NULL;
+}
+
+
 /**** Display all elements of the list ****/
 void display_list(Node** head) {
 

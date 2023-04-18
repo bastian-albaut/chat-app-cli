@@ -15,5 +15,8 @@ void insert_first(int number, Node** head);
 // Remove an element from the list
 void remove_element(Node** head, Node* element);
 
+// Search an element in the list and return it 
+Node* search_element(Node** head, int number);
+
 // Display all elements of the list
 void display_list(Node** head);
