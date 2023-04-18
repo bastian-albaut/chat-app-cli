@@ -20,7 +20,7 @@ int is_empty(Node** head){
 }
 
 /**** Add an element at start of the list ****/
-void insert_first(int number, Node** head){
+void insert_first(Node** head, int number){
     Node *newHead = (Node*) malloc(sizeof(Node));
     
     // Set newHead attributes

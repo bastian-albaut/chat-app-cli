@@ -4,19 +4,19 @@ typedef struct Node {
     struct Node *prev;
 } Node;
 
-void init_head(Node** head);
+extern void init_head(Node** head);
 
 // Return 1 if list is empty and 0 else
-int is_empty(Node** head);
+extern int is_empty(Node** head);
 
 // Add an element at start of the list
-void insert_first(int number, Node** head);
+extern void insert_first(Node** head, int number);
 
 // Remove an element from the list
-void remove_element(Node** head, Node* element);
+extern void remove_element(Node** head, Node* element);
 
 // Search an element in the list and return it 
-Node* search_element(Node** head, int number);
+extern Node* search_element(Node** head, int number);
 
 // Display all elements of the list
-void display_list(Node** head);
+extern void display_list(Node** head);
