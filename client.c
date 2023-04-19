@@ -5,8 +5,7 @@
 #include <string.h>
 #include <pthread.h>
 
-#define NB_CARACTERES 32
-
+#define NB_CARACTERES 128
 
 /**** Variables globales ****/
 char chaine[NB_CARACTERES];
@@ -52,9 +51,9 @@ int main(int argc, char *argv[]) {
   while(1) {  
 
     /**** Reception du message du serveur ****/
-    int r;
+    char *message = malloc(NB_CARACTERES * sizeof(char));
     printf("En attente de réception d'un message...\n");
-    int nbOctetsLu = recv(descripteurServeur, &r, sizeof(r), 0);
+    int nbOctetsLu = recv(descripteurServeur, message, NB_CARACTERES, 0);
     if(nbOctetsLu == -1) {
       perror("Erreur: réception du message");
       exit(1);
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
       printf("Erreur: La socket a été fermée");
       break;
     }
-    printf("Réponse reçue : %d\n", r);
+    printf("Réponse reçue : %s\n", message);
 
   }
 
