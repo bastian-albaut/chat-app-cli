@@ -1,3 +1,6 @@
+#ifndef LIST_H
+#define LIST_H
+
 #include <pthread.h>
 
 typedef struct Node {
@@ -23,3 +26,5 @@ extern Node* search_element(Node** head, int number);
 
 // Display all elements of the list
 extern void display_list(Node** head);
+
+#endif // LIST_H

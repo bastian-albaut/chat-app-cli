@@ -4,16 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-
-#define NB_CARACTERES 128
-
-/**** Variables globales ****/
-char chaine[NB_CARACTERES];
-
-
-/**** Prototype des fonctions ****/
-void * ThreadEnvoi(void *descripteurServeur);
-
+#include "../include/client_functions.h"
+#include "../include/constants.h"
 
 int main(int argc, char *argv[]) {
 
@@ -46,7 +38,7 @@ int main(int argc, char *argv[]) {
 
   /**** Création d'un thread pour l'envoi de message(s) au serveur ****/
   pthread_t thread;
-  pthread_create(&thread, NULL, ThreadEnvoi, &descripteurServeur);
+  pthread_create(&thread, NULL, thread_send, &descripteurServeur);
 
   while(1) {  
 
@@ -69,30 +61,4 @@ int main(int argc, char *argv[]) {
   shutdown(descripteurServeur,2);
 
   printf("Fin du programme\n");
-}
-
-
-
-void * ThreadEnvoi(void *descripteurServeur) {
-  int *socketServeur = (int*) descripteurServeur;
-
-  while(1) {
-
-    /**** Préparation à l'envoi du message au serveur ****/
-    printf("Veuillez entrer le message que vous souhaitez envoyer:\n");
-    fgets(chaine, NB_CARACTERES, stdin);
-    char *findReturn = strchr(chaine,'\n'); // Renvoie null si pas trouvé
-    if(findReturn != NULL) {
-      *findReturn = '\0';
-    }
-
-    /**** Envoi du message au serveur ****/
-    if(send(*socketServeur, chaine, strlen(chaine)+1, 0) == -1){
-      perror("Erreur envoie du message");
-      exit(1);
-    }
-    printf("Message envoyé au serveur\n");
-
-  }
-  pthread_exit(0);
 }

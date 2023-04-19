@@ -3,16 +3,11 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <string.h>
-#include "./utils/list.h"
-
-#define NB_CARACTERES 128
-
-/**** Prototype des fonctions ****/
-void *ThreadClient(void *dSClient);
-void send_to_other_clients(Node* listClient, int socketClient, char* message);
-
-/**** Global variables ****/
-Node* listClient;
+#include <unistd.h>
+#include <pthread.h>
+#include "../include/list.h"
+#include "../include/constants.h"
+#include "../include/server_functions.h"
 
 int main(int argc, char *argv[]) {
   
@@ -52,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 
   /**** Initialize the client list ****/
-  listClient = NULL;
+  Node* listClient = NULL;
   init_head(&listClient);
 
   /**** Prepare acceptation of client ****/
@@ -74,7 +69,8 @@ int main(int argc, char *argv[]) {
     display_list(&listClient);
 
     /**** Create a thread for the client ****/
-    pthread_create(&(currentClient->thread), NULL, ThreadClient, &(currentClient->number));
+    ThreadArgs args = {currentClient->number, listClient};
+    pthread_create(&(currentClient->thread), NULL, thread_client, &args);
 
   }
 
@@ -83,43 +79,4 @@ int main(int argc, char *argv[]) {
   shutdown(descripteurServeur, 2);
 
   printf("Fin du programme\n");
-}
-
-void *ThreadClient(void *dSClient) {
-  int *socketClient = (int*) dSClient;
-
-  while(1) {
-
-    /**** Receive message from client ****/
-    char message[NB_CARACTERES];
-    int nbOctetsLu = recv(*socketClient, message, NB_CARACTERES, 0);
-    if(nbOctetsLu == -1) {
-      perror("Erreur: réception du message");
-      exit(1);
-    } else if(nbOctetsLu == 0) {
-      printf("La socket a été fermée par le client\n");
-      break;
-    }
-    printf("Message reçu : %s\n", message);
-    
-    /**** Send message to other clients ****/
-    send_to_other_clients(listClient, *socketClient, message);
-  }
-
-  pthread_exit(0);
-}
-
-
-void send_to_other_clients(Node* head, int socketClient, char* message) {
-  Node* currentClient = head->next;
-  while(currentClient != head) {
-    if(currentClient->number != socketClient) {
-      if(send(currentClient->number, message, strlen(message)+1, 0) == -1) {
-        perror("Erreur: Envoi du message");
-        exit(1);
-      }
-      printf("Envoi du message au client %d\n", currentClient->number);
-    }
-    currentClient = currentClient->next;
-  }
 }
