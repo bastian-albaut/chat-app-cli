@@ -40,21 +40,21 @@ int main(int argc, char *argv[]) {
   pthread_t thread;
   pthread_create(&thread, NULL, thread_send, &descripteurServeur);
 
-  while(1) {  
+  int nbOctetsLu = 1
+  while(nbOctetsLu != 0) {  
 
     /**** Reception du message du serveur ****/
     char *message = malloc(NB_CARACTERES * sizeof(char));
     printf("En attente de réception d'un message...\n");
-    int nbOctetsLu = recv(descripteurServeur, message, NB_CARACTERES, 0);
+    nbOctetsLu = recv(descripteurServeur, message, NB_CARACTERES, 0);
     if(nbOctetsLu == -1) {
       perror("Erreur: réception du message");
       exit(1);
     } else if(nbOctetsLu == 0) {
       printf("Erreur: La socket a été fermée");
-      break;
+    } else {
+      printf("Réponse reçue : %s\n", message);
     }
-    printf("Réponse reçue : %s\n", message);
-
   }
 
   /**** Fermeture de la socket ****/

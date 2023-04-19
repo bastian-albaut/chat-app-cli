@@ -75,7 +75,6 @@ int main(int argc, char *argv[]) {
   }
 
   /**** Fermeture des sockets ****/
-  shutdown(descripteurClient, 2); 
   shutdown(descripteurServeur, 2);
 
   printf("Fin du programme\n");
