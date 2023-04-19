@@ -5,10 +5,14 @@
 #include <string.h>
 #include "./utils/list.h"
 
-#define NB_CARACTERES 32
+#define NB_CARACTERES 128
 
 /**** Prototype des fonctions ****/
 void *ThreadClient(void *dSClient);
+void send_to_other_clients(Node* listClient, int socketClient, char* message);
+
+/**** Global variables ****/
+Node* listClient;
 
 int main(int argc, char *argv[]) {
   
@@ -48,7 +52,7 @@ int main(int argc, char *argv[]) {
 
 
   /**** Initialize the client list ****/
-  Node* listClient = NULL;
+  listClient = NULL;
   init_head(&listClient);
 
   /**** Prepare acceptation of client ****/
@@ -88,7 +92,7 @@ void *ThreadClient(void *dSClient) {
 
     /**** Receive message from client ****/
     char message[NB_CARACTERES];
-    int nbOctetsLu = recv(*socketClient, message, sizeof(message), 0);
+    int nbOctetsLu = recv(*socketClient, message, NB_CARACTERES, 0);
     if(nbOctetsLu == -1) {
       perror("Erreur: réception du message");
       exit(1);
@@ -96,17 +100,26 @@ void *ThreadClient(void *dSClient) {
       printf("La socket a été fermée par le client\n");
       break;
     }
-    printf("Message reçu : %s\n", message) ;
+    printf("Message reçu : %s\n", message);
     
-
-    /**** Send message to client ****/
-    int r = 10 ;
-    if(send(*socketClient, &r, sizeof(int), 0) == -1) {
-      perror("Erreur: Envoi du message");
-      exit(1);
-    }
-    printf("Message Envoyé\n");
+    /**** Send message to other clients ****/
+    send_to_other_clients(listClient, *socketClient, message);
   }
 
   pthread_exit(0);
+}
+
+
+void send_to_other_clients(Node* head, int socketClient, char* message) {
+  Node* currentClient = head->next;
+  while(currentClient != head) {
+    if(currentClient->number != socketClient) {
+      if(send(currentClient->number, message, strlen(message)+1, 0) == -1) {
+        perror("Erreur: Envoi du message");
+        exit(1);
+      }
+      printf("Envoi du message au client %d\n", currentClient->number);
+    }
+    currentClient = currentClient->next;
+  }
 }
