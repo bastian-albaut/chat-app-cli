@@ -28,23 +28,33 @@ void* thread_client(void* args) {
   int socketClient = data->socketClient;
   Node* listClient = data->listClient;
 
-  while(1) {
+  int nbOctetsLu = 1;
+  while(nbOctetsLu != 0 || nbOctetsLu != -1) {
 
     /**** Receive message from client ****/
     char message[NB_CARACTERES];
     int nbOctetsLu = recv(socketClient, message, NB_CARACTERES, 0);
     if(nbOctetsLu == -1) {
       perror("Erreur: réception du message");
-      exit(1);
+      close_client(socketClient);
     } else if(nbOctetsLu == 0) {
       printf("La socket a été fermée par le client\n");
-      break;
+      close_client(socketClient);
+    } else {
+      printf("Message reçu : %s\n", message);
+
+      /**** Send message to other clients ****/
+      send_to_other_clients(listClient, socketClient, message);
     }
-    printf("Message reçu : %s\n", message);
-    
-    /**** Send message to other clients ****/
-    send_to_other_clients(listClient, socketClient, message);
   }
 
   pthread_exit(0);
+}
+
+void close_client(int socketClient) {
+  if(shutdown(socketClient, 2)) {
+    perror("Error: Close socket");
+    exit(1);
+  }
+  printf("Socket %d client closed\n");
 }
