@@ -8,40 +8,43 @@
 #include "../include/server_functions.h"
 #include "../include/list.h"
 #include "../include/constants.h"
+#include "../include/global_functions.h"
 
+/**** Send message to other clients ****/
 void send_to_other_clients(Node* head, int socketClient, char* message) {
   Node* currentClient = head->next;
   while(currentClient != head) {
     if(currentClient->number != socketClient) {
       if(send(currentClient->number, message, strlen(message)+1, 0) == -1) {
-        perror("Erreur: Envoi du message");
+        perror("Error: Sending the message");
         exit(1);
       }
-      printf("Envoi du message au client %d\n", currentClient->number);
+      printf("Message send to the client %d\n", currentClient->number);
     }
     currentClient = currentClient->next;
   }
 }
 
+/**** Thread for each client ****/
 void* thread_client(void* args) {
   ThreadArgs* data = (ThreadArgs*) args;
   int socketClient = data->socketClient;
   Node* listClient = data->listClient;
 
-  int nbOctetsLu = 1;
-  while(nbOctetsLu != 0 || nbOctetsLu != -1) {
+  int nbByteRead = 1;
+  while(nbByteRead != 0 || nbByteRead != -1) {
 
     /**** Receive message from client ****/
-    char message[NB_CARACTERES];
-    int nbOctetsLu = recv(socketClient, message, NB_CARACTERES, 0);
-    if(nbOctetsLu == -1) {
-      perror("Erreur: réception du message");
-      close_client(socketClient);
-    } else if(nbOctetsLu == 0) {
-      printf("La socket a été fermée par le client\n");
-      close_client(socketClient);
+    char message[NB_CHARACTERS];
+    int nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
+    if(nbByteRead == -1) {
+      perror("Error: Receiving the message");
+      close_socket(socketClient);
+    } else if(nbByteRead == 0) {
+      printf("The socket has been closed\n");
+      close_socket(socketClient);
     } else {
-      printf("Message reçu : %s\n", message);
+      printf("Message receive: %s\n", message);
 
       /**** Send message to other clients ****/
       send_to_other_clients(listClient, socketClient, message);
@@ -49,12 +52,4 @@ void* thread_client(void* args) {
   }
 
   pthread_exit(0);
-}
-
-void close_client(int socketClient) {
-  if(shutdown(socketClient, 2)) {
-    perror("Error: Close socket");
-    exit(1);
-  }
-  printf("Socket %d client closed\n");
 }

@@ -8,26 +8,27 @@
 #include "../include/client_functions.h"
 #include "../include/constants.h"
 
-void * thread_send(void *descripteurServeur) {
-  int *socketServeur = (int*) descripteurServeur;
+/**** Thread for sending messages to the server ****/
+void* thread_send(void *socket) {
+  int *socketServer = (int*) socket;
 
   while(1) {
 
-    /**** Préparation à l'envoi du message au serveur ****/
-    char chaine[NB_CARACTERES];
-    printf("Veuillez entrer le message que vous souhaitez envoyer:\n");
-    fgets(chaine, NB_CARACTERES, stdin);
-    char *findReturn = strchr(chaine,'\n'); // Renvoie null si pas trouvé
+    /**** Preparing to send the message to the server ****/
+    char message[NB_CHARACTERS];
+    printf("Please enter the message you want to send:\n");
+    fgets(message, NB_CHARACTERS, stdin);
+    char *findReturn = strchr(message,'\n'); // Return null if not found
     if(findReturn != NULL) {
       *findReturn = '\0';
     }
 
-    /**** Envoi du message au serveur ****/
-    if(send(*socketServeur, chaine, strlen(chaine)+1, 0) == -1){
-      perror("Erreur envoie du message");
+    /**** Sending the message to the server ****/
+    if(send(*socketServer, message, strlen(message)+1, 0) == -1){
+      perror("Error: Send message");
       exit(1);
     }
-    printf("Message envoyé au serveur\n");
+    printf("Message sent to server\n");
 
   }
   pthread_exit(0);

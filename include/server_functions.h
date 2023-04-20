@@ -9,7 +9,7 @@ typedef struct ThreadArgs {
 } ThreadArgs;
 
 
-extern void* thread_client(void *dSClient);
-extern void send_to_other_clients(Node* listClient, int socketClient, char* message);
+extern void* thread_client(void* args);
+extern void send_to_other_clients(Node* head, int socketClient, char* message);
 
 #endif // SERVER_FUNCTIONS_H

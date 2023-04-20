@@ -8,64 +8,66 @@
 #include "../include/list.h"
 #include "../include/constants.h"
 #include "../include/server_functions.h"
+#include "../include/global_functions.h"
 
 int main(int argc, char *argv[]) {
   
+
+  /**** Arguments verification ****/
   if(argc != 2){
-    perror("Argument attendu : port");
+    perror("Error: Expected argument is <port>");
     exit(1);
   }
 
-  /**** Création de la socket ****/
-	// Création de la socket avec le domaine de communication "IPv4" 
-  // et le type de format "Stream" en utilisant le protocole TCP
-	int descripteurServeur = socket(PF_INET, SOCK_STREAM, 0);
-	if(descripteurServeur == -1) {
-    perror("Erreur: Création de la socket");
+
+  /**** Creation of socket ****/
+	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
+	if(socketServer == -1) {
+    perror("Error: Creation of socket");
   }
-  printf("Socket Créé\n");
+  printf("Socket Created\n");
 
 
-  /**** Nommage de la socket ****/
+  /**** Socket naming ****/
 	struct sockaddr_in ad;
-	ad.sin_family = AF_INET; // Domaine de communication "IPv4"
-	ad.sin_addr.s_addr = INADDR_ANY; // Attache le socket à toutes les interfaces réseaux locales
-	ad.sin_port = htons(atoi(argv[1])); // Port d'écoute
-	if(bind(descripteurServeur, (struct sockaddr*)&ad, sizeof(ad)) == -1) {
-    perror("Erreur: Nommage de la socket");
+	ad.sin_family = AF_INET; 
+	ad.sin_addr.s_addr = INADDR_ANY;
+	ad.sin_port = htons(atoi(argv[1]));
+	if(bind(socketServer, (struct sockaddr*)&ad, sizeof(ad)) == -1) {
+    perror("Error: Socket naming");
     exit(1);
   }
-  printf("Socket Nommé\n");
+  printf("Named Socket successful\n");
 
 
-  /**** Passage de la socket en mode écoute ****/
-	// Avec 10 demandes de connexions maximum en fil d'attente
-	if(listen(descripteurServeur, 10) == -1) {
-		perror("Erreur: Passage de la socket en mode écoute");
+  /**** Putting the socket in listening mode ****/
+	if(listen(socketServer, 10) == -1) {
+		perror("Error: Putting the socket in listening mode");
 	}
-  printf("Mode écoute\n");
+  printf("Listen mode\n");
 
 
-  /**** Initialize the client list ****/
+  /**** Initialize the clients list ****/
   Node* listClient = NULL;
   init_head(&listClient);
+
 
   /**** Prepare acceptation of client ****/
   struct sockaddr_in aC;
   socklen_t lg = sizeof(struct sockaddr_in);
-  int descripteurClient = -1;
+  int socketClient = -1;
 
   while(1) {
 
     /**** Accept a client connection ****/
-    descripteurClient = accept(descripteurServeur, (struct sockaddr*) &aC,&lg) ;
-    if(descripteurClient == -1) {
-      perror("Erreur: Acceptation de la connexion du client");
+    socketClient = accept(socketServer, (struct sockaddr*) &aC,&lg) ;
+    if(socketClient == -1) {
+      perror("Error: Acceptance of client connection");
     }
 
     /**** Add the client to the list ****/
-    Node* currentClient = insert_first(&listClient, descripteurClient);
-    printf("Client Connecté\n");
+    Node* currentClient = insert_first(&listClient, socketClient);
+    printf("Client Connected !\n");
     display_list(&listClient);
 
     /**** Create a thread for the client ****/
@@ -74,8 +76,8 @@ int main(int argc, char *argv[]) {
 
   }
 
-  /**** Fermeture des sockets ****/
-  shutdown(descripteurServeur, 2);
+  /**** Closing the socket ****/
+  close_socket(socketServer);
 
-  printf("Fin du programme\n");
+  printf("End of program\n");
 }
