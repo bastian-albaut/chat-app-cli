@@ -41,7 +41,7 @@ void* thread_client(void* args) {
       perror("Error: Receiving the message");
       close_socket(socketClient);
     } else if(nbByteRead == 0) {
-      printf("The socket has been closed\n");
+      printf("The connection for socket %d was cut on the client side\n", socketClient);
       close_socket(socketClient);
     } else {
       printf("Message receive: %s\n", message);

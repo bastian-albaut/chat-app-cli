@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
       perror("Error: Receiving the message");
       exit(1);
     } else if(nbByteRead == 0) {
-      printf("Error: The socket has been closed");
+      printf("The connection was cut on the server side\n");
     } else {
       printf("Message receive: %s\n", message);
     }
