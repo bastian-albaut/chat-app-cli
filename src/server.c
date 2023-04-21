@@ -5,13 +5,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 #include "../include/list.h"
 #include "../include/constants.h"
 #include "../include/server_functions.h"
-#include "../include/global_functions.h"
+#include "../include/global.h"
 
 int main(int argc, char *argv[]) {
-  
 
   /**** Arguments verification ****/
   if(argc != 2){
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
 
   /**** Creation of socket ****/
-	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
+	socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if(socketServer == -1) {
     perror("Error: Creation of socket");
   }
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
 
   /**** Initialize the clients list ****/
-  Node* listClient = NULL;
+  listClient = NULL;
   init_head(&listClient);
 
 
@@ -56,6 +56,9 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in aC;
   socklen_t lg = sizeof(struct sockaddr_in);
   int socketClient = -1;
+
+  /**** Catch the SIGINT signal ****/
+  signal(SIGINT, interrupt_handler);
 
   while(1) {
 

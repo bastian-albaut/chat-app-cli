@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include "../include/client_functions.h"
 #include "../include/constants.h"
-#include "../include/global_functions.h"
+#include "../include/global.h"
 
 int main(int argc, char *argv[]) {
 

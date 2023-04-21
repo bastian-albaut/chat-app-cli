@@ -8,7 +8,7 @@
 #include "../include/server_functions.h"
 #include "../include/list.h"
 #include "../include/constants.h"
-#include "../include/global_functions.h"
+#include "../include/global.h"
 
 /**** Send message to other clients ****/
 void send_to_other_clients(Node* head, int socketClient, char* message) {
@@ -40,10 +40,7 @@ void* thread_client(void* args) {
     if(nbByteRead == -1) {
       perror("Error: Receiving the message");
       close_socket(socketClient);
-    } else if(nbByteRead == 0) {
-      printf("The connection for socket %d was cut on the client side\n", socketClient);
-      close_socket(socketClient);
-    } else {
+    } else if(nbByteRead !=0) {
       printf("Message receive: %s\n", message);
 
       /**** Send message to other clients ****/
@@ -52,4 +49,21 @@ void* thread_client(void* args) {
   }
 
   pthread_exit(0);
+}
+
+void interrupt_handler(int signal) {
+  close_all_clients_sockets();
+  printf("  =>  All clients sockets are closed\n");
+  close_socket(socketServer);
+  printf("  =>  Server socket is closed\n");
+  exit(0);
+}
+
+/**** Close all clients sockets in the list ****/
+void close_all_clients_sockets() {
+  Node* currentClient = listClient->next;
+  while(currentClient != listClient) {
+    close_socket(currentClient->number);
+    currentClient = currentClient->next;
+  }
 }
