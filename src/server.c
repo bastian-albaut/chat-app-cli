@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	if(socketServer == -1) {
     perror("Error: Creation of socket");
   }
-  printf("Socket Created\n");
+  printf("Socket Created");
 
 
   /**** Socket naming ****/
@@ -37,14 +37,14 @@ int main(int argc, char *argv[]) {
     perror("Error: Socket naming");
     exit(1);
   }
-  printf("Named Socket successful\n");
+  printf(" => Named Socket successfully");
 
 
   /**** Putting the socket in listening mode ****/
 	if(listen(socketServer, 10) == -1) {
 		perror("Error: Putting the socket in listening mode");
 	}
-  printf("Listen mode\n");
+  printf(" => Listen mode\n\n");
 
 
   /**** Initialize the clients list ****/
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
     /**** Add the client to the list ****/
     Node* currentClient = insert_first(&listClient, socketClient);
-    printf("Client Connected !\n");
+    printf("Client %d Connected !\n", currentClient->number);
     display_list(&listClient);
 
     /**** Create a thread for the client ****/

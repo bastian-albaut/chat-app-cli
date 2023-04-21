@@ -52,6 +52,7 @@ void* thread_client(void* args) {
 }
 
 void interrupt_handler(int signal) {
+  printf("\n");
   close_all_clients_sockets();
   printf("  =>  All clients sockets are closed\n");
   close_socket(socketServer);

@@ -88,13 +88,13 @@ void display_list(Node** head) {
 
     // Check if list is empty
     if(is_empty(head)) {
-        printf("List is empty\n");
+        printf("List of Client is empty\n");
         return;
     }
 
     // Display all elements
     Node *current_element = (*head)->next;
-    printf("\n------ Start list ------\n");
+    printf("\n------ List of Clients ------\n");
     while(current_element != *head) {
         printf("%d\n", current_element->number);
         current_element = current_element->next;

@@ -28,7 +28,7 @@ void* thread_send(void *socket) {
       perror("Error: Send message");
       exit(1);
     }
-    printf("Message sent to server\n");
+    printf("Message sent to the server\n");
 
   }
   pthread_exit(0);

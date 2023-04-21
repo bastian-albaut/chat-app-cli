@@ -33,7 +33,9 @@ int main(int argc, char *argv[]) {
     perror("Error: Server connection request");
     exit(1);
   }
+  printf("\n==================================\n");
   printf("You are connected to the server :)\n");
+  printf("==================================\n\n");
 
   /**** Creation of a thread for sending message(s) to the server ****/
   pthread_t thread;
