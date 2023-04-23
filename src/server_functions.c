@@ -39,8 +39,10 @@ void* thread_client(void* args) {
     nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
     if(nbByteRead == -1) {
       perror("Error: Receiving the message");
-      close_socket(socketClient);
-    } else if(nbByteRead !=0) {
+      remove_client(socketClient);
+    } else if(nbByteRead == 0) {
+      remove_client(socketClient);
+    } else {
       printf("Message receive: %s\n", message);
 
       /**** Send message to other clients ****/
@@ -67,4 +69,12 @@ void close_all_clients_sockets() {
     close_socket(currentClient->number);
     currentClient = currentClient->next;
   }
+}
+
+/**** Remove the client from the list and close the socket corresponding ****/
+void remove_client(int socketClient) {
+  remove_element(&listClient, search_element(&listClient, socketClient));
+  printf("Client %d disconnected\n", socketClient);
+  display_list(&listClient);
+  close_socket(socketClient);
 }
