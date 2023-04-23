@@ -27,9 +27,11 @@ int main(int argc, char *argv[]) {
   }
   printf("Socket Created");
 
-  // Set the SO_REUSEADDR option
+
+  /**** Allow to use address again ****/
   int optval = 1;
   setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
 
   /**** Socket naming ****/
 	struct sockaddr_in ad;
@@ -60,8 +62,10 @@ int main(int argc, char *argv[]) {
   socklen_t lg = sizeof(struct sockaddr_in);
   int socketClient = -1;
 
+
   /**** Catch the SIGINT signal ****/
   signal(SIGINT, interrupt_handler);
+
 
   int errorCatch = 0;
 

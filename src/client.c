@@ -17,11 +17,13 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
+
   /**** Creation of socket ****/
   socketServerFromClient = socket(PF_INET, SOCK_STREAM, 0);
   if(socketServerFromClient == -1) {
     perror("Error: Creation of socket");
   }
+
 
   /**** Server connection request ****/
   struct sockaddr_in aS;
@@ -38,12 +40,15 @@ int main(int argc, char *argv[]) {
   printf("You are connected to the server :)\n");
   printf("==================================\n\n");
 
+
   /**** Catch the SIGINT signal ****/
   signal(SIGINT, interrupt_handler);
+
 
   /**** Creation of a thread for sending message(s) to the server ****/
   pthread_t thread;
   pthread_create(&thread, NULL, thread_send, &socketServerFromClient);
+
 
   int nbByteRead = 1;
   
