@@ -55,18 +55,25 @@ void* thread_client(void* args) {
 
 void interrupt_handler(int signal) {
   printf("\n");
-  close_all_clients_sockets();
-  printf("  =>  All clients sockets are closed\n");
+  close_all_clients();
+  printf("  =>  All client threads/sockets are closed\n");
   close_socket(socketServer);
   printf("  =>  Server socket is closed\n");
+  printf("\n========== END OF SERVER ==========\n");
   exit(0);
 }
 
-/**** Close all clients sockets in the list ****/
-void close_all_clients_sockets() {
+/**** Close all clients thread/sockets in the list ****/
+void close_all_clients() {
   Node* currentClient = listClient->next;
   while(currentClient != listClient) {
+
+    /**** Close thread ****/
+    pthread_cancel(currentClient->thread);
+
+    /**** Close socket ****/
     close_socket(currentClient->number);
+
     currentClient = currentClient->next;
   }
 }

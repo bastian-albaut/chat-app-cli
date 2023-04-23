@@ -42,5 +42,6 @@ void interrupt_handler(int signal) {
   printf("\n");
   close_socket(socketServerFromClient);
   printf("  =>  Server socket is closed\n");
+  printf("\n========== END OF CLIENT ==========\n");
   exit(0);
 }

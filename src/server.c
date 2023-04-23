@@ -63,12 +63,15 @@ int main(int argc, char *argv[]) {
   /**** Catch the SIGINT signal ****/
   signal(SIGINT, interrupt_handler);
 
-  while(1) {
+  int errorCatch = 0;
+
+  while(!errorCatch) {
 
     /**** Accept a client connection ****/
     socketClient = accept(socketServer, (struct sockaddr*) &aC,&lg) ;
     if(socketClient == -1) {
       perror("Error: Acceptance of client connection");
+      errorCatch = 1;
     }
 
     /**** Add the client to the list ****/
@@ -81,9 +84,5 @@ int main(int argc, char *argv[]) {
     pthread_create(&(currentClient->thread), NULL, thread_client, &args);
 
   }
-
-  /**** Closing the socket ****/
-  close_socket(socketServer);
-
-  printf("End of program\n");
+  interrupt_handler(1);
 }

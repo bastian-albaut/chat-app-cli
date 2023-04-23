@@ -46,14 +46,14 @@ int main(int argc, char *argv[]) {
   pthread_create(&thread, NULL, thread_send, &socketServerFromClient);
 
   int nbByteRead = 1;
-  while(nbByteRead != 0) {  
+  
+  while(nbByteRead != 0 && nbByteRead != -1) {  
 
     /**** Receive message from server ****/
     char *message = malloc(NB_CHARACTERS * sizeof(char));
     nbByteRead = recv(socketServerFromClient, message, NB_CHARACTERS, 0);
     if(nbByteRead == -1) {
       perror("Error: Receiving the message");
-      exit(1);
     } else if(nbByteRead == 0) {
       printf("The connection was cut on the server side\n");
     } else {
@@ -61,8 +61,5 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  /**** Closing the socket ****/
-  close_socket(socketServerFromClient);
-
-  printf("End of program\n");
+  interrupt_handler(0);
 }
