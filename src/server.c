@@ -27,6 +27,9 @@ int main(int argc, char *argv[]) {
   }
   printf("Socket Created");
 
+  // Set the SO_REUSEADDR option
+  int optval = 1;
+  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
   /**** Socket naming ****/
 	struct sockaddr_in ad;
