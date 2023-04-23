@@ -5,8 +5,12 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "../include/global.h"
 #include "../include/client_functions.h"
 #include "../include/constants.h"
+
+/**** Global variables ****/
+int socketServerFromClient;
 
 /**** Thread for sending messages to the server ****/
 void* thread_send(void *socket) {
@@ -32,4 +36,11 @@ void* thread_send(void *socket) {
 
   }
   pthread_exit(0);
+}
+
+void interrupt_handler(int signal) {
+  printf("\n");
+  close_socket(socketServerFromClient);
+  printf("  =>  Server socket is closed\n");
+  exit(0);
 }
