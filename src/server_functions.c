@@ -81,7 +81,7 @@ void close_all_clients() {
 /**** Remove the client from the list and close the socket corresponding ****/
 void remove_client(int socketClient) {
   remove_element(&listClient, search_element(&listClient, socketClient));
+  close_socket(socketClient);
   printf("Client %d disconnected\n", socketClient);
   display_list(&listClient);
-  close_socket(socketClient);
 }
