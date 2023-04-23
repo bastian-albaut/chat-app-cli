@@ -32,11 +32,11 @@ void* thread_client(void* args) {
   Node* listClient = data->listClient;
 
   int nbByteRead = 1;
-  while(nbByteRead != 0 || nbByteRead != -1) {
+  while(nbByteRead != 0 && nbByteRead != -1) {
 
     /**** Receive message from client ****/
     char message[NB_CHARACTERS];
-    int nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
+    nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
     if(nbByteRead == -1) {
       perror("Error: Receiving the message");
       close_socket(socketClient);
