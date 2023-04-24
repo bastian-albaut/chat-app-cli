@@ -53,10 +53,9 @@ void send_pseudo() {
 
     // Receive the response from the server 
     char response[NB_CHARACTERS];
-    if(recv(socketServerFromClient, response, NB_CHARACTERS, 0) == -1) {
-      perror("Error: Receiving the message");
-      exit(1);
-    }
+    
+    recv_message(socketServerFromClient, response);
+
     if(strcmp(response, "SUCCESS") == 0) {
       printf("Pseudo accepté\n");
       pseudoIsOk = 1;

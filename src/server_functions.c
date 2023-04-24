@@ -41,11 +41,10 @@ void* thread_client(void* args) {
 
     /**** Receive message from client ****/
     char message[NB_CHARACTERS];
-    nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
-    if(nbByteRead == -1) {
-      perror("Error: Receiving the message");
-      remove_client(socketClient);
-    } else if(nbByteRead == 0) {
+
+    recv_message(socketClient, message);
+
+    if(nbByteRead == 0) {
       remove_client(socketClient);
     } else {
       printf("Message receive: %s\n", message);
@@ -66,10 +65,8 @@ char* get_pseudo(int socketClient) {
   int pseudoAlreadyUsed = 1;
 
   while(pseudoAlreadyUsed) {
-    if(recv(socketClient, pseudo, NB_CHARACTERS_PSEUDO, 0) == -1) {
-      perror("Error: Receiving the pseudo");
-      exit(1);
-    }
+    
+    recv_message(socketClient, pseudo);
 
     // Check if pseudo is already used
     if(search_pseudo(&listClient, pseudo) == 1) {

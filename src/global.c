@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include "../include/global.h"
 #include "../include/list.h"
+#include "../include/constants.h"
 
 /**** Global variables ****/
 int socketServer;
@@ -27,4 +28,19 @@ void send_message(int socket, char* message, char* prompt) {
   if(prompt != NULL) {
     printf("%s", prompt);
   }
+}
+
+/**** Receive a message from the socket specified in parameter ****/
+// Return the number of bytes received and exit if an error occurs
+int recv_message(int socket, char* message) {
+  int nbByteRead = 0;
+
+  nbByteRead = recv(socket, message, NB_CHARACTERS, 0);
+
+  if(nbByteRead == -1) {
+    perror("Error: Receiving the message");
+    exit(1);
+  }
+
+  return nbByteRead;
 }
