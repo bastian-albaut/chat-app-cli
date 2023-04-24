@@ -14,7 +14,7 @@
 void send_to_other_clients(Node* head, int socketClient, char* message) {
   Node* currentClient = head->next;
   while(currentClient != head) {
-    if(currentClient->number != socketClient) {
+    if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
       if(send(currentClient->number, message, strlen(message)+1, 0) == -1) {
         perror("Error: Sending the message");
         exit(1);
