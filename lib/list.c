@@ -103,7 +103,9 @@ void display_list(Node** head) {
     Node *current_element = (*head)->next;
     printf("\n------ List of Clients ------\n");
     while(current_element != *head) {
-        printf("%d - %s\n", current_element->number, current_element->pseudo == NULL ? "<pseudo> (Connection in progress...)" : current_element->pseudo);
+        if(current_element->pseudo != NULL) {
+            printf("%d - %s\n", current_element->number, current_element->pseudo);
+        }
         current_element = current_element->next;
     }
     printf("------ End list ------\n\n");
