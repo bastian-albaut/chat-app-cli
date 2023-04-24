@@ -15,14 +15,11 @@ void send_to_other_clients(Node* head, int socketClient, char* message) {
   Node* currentClient = head->next;
   while(currentClient != head) {
     if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
-      if(send(currentClient->number, message, strlen(message)+1, 0) == -1) {
-        perror("Error: Sending the message");
-        exit(1);
-      }
-      printf("Message send to the client %d\n", currentClient->number);
+      send_message(currentClient->number, message, NULL);
     }
     currentClient = currentClient->next;
   }
+  printf("Message send to other clients\n");
 }
 
 /**** Thread for each client ****/
@@ -79,14 +76,12 @@ char* get_pseudo(int socketClient) {
       response = "ERROR";
     } else {
       response = "SUCCESS";
-      
+
       // Break loop
       pseudoAlreadyUsed = 0;
     }
-    if(send(socketClient, response, strlen(response)+1, 0) == -1) {
-        perror("Error: Sending the response");
-        exit(1);
-      }
+
+    send_message(socketClient, response, NULL);
   }
 
   return pseudo;

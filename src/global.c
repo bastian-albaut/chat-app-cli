@@ -17,3 +17,14 @@ void close_socket(int socket) {
   }
   printf("Socket %d closed\n", socket);
 }
+
+/**** Send a message to the socket specified in parameter ****/
+void send_message(int socket, char* message, char* prompt) {
+  if(send(socket, message, strlen(message)+1, 0) == -1) {
+    perror("Error: Send message");
+    exit(1);
+  }
+  if(prompt != NULL) {
+    printf("%s", prompt);
+  }
+}

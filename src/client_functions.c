@@ -28,11 +28,7 @@ void* thread_send(void *socket) {
     }
 
     /**** Sending the message to the server ****/
-    if(send(*socketServer, message, strlen(message)+1, 0) == -1){
-      perror("Error: Send message");
-      exit(1);
-    }
-    printf("Message sent to the server\n");
+    send_message(*socketServer, message, "Message sent to the server\n");
 
   }
   pthread_exit(0);
@@ -52,10 +48,8 @@ void send_pseudo() {
     if(findReturn != NULL) {
       *findReturn = '\0';
     }
-    if(send(socketServerFromClient, pseudo, strlen(pseudo)+1, 0) == -1){
-      perror("Error: Send message");
-      exit(1);
-    }
+
+    send_message(socketServerFromClient, pseudo, NULL);
 
     // Receive the response from the server 
     char response[NB_CHARACTERS];
