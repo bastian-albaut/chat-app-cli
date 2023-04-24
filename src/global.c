@@ -44,3 +44,16 @@ int recv_message(int socket, char* message) {
 
   return nbByteRead;
 }
+
+/**** Get the input of the user ****/
+void get_input(char* message, int size, char* prompt) {
+  if(prompt != NULL) {
+    printf("%s", prompt);
+  }
+
+  fgets(message, size, stdin);
+  char *findReturn = strchr(message,'\n'); // Return null if not found
+  if(findReturn != NULL) {
+    *findReturn = '\0';
+  }
+}

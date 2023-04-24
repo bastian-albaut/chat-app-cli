@@ -20,12 +20,7 @@ void* thread_send(void *socket) {
 
     /**** Preparing to send the message to the server ****/
     char message[NB_CHARACTERS];
-    printf("Please enter the message you want to send:\n");
-    fgets(message, NB_CHARACTERS, stdin);
-    char *findReturn = strchr(message,'\n'); // Return null if not found
-    if(findReturn != NULL) {
-      *findReturn = '\0';
-    }
+    get_input(message, NB_CHARACTERS, "Please enter the message you want to send:\n");
 
     /**** Sending the message to the server ****/
     send_message(*socketServer, message, "Message sent to the server\n");
@@ -42,12 +37,8 @@ void send_pseudo() {
   while(!pseudoIsOk) {
     // Send the pseudo to the server
     char pseudo[NB_CHARACTERS_PSEUDO];
-    printf("Please enter your pseudo:\n");
-    fgets(pseudo, NB_CHARACTERS_PSEUDO, stdin);
-    char *findReturn = strchr(pseudo,'\n'); // Return null if not found
-    if(findReturn != NULL) {
-      *findReturn = '\0';
-    }
+
+    get_input(pseudo, NB_CHARACTERS_PSEUDO, "Please enter your pseudo:\n");
 
     send_message(socketServerFromClient, pseudo, NULL);
 
