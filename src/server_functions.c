@@ -42,7 +42,7 @@ void* thread_client(void* args) {
     /**** Receive message from client ****/
     char message[NB_CHARACTERS];
 
-    recv_message(socketClient, message);
+    nbByteRead = recv_message(socketClient, message);
 
     if(nbByteRead == 0) {
       remove_client(socketClient);

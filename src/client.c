@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     /**** Receive message from server ****/
     char *message = malloc(NB_CHARACTERS * sizeof(char));
 
-    recv_message(socketServerFromClient, message);
+    nbByteRead = recv_message(socketServerFromClient, message);
 
     if(nbByteRead == 0) {
       printf("The connection was cut on the server side\n");
