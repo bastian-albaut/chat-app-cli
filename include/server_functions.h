@@ -11,6 +11,7 @@ typedef struct ThreadArgs {
 
 extern void* thread_client(void* args);
 extern void send_to_other_clients(Node* head, int socketClient, char* message);
+extern char* get_pseudo(int socketClient);
 extern void interrupt_handler(int signal);
 extern void close_all_clients();
 extern void remove_client(int socketClient);

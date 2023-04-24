@@ -31,6 +31,14 @@ void* thread_client(void* args) {
   int socketClient = data->socketClient;
   Node* listClient = data->listClient;
 
+  /**** Get pseudo of the client ****/
+  char* pseudo = get_pseudo(socketClient);
+
+  /**** Set pseudo of client in the list ****/
+  set_pseudo(&listClient, socketClient, pseudo);
+  printf("Client %s Connected !\n", pseudo);
+  display_list(&listClient);
+
   int nbByteRead = 1;
   while(nbByteRead != 0 && nbByteRead != -1) {
 
@@ -51,6 +59,19 @@ void* thread_client(void* args) {
   }
 
   pthread_exit(0);
+}
+
+/**** Get pseudo of the client ****/
+char* get_pseudo(int socketClient) {
+
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+
+  if(recv(socketClient, pseudo, NB_CHARACTERS_PSEUDO, 0) == -1) {
+    perror("Error: Receiving the pseudo");
+    exit(1);
+  }
+
+  return pseudo;
 }
 
 void interrupt_handler(int signal) {

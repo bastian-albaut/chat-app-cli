@@ -2,5 +2,6 @@
 #define CONSTANTS_H
 
 #define NB_CHARACTERS 128
+#define NB_CHARACTERS_PSEUDO 20
 
 #endif // CONSTANTS_H

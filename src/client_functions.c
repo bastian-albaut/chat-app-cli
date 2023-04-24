@@ -38,6 +38,22 @@ void* thread_send(void *socket) {
   pthread_exit(0);
 }
 
+/**** Choose and send pseudo to the server ****/
+void send_pseudo() {
+  char pseudo[NB_CHARACTERS_PSEUDO];
+  printf("Please enter your pseudo:\n");
+  fgets(pseudo, NB_CHARACTERS_PSEUDO, stdin);
+  char *findReturn = strchr(pseudo,'\n'); // Return null if not found
+  if(findReturn != NULL) {
+    *findReturn = '\0';
+  }
+  if(send(socketServerFromClient, pseudo, strlen(pseudo)+1, 0) == -1){
+    perror("Error: Send message");
+    exit(1);
+  }
+  printf("Pseudo sent to the server\n");
+}
+
 void interrupt_handler(int signal) {
   printf("\n");
   close_socket(socketServerFromClient);

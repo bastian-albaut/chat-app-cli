@@ -80,8 +80,6 @@ int main(int argc, char *argv[]) {
 
     /**** Add the client to the list ****/
     Node* currentClient = insert_first(&listClient, socketClient);
-    printf("Client %d Connected !\n", currentClient->number);
-    display_list(&listClient);
 
     /**** Create a thread for the client ****/
     ThreadArgs args = {currentClient->number, listClient};

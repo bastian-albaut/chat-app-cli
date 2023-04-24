@@ -82,6 +82,13 @@ Node* search_element(Node** head, int number) {
     return NULL;
 }
 
+/**** Set pseudo of an element ****/
+void set_pseudo(Node** head, int socket, char* pseudo) {
+    Node* element = search_element(head, socket);
+    if(element != NULL) {
+        element->pseudo = pseudo;
+    }
+}
 
 /**** Display all elements of the list ****/
 void display_list(Node** head) {
@@ -96,7 +103,7 @@ void display_list(Node** head) {
     Node *current_element = (*head)->next;
     printf("\n------ List of Clients ------\n");
     while(current_element != *head) {
-        printf("%d\n", current_element->number);
+        printf("%d - %s\n", current_element->number, current_element->pseudo == NULL ? "<pseudo> (Connection in progress...)" : current_element->pseudo);
         current_element = current_element->next;
     }
     printf("------ End list ------\n\n");

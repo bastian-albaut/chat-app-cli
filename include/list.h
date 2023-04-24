@@ -5,6 +5,7 @@
 
 typedef struct Node {
     int number; // number corresponding to count for head
+    char* pseudo;
     pthread_t thread;
     struct Node *next;
     struct Node *prev;
@@ -23,6 +24,9 @@ extern void remove_element(Node** head, Node* element);
 
 // Search an element in the list and return it 
 extern Node* search_element(Node** head, int number);
+
+// Set pseudo of an element
+extern void set_pseudo(Node** head, int socket, char* pseudo);
 
 // Display all elements of the list
 extern void display_list(Node** head);

@@ -44,6 +44,8 @@ int main(int argc, char *argv[]) {
   /**** Catch the SIGINT signal ****/
   signal(SIGINT, interrupt_handler);
 
+  /**** Send pseudo to the server ****/
+  send_pseudo();
 
   /**** Creation of a thread for sending message(s) to the server ****/
   pthread_t thread;
