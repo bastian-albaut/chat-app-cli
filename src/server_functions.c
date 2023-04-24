@@ -65,10 +65,28 @@ void* thread_client(void* args) {
 char* get_pseudo(int socketClient) {
 
   char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  char* response;
+  int pseudoAlreadyUsed = 1;
 
-  if(recv(socketClient, pseudo, NB_CHARACTERS_PSEUDO, 0) == -1) {
-    perror("Error: Receiving the pseudo");
-    exit(1);
+  while(pseudoAlreadyUsed) {
+    if(recv(socketClient, pseudo, NB_CHARACTERS_PSEUDO, 0) == -1) {
+      perror("Error: Receiving the pseudo");
+      exit(1);
+    }
+
+    // Check if pseudo is already used
+    if(search_pseudo(&listClient, pseudo) == 1) {
+      response = "ERROR";
+    } else {
+      response = "SUCCESS";
+      
+      // Break loop
+      pseudoAlreadyUsed = 0;
+    }
+    if(send(socketClient, response, strlen(response)+1, 0) == -1) {
+        perror("Error: Sending the response");
+        exit(1);
+      }
   }
 
   return pseudo;

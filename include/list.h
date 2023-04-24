@@ -28,6 +28,9 @@ extern Node* search_element(Node** head, int number);
 // Set pseudo of an element
 extern void set_pseudo(Node** head, int socket, char* pseudo);
 
+// Search an element whith specified pseudo in the list and return 1 if found and 0 else
+extern int search_pseudo(Node** head, char* pseudo);
+
 // Display all elements of the list
 extern void display_list(Node** head);
 

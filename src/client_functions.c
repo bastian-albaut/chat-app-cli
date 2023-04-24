@@ -40,18 +40,36 @@ void* thread_send(void *socket) {
 
 /**** Choose and send pseudo to the server ****/
 void send_pseudo() {
-  char pseudo[NB_CHARACTERS_PSEUDO];
-  printf("Please enter your pseudo:\n");
-  fgets(pseudo, NB_CHARACTERS_PSEUDO, stdin);
-  char *findReturn = strchr(pseudo,'\n'); // Return null if not found
-  if(findReturn != NULL) {
-    *findReturn = '\0';
+
+  int pseudoIsOk = 0;
+
+  while(!pseudoIsOk) {
+    // Send the pseudo to the server
+    char pseudo[NB_CHARACTERS_PSEUDO];
+    printf("Please enter your pseudo:\n");
+    fgets(pseudo, NB_CHARACTERS_PSEUDO, stdin);
+    char *findReturn = strchr(pseudo,'\n'); // Return null if not found
+    if(findReturn != NULL) {
+      *findReturn = '\0';
+    }
+    if(send(socketServerFromClient, pseudo, strlen(pseudo)+1, 0) == -1){
+      perror("Error: Send message");
+      exit(1);
+    }
+
+    // Receive the response from the server 
+    char response[NB_CHARACTERS];
+    if(recv(socketServerFromClient, response, NB_CHARACTERS, 0) == -1) {
+      perror("Error: Receiving the message");
+      exit(1);
+    }
+    if(strcmp(response, "SUCCESS") == 0) {
+      printf("Pseudo accepté\n");
+      pseudoIsOk = 1;
+    } else {
+      printf("Pseudo déjà utilisé\n");
+    }
   }
-  if(send(socketServerFromClient, pseudo, strlen(pseudo)+1, 0) == -1){
-    perror("Error: Send message");
-    exit(1);
-  }
-  printf("Pseudo sent to the server\n");
 }
 
 void interrupt_handler(int signal) {
