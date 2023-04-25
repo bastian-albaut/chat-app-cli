@@ -10,18 +10,6 @@
 #include "../include/constants.h"
 #include "../include/global.h"
 
-/**** Send message to other clients ****/
-void send_to_other_clients(Node* head, int socketClient, char* message) {
-  Node* currentClient = head->next;
-  while(currentClient != head) {
-    if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
-      send_message(currentClient->number, message, NULL);
-    }
-    currentClient = currentClient->next;
-  }
-  printf("Message send to other clients\n");
-}
-
 /**** Thread for each client ****/
 void* thread_client(void* args) {
   ThreadArgs* data = (ThreadArgs*) args;
@@ -50,13 +38,131 @@ void* thread_client(void* args) {
       } else {
         printf("Message receive: %s\n", message);
 
-        /**** Send message to other clients ****/
-        send_to_other_clients(listClient, socketClient, message);
+        int privateMessage = is_private_message(message);
+        if(privateMessage == -1) {
+          char* response = "Private message have to follow the format /mp <user> <message>";
+          send_message(socketClient, response, NULL);
+        } else if(privateMessage == 1) {
+          // Get pseudo of the private message
+          char* pseudo = get_pseudo_private_message(message);
+
+          // Get content of the private message
+          char* messagePrivate = get_content_private_message(message);
+
+          // Send private message
+          if(send_private_message(listClient, pseudo, message) == -1) {
+            char* response = "There is no user with this pseudo";
+            send_message(socketClient, response, NULL);
+          }
+        } else {
+          /**** Send message to other clients ****/
+          send_to_other_clients(listClient, socketClient, message);
+        }
+
       }
     }
   }
 
   pthread_exit(0);
+}
+
+/**** Detect if the message corresponding to the format /mp <user> <message> ****/
+// Return 1 if the message is a private message
+// 0 if the message is not a private message
+// -1 if the message is private but not in the correct format
+int is_private_message(char* message) {
+  // Check if the string starts with "/mp "
+  if (strncmp(message, "/mp ", 4) != 0) {
+    printf("'/mp ' not detected\n");
+    return 0;
+  }
+
+  // Find the end of the user name (the first space after "/mp ")
+  const char* user_end = strchr(message + 4, ' ');
+  if (user_end == NULL) {
+    printf("pseudo not detected\n");
+    return -1;
+  }
+
+  // Check if there is at least one character after the user name
+  if (strlen(user_end + 1) == 0) {
+    printf("There is no message after pseudo\n");
+    return -1;
+  }
+
+  // The string is in the correct format
+  return 1;
+}
+
+/**** Get pseudo of the private message ****/
+char* get_pseudo_private_message(char* message) {
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  int i = 0;
+  int j = 4;
+  while(message[j] != ' ') {
+    pseudo[i] = message[j];
+    i++;
+    j++;
+  }
+  pseudo[i] = '\0';
+  printf("Pseudo to send message: %s\n", pseudo);
+
+  return pseudo;
+}
+
+/**** Get content of the private message ****/
+char* get_content_private_message(char* message) {
+  const char* prefix = "/mp ";
+
+  // Find the end of the user name (the first space after "/mp ")
+  const char* user_end = strchr(message + strlen(prefix), ' ');
+  if (user_end == NULL) {
+    printf("Invalid command\n");
+    return NULL;
+  }
+
+  // Compute the length of the prefix, including the user name and the space
+  size_t prefix_len = user_end - message + 1;
+
+  // Allocate a new string to hold the message
+  char* content = (char*)malloc(strlen(message) - prefix_len + 1);
+  if (content == NULL) {
+    printf("Failed to allocate memory\n");
+    return NULL;
+  }
+
+  // Copy the message part of the string to the new buffer
+  strcpy(content, message + prefix_len);
+
+  return content;
+}
+
+/**** Send private message ****/
+// Return 1 if the message is send
+// -1 if the message is not send
+int send_private_message(Node* head, char* pseudo, char* message) {
+  Node* elementToSend = search_element_pseudo(&head, pseudo);
+  if(elementToSend != NULL) {
+    // char* prompt = "Message send to the client ";
+    // strcat(prompt, pseudo);
+    send_message(elementToSend->number, message, NULL);
+    printf("Message send to the client %s", pseudo);
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+/**** Send message to other clients ****/
+void send_to_other_clients(Node* head, int socketClient, char* message) {
+  Node* currentClient = head->next;
+  while(currentClient != head) {
+    if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
+      send_message(currentClient->number, message, NULL);
+    }
+    currentClient = currentClient->next;
+  }
+  printf("Message send to other clients\n");
 }
 
 /**** Get pseudo of the client ****/

@@ -82,6 +82,27 @@ Node* search_element(Node** head, int number) {
     return NULL;
 }
 
+/**** Search an element with pseudo in the list and return it ****/
+Node* search_element_pseudo(Node** head, char* pseudo) {
+    // Check if list is empty
+    if(is_empty(head)) {
+        perror("List is empty");
+        return NULL;
+    }
+
+    // Search element
+    Node *current_element = (*head)->next;
+    while(current_element != *head) {
+        if(current_element->pseudo != NULL) {
+            if(strcmp(current_element->pseudo, pseudo) == 0) {
+                return current_element;
+            }
+        }
+        current_element = current_element->next;
+    }
+    return NULL;
+}
+
 /**** Set pseudo of an element ****/
 void set_pseudo(Node** head, int socket, char* pseudo) {
     Node* element = search_element(head, socket);

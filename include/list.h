@@ -25,6 +25,9 @@ extern void remove_element(Node** head, Node* element);
 // Search an element in the list and return it 
 extern Node* search_element(Node** head, int number);
 
+/**** Search an element with pseudo in the list and return it ****/
+extern Node* search_element_pseudo(Node** head, char* pseudo);
+
 // Set pseudo of an element
 extern void set_pseudo(Node** head, int socket, char* pseudo);
 
