@@ -59,7 +59,7 @@ void* thread_client(void* args) {
           char* messagePrivate = get_content_private_message(message);
 
           // Send private message
-          if(send_private_message(listClient, pseudo, message) == -1) {
+          if(send_private_message(listClient, pseudo, messagePrivate) == -1) {
             char* response = "There is no user with this pseudo";
             send_message(socketClient, response, NULL);
           }
@@ -135,27 +135,23 @@ char* get_pseudo_private_message(char* message) {
  * @return The content of the private message
  */
 char* get_content_private_message(char* message) {
-  const char* prefix = "/mp ";
-
-  // Find the end of the user name (the first space after "/mp ")
-  const char* user_end = strchr(message + strlen(prefix), ' ');
-  if (user_end == NULL) {
-    printf("Invalid command\n");
-    return NULL;
+  char* content = malloc(NB_CHARACTERS * sizeof(char));
+  int i = 0;
+  int j = 0;
+  while(message[j] != ' ') {
+    j++;
   }
-
-  // Compute the length of the prefix, including the user name and the space
-  size_t prefix_len = user_end - message + 1;
-
-  // Allocate a new string to hold the message
-  char* content = (char*)malloc(strlen(message) - prefix_len + 1);
-  if (content == NULL) {
-    printf("Failed to allocate memory\n");
-    return NULL;
+  j++;
+  while(message[j] != ' ') {
+    j++;
   }
-
-  // Copy the message part of the string to the new buffer
-  strcpy(content, message + prefix_len);
+  j++;
+  while(message[j] != '\0') {
+    content[i] = message[j];
+    i++;
+    j++;
+  }
+  content[i] = '\0';
 
   return content;
 }
