@@ -26,7 +26,7 @@ void send_message(int socket, char* message, char* prompt) {
     exit(1);
   }
   if(prompt != NULL) {
-    printf("%s", prompt);
+    printf("%s\n", prompt);
   }
 }
 
@@ -48,7 +48,7 @@ int recv_message(int socket, char* message) {
 /**** Get the input of the user ****/
 void get_input(char* message, int size, char* prompt) {
   if(prompt != NULL) {
-    printf("%s", prompt);
+    printf("%s\n", prompt);
   }
 
   fgets(message, size, stdin);

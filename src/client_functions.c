@@ -23,7 +23,7 @@ void* thread_send(void *socket) {
     get_input(message, NB_CHARACTERS, NULL);
 
     /**** Sending the message to the server ****/
-    send_message(*socketServer, message, "Message sent to the server\n");
+    send_message(*socketServer, message, "Message sent to the server");
 
   }
   pthread_exit(0);
@@ -38,7 +38,7 @@ void send_pseudo() {
     // Send the pseudo to the server
     char pseudo[NB_CHARACTERS_PSEUDO];
 
-    get_input(pseudo, NB_CHARACTERS_PSEUDO, "Please enter your pseudo:\n");
+    get_input(pseudo, NB_CHARACTERS_PSEUDO, "Please enter your pseudo:");
 
     send_message(socketServerFromClient, pseudo, NULL);
 
