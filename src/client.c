@@ -9,23 +9,32 @@
 #include "../include/constants.h"
 #include "../include/global.h"
 
+
+/**
+ * Main function of the client
+ *
+ * @param argc Number of arguments
+ * @param argv Array of arguments
+ *
+ * @return int
+ */
 int main(int argc, char *argv[]) {
 
-  /**** Arguments verification ****/
+  // Arguments verification
   if(argc != 3){
     perror("Error: Expected arguments are <ip> <port>");
     exit(1);
   }
 
 
-  /**** Creation of socket ****/
+  // Creation of socket
   socketServerFromClient = socket(PF_INET, SOCK_STREAM, 0);
   if(socketServerFromClient == -1) {
     perror("Error: Creation of socket");
   }
 
 
-  /**** Server connection request ****/
+  // Server connection request
   struct sockaddr_in aS;
   aS.sin_family = AF_INET;
   inet_pton(AF_INET,argv[1],&(aS.sin_addr));
@@ -41,13 +50,13 @@ int main(int argc, char *argv[]) {
   printf("==================================\n\n");
 
 
-  /**** Catch the SIGINT signal ****/
+  // Catch the SIGINT signal
   signal(SIGINT, interrupt_handler);
 
-  /**** Send pseudo to the server ****/
+  // Send pseudo to the server
   send_pseudo();
 
-  /**** Creation of a thread for sending message(s) to the server ****/
+  // Creation of a thread for sending message(s) to the server
   pthread_t thread;
   pthread_create(&thread, NULL, thread_send, &socketServerFromClient);
 
@@ -56,7 +65,7 @@ int main(int argc, char *argv[]) {
   
   while(nbByteRead != 0 && nbByteRead != -1) {  
 
-    /**** Receive message from server ****/
+    // Receive message from server
     char *message = malloc(NB_CHARACTERS * sizeof(char));
 
     nbByteRead = recv_message(socketServerFromClient, message);

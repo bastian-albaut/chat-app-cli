@@ -9,27 +9,41 @@
 #include "../include/client_functions.h"
 #include "../include/constants.h"
 
-/**** Global variables ****/
+/* Global variables */
+
+// Socket of the server get from the client
 int socketServerFromClient;
 
-/**** Thread for sending messages to the server ****/
+
+/**
+ * Function thread for sending messages to the server
+ *
+ * @param socket The socket of the server
+ *
+ * @return void
+ */
 void* thread_send(void *socket) {
   int *socketServer = (int*) socket;
 
   while(1) {
 
-    /**** Preparing to send the message to the server ****/
+    // Preparing to send the message to the server
     char message[NB_CHARACTERS];
     get_input(message, NB_CHARACTERS, NULL);
 
-    /**** Sending the message to the server ****/
+    // Sending the message to the server
     send_message(*socketServer, message, "Message sent to the server");
 
   }
   pthread_exit(0);
 }
 
-/**** Choose and send pseudo to the server ****/
+
+/**
+ * Choose and send pseudo to the server
+ *
+ * @return void
+ */
 void send_pseudo() {
 
   int pseudoIsOk = 0;
@@ -56,6 +70,14 @@ void send_pseudo() {
   }
 }
 
+
+/**
+ * Function to handle the SIGINT signal
+ *
+ * @param signal The signal to handle
+ *
+ * @return void
+ */
 void interrupt_handler(int signal) {
   printf("\n");
   close_socket(socketServerFromClient);

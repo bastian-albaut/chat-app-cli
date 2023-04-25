@@ -12,23 +12,11 @@ typedef struct Node {
 } Node;
 
 extern void init_head(Node** head);
-
-// Return 1 if list is empty and 0 else
 extern int is_empty(Node** head);
-
-// Add an element at start of the list
 extern Node* insert_first(Node** head, int number);
-
-// Remove an element from the list
 extern void remove_element(Node** head, Node* element);
-
-// Search an element in the list and return it 
 extern Node* search_element(Node** head, int number);
-
-/**** Search an element with pseudo in the list and return it ****/
 extern Node* search_element_pseudo(Node** head, char* pseudo);
-
-// Set pseudo of an element
 extern void set_pseudo(Node** head, int socket, char* pseudo);
 extern void display_list(Node** head);
 

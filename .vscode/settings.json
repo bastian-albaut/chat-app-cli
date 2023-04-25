@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "typeinfo": "c",
+        "constants.h": "c",
+        "global.h": "c"
+    }
+}

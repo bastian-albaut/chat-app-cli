@@ -6,11 +6,22 @@
 #include "../include/list.h"
 #include "../include/constants.h"
 
-/**** Global variables ****/
+/* Global variables */
+
+// Socket of the server
 int socketServer;
+
+// List of clients connected to the server
 Node* listClient;
 
-/**** Close the socket specified in parameter ****/
+
+/**
+ * Close the socket specified in parameter
+ *
+ * @param socket The socket to close
+ *
+ * @return void
+ */
 void close_socket(int socket) {
   if(shutdown(socket, 2)) {
     perror("Error: Close socket");
@@ -19,7 +30,16 @@ void close_socket(int socket) {
   printf("Socket %d closed\n", socket);
 }
 
-/**** Send a message to the socket specified in parameter ****/
+
+/**
+ * Send a message to the socket specified in parameter
+ *
+ * @param socket The socket to send the message
+ * @param message The message to send
+ * @param prompt The prompt to display after sending the message
+ *
+ * @return void
+ */
 void send_message(int socket, char* message, char* prompt) {
   if(send(socket, message, strlen(message)+1, 0) == -1) {
     perror("Error: Send message");
@@ -30,8 +50,15 @@ void send_message(int socket, char* message, char* prompt) {
   }
 }
 
-/**** Receive a message from the socket specified in parameter ****/
-// Return the number of bytes received and exit if an error occurs
+
+/**
+ * Receive a message from the socket specified in parameter
+ *
+ * @param socket The socket to recv the message
+ * @param message The message to store the received message
+ *
+ * @return The number of bytes received
+ */
 int recv_message(int socket, char* message) {
   int nbByteRead = 0;
 
@@ -45,7 +72,16 @@ int recv_message(int socket, char* message) {
   return nbByteRead;
 }
 
-/**** Get the input of the user ****/
+
+/**
+ * Get the input of the user
+ *
+ * @param message The message to store the input
+ * @param size The size of the message
+ * @param prompt The prompt to display before getting the input
+ *
+ * @return void
+ */
 void get_input(char* message, int size, char* prompt) {
   if(prompt != NULL) {
     printf("%s\n", prompt);

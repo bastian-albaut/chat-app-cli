@@ -11,16 +11,25 @@
 #include "../include/server_functions.h"
 #include "../include/global.h"
 
+
+/**
+ * Main function of the server
+ *
+ * @param argc Number of arguments
+ * @param argv Array of arguments
+ *
+ * @return int
+ */
 int main(int argc, char *argv[]) {
 
-  /**** Arguments verification ****/
+  // Arguments verification
   if(argc != 2){
     perror("Error: Expected argument is <port>");
     exit(1);
   }
 
 
-  /**** Creation of socket ****/
+  // Creation of socket
 	socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	if(socketServer == -1) {
     perror("Error: Creation of socket");
@@ -28,12 +37,12 @@ int main(int argc, char *argv[]) {
   printf("Socket Created");
 
 
-  /**** Allow to use address again ****/
+  // Allow to use address again
   int optval = 1;
   setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 
-  /**** Socket naming ****/
+  // Socket naming
 	struct sockaddr_in ad;
 	ad.sin_family = AF_INET; 
 	ad.sin_addr.s_addr = INADDR_ANY;
@@ -45,25 +54,25 @@ int main(int argc, char *argv[]) {
   printf(" => Named Socket successfully");
 
 
-  /**** Putting the socket in listening mode ****/
+  // Putting the socket in listening mode
 	if(listen(socketServer, 10) == -1) {
 		perror("Error: Putting the socket in listening mode");
 	}
   printf(" => Listen mode\n\n");
 
 
-  /**** Initialize the clients list ****/
+  // Initialize the clients list
   listClient = NULL;
   init_head(&listClient);
 
 
-  /**** Prepare acceptation of client ****/
+  // Prepare acceptation of client
   struct sockaddr_in aC;
   socklen_t lg = sizeof(struct sockaddr_in);
   int socketClient = -1;
 
 
-  /**** Catch the SIGINT signal ****/
+  // Catch the SIGINT signal
   signal(SIGINT, interrupt_handler);
 
 
@@ -71,17 +80,17 @@ int main(int argc, char *argv[]) {
 
   while(!errorCatch) {
 
-    /**** Accept a client connection ****/
+    // Accept a client connection
     socketClient = accept(socketServer, (struct sockaddr*) &aC,&lg) ;
     if(socketClient == -1) {
       perror("Error: Acceptance of client connection");
       errorCatch = 1;
     }
 
-    /**** Add the client to the list ****/
+    // Add the client to the list
     Node* currentClient = insert_first(&listClient, socketClient);
 
-    /**** Create a thread for the client ****/
+    // Create a thread for the client
     ThreadArgs args = {currentClient->number, listClient};
     pthread_create(&(currentClient->thread), NULL, thread_client, &args);
 
