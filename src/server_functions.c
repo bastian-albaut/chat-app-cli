@@ -32,25 +32,27 @@ void* thread_client(void* args) {
   char* pseudo = get_pseudo(socketClient);
 
   /**** Set pseudo of client in the list ****/
-  set_pseudo(&listClient, socketClient, pseudo);
-  printf("Client %s Connected !\n", pseudo);
-  display_list(&listClient);
+  if(pseudo != NULL) {
+    set_pseudo(&listClient, socketClient, pseudo);
+    printf("Client %s Connected !\n", pseudo);
+    display_list(&listClient);
+  
+    int nbByteRead = 1;
+    while(nbByteRead != 0 && nbByteRead != -1) {
 
-  int nbByteRead = 1;
-  while(nbByteRead != 0 && nbByteRead != -1) {
+      /**** Receive message from client ****/
+      char message[NB_CHARACTERS];
 
-    /**** Receive message from client ****/
-    char message[NB_CHARACTERS];
+      nbByteRead = recv_message(socketClient, message);
 
-    nbByteRead = recv_message(socketClient, message);
+      if(nbByteRead == 0) {
+        remove_client(socketClient);
+      } else {
+        printf("Message receive: %s\n", message);
 
-    if(nbByteRead == 0) {
-      remove_client(socketClient);
-    } else {
-      printf("Message receive: %s\n", message);
-
-      /**** Send message to other clients ****/
-      send_to_other_clients(listClient, socketClient, message);
+        /**** Send message to other clients ****/
+        send_to_other_clients(listClient, socketClient, message);
+      }
     }
   }
 
@@ -66,7 +68,11 @@ char* get_pseudo(int socketClient) {
 
   while(pseudoAlreadyUsed) {
     
-    recv_message(socketClient, pseudo);
+    int nbByteRead = recv_message(socketClient, pseudo);
+    if(nbByteRead == 0) {
+      remove_client(socketClient);
+      return NULL;
+    }
 
     // Check if pseudo is already used
     if(search_pseudo(&listClient, pseudo) == 1) {
