@@ -39,9 +39,11 @@ void* thread_client(void* args) {
         printf("Message receive: %s\n", message);
 
         int privateMessage = is_private_message(message);
+
         if(privateMessage == -1) {
           char* response = "Private message have to follow the format /mp <user> <message>";
           send_message(socketClient, response, NULL);
+
         } else if(privateMessage == 1) {
           // Get pseudo of the private message
           char* pseudo = get_pseudo_private_message(message);
@@ -73,20 +75,17 @@ void* thread_client(void* args) {
 int is_private_message(char* message) {
   // Check if the string starts with "/mp "
   if (strncmp(message, "/mp ", 4) != 0) {
-    printf("'/mp ' not detected\n");
     return 0;
   }
 
   // Find the end of the user name (the first space after "/mp ")
   const char* user_end = strchr(message + 4, ' ');
   if (user_end == NULL) {
-    printf("pseudo not detected\n");
     return -1;
   }
 
   // Check if there is at least one character after the user name
   if (strlen(user_end + 1) == 0) {
-    printf("There is no message after pseudo\n");
     return -1;
   }
 
@@ -105,7 +104,6 @@ char* get_pseudo_private_message(char* message) {
     j++;
   }
   pseudo[i] = '\0';
-  printf("Pseudo to send message: %s\n", pseudo);
 
   return pseudo;
 }
