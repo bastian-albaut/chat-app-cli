@@ -179,7 +179,7 @@ char* get_pseudo(int socketClient) {
     }
 
     // Check if pseudo is already used
-    if(search_pseudo(&listClient, pseudo) == 1) {
+    if(search_element_pseudo(&listClient, pseudo) != NULL) {
       response = "ERROR";
     } else {
       response = "SUCCESS";

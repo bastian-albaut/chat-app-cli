@@ -111,26 +111,6 @@ void set_pseudo(Node** head, int socket, char* pseudo) {
     }
 }
 
-/**** Search an element whith specified pseudo in the list and return 1 if found and 0 else ****/
-int search_pseudo(Node** head, char* pseudo) {
-    // Check if list is empty
-    if(is_empty(head)) {
-        perror("List is empty");
-        return 0;
-    }
-
-    // Search element
-    Node *current_element = (*head)->next;
-    while(current_element != *head) {
-        if(current_element->pseudo != NULL) {
-            if(strcmp(current_element->pseudo, pseudo) == 0) {
-                return 1;
-            }
-        }
-        current_element = current_element->next;
-    }
-    return 0;
-}
 
 /**** Display all elements of the list ****/
 void display_list(Node** head) {
