@@ -32,12 +32,12 @@ void* thread_client(void* args) {
     printf("Client %s Connected !\n", pseudo);
     display_list(&listClient);
   
+    // Loop to receive message and handle messages from client
     int nbByteRead = 1;
     while(nbByteRead != 0 && nbByteRead != -1) {
 
       // Receive message from client 
       char message[NB_CHARACTERS];
-
       nbByteRead = recv_message(socketClient, message);
 
       if(nbByteRead == 0) {
@@ -45,29 +45,11 @@ void* thread_client(void* args) {
       } else {
         printf("Message receive: %s\n", message);
 
-        int privateMessage = is_private_message(message);
-
-        if(privateMessage == -1) {
-          char* response = "Private message have to follow the format /mp <user> <message>";
-          send_message(socketClient, response, NULL);
-
-        } else if(privateMessage == 1) {
-          // Get pseudo of the private message
-          char* pseudo = get_pseudo_private_message(message);
-
-          // Get content of the private message
-          char* messagePrivate = get_content_private_message(message);
-
-          // Send private message
-          if(send_private_message(listClient, pseudo, messagePrivate) == -1) {
-            char* response = "There is no user with this pseudo";
-            send_message(socketClient, response, NULL);
-          }
-        } else {
+        int handlePrivateMessage = handle_private_message(message, socketClient);
+        if(handlePrivateMessage == 0) {
           // Send message to other clients
           send_to_other_clients(listClient, socketClient, message);
         }
-
       }
     }
   }
@@ -75,6 +57,42 @@ void* thread_client(void* args) {
   pthread_exit(0);
 }
 
+
+/**
+ * Send private message to a client. OR send an error message if the private message
+ * is not in the correct format or if the pseudo of the client does not exist. OR 
+ * do nothing if the message is not a private message
+ *
+ * @param message The string to handle
+ * @param socketClient The socket of the client who send the message
+ *
+ * @return 1 if the message is a private message | 0 if the message is not a private message
+ */
+int handle_private_message(char* message, int socketClient) {
+  int privateMessage = is_private_message(message);
+
+  // Message does not follow the good format
+  if(privateMessage == -1) {
+    char* response = "Private message have to follow the format /mp <user> <message>";
+    send_message(socketClient, response, NULL);
+    return 1;
+  } 
+  
+  // Message is a private message
+  if(privateMessage == 1) {
+    // Get pseudo of the private message
+    char* pseudo = get_pseudo_private_message(message);
+
+    // Get content of the private message
+    char* messagePrivate = get_content_private_message(message);
+
+    // Send private message
+    if(send_private_message(listClient, pseudo, messagePrivate) == -1) {
+      char* response = "There is no user with this pseudo";
+      send_message(socketClient, response, NULL);
+    }
+  }
+}
 
 /**
  * Detect if the message corresponding to the format /mp <user> <message>

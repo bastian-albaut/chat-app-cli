@@ -10,6 +10,7 @@ typedef struct ThreadArgs {
 
 
 extern void* thread_client(void* args);
+extern int handle_private_message(char* message, int socketClient);
 extern int is_private_message(char* message);
 extern char* get_pseudo_private_message(char* message);
 extern char* get_content_private_message(char* message);
