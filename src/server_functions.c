@@ -12,7 +12,7 @@
 
 
 /**
- * Function thread to handle each client
+ * Function thread to manage each client
  *
  * @param args An instance of ThreadArgs structure with socketClient and listClient
  *
@@ -124,7 +124,7 @@ int is_private_message(char* message) {
 
 
 /**
- * Get pseudo of the private message
+ * Get the destination pseudo of the private message
  *
  * @param message The string to split to get the pseudo
  *
@@ -176,7 +176,7 @@ char* get_content_private_message(char* message) {
 
 
 /**
- * Send private message
+ * Send private message to the client with the pseudo specified in parameter
  *
  * @param head The head of the list of clients
  * @param pseudo The pseudo of the client to send the message
@@ -187,8 +187,6 @@ char* get_content_private_message(char* message) {
 int send_private_message(Node* head, char* pseudo, char* message) {
   Node* elementToSend = search_element_pseudo(&head, pseudo);
   if(elementToSend != NULL) {
-    // char* prompt = "Message send to the client ";
-    // strcat(prompt, pseudo);
     send_message(elementToSend->number, message, NULL);
     printf("Message send to the client %s", pseudo);
     return 1;
@@ -258,7 +256,7 @@ char* get_pseudo(int socketClient) {
 
 
 /**
- * Function to handle the SIGINT signal
+ * Function to handle the SIGINT signal (CTRL + C)
  *
  * @param signal The signal to handle
  *

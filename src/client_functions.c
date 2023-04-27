@@ -72,7 +72,7 @@ void send_pseudo() {
 
 
 /**
- * Function to handle the SIGINT signal
+ * Function to handle the SIGINT signal (CTRL + C)
  *
  * @param signal The signal to handle
  *
