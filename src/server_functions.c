@@ -48,7 +48,7 @@ void* thread_client(void* args) {
         int handlePrivateMessage = handle_private_message(message, socketClient, pseudo);
         if(handlePrivateMessage == 0) {
           // Send message to other clients
-          send_to_other_clients(listClient, socketClient, message);
+          handle_global_message(listClient, socketClient, message);
         }
       }
     }
@@ -199,7 +199,7 @@ int send_private_message(Node* head, char* pseudo, char* message, char* pseudoTr
 
 
 /**
- * Send message to all clients whithout client corresponding to socketClient
+ * Handle global message. Send the message to all clients.
  *
  * @param head The head of the list of clients
  * @param socketClient The socket of the client who send the message
@@ -207,15 +207,61 @@ int send_private_message(Node* head, char* pseudo, char* message, char* pseudoTr
  *
  * @return void
  */
-void send_to_other_clients(Node* head, int socketClient, char* message) {
+void handle_global_message(Node* head, int socketClient, char* message) {
+  // Send message to other clients
+  int code = send_to_other_clients(listClient, socketClient, message);
+  if(code == 1) {
+    char* message = "Message send to all clients";
+    send_response(socketClient, MESSAGE_GLOBAL_SEND, message, NULL);
+  } else if(code == -1) {
+    char* message = "Error while sending message to all clients";
+    send_response(socketClient, GLOBAL_MESSAGE_ERROR, message, NULL);
+  } else {
+    char* message = "There is no other clients";
+    send_response(socketClient, NO_OTHER_USERS, message, NULL);
+  }
+}
+
+
+/**
+ * Send message to all clients whithout client corresponding to socketClient
+ *
+ * @param head The head of the list of clients
+ * @param socketClient The socket of the client who send the message
+ * @param message The message to send
+ *
+ * @return 1 if all messages are send | -1 if at least one message is not send | 0 if there is no other clients
+ */
+int send_to_other_clients(Node* head, int socketClient, char* message) {
   Node* currentClient = head->next;
-  while(currentClient != head) {
+  int errorCatch = 0;
+  int countSend = 0;
+  while(currentClient != head && errorCatch == 0) {
     if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
-      send_response(currentClient->number, MESSAGE_GLOBAL_REDIRECT, message, NULL);
+      if(send_response(currentClient->number, MESSAGE_GLOBAL_REDIRECT, message, NULL) == -1) {
+        errorCatch = 1;
+      } else {
+        countSend += 1;
+      }
     }
     currentClient = currentClient->next;
   }
+
+  // If at least one message is not send
+  if(errorCatch == 1) {
+    perror("Error: Sending message to other clients");
+    return -1;
+  } 
+
+  // If there is no other clients
+  if(countSend == 0) {
+    return 0;
+  }
+
+  // If all messages are send
   printf("Message send to other clients\n");
+  return 1;
+
 }
 
 
@@ -338,9 +384,9 @@ int recv_message(int socketClient, char* message) {
  * @param message The message of the response
  * @param pseudo The pseudo of the client who send the message (If the response is a redirection)
  *
- * @return void
+ * @return 1 if the response is send | -1 if the response is not send
  */
-void send_response(int socketClient, int code, char* message, char* pseudo) {
+int send_response(int socketClient, int code, char* message, char* pseudo) {
   Response* response = malloc(sizeof(Response));
 
   // Initialise the code field
@@ -366,8 +412,10 @@ void send_response(int socketClient, int code, char* message, char* pseudo) {
   // Send the response
   if(send(socketClient, buffer, sizeof(buffer), 0) == -1) {
     perror("Error: Sending the response");
-    exit(1);
+    return -1;
   }
+
+  return 1;
 }
 
 /**

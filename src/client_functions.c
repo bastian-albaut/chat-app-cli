@@ -32,7 +32,7 @@ void* thread_send(void *socket) {
     get_input(message, NB_CHARACTERS, NULL);
 
     // Sending the message to the server
-    send_message(*socketServer, message, "Message sent to the server");
+    send_message(*socketServer, message, NULL);
 
   }
   pthread_exit(0);
