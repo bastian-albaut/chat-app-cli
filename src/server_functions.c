@@ -24,37 +24,98 @@ void* thread_client(void* args) {
   Node* listClient = data->listClient;
 
   // Get pseudo of the client 
-  char* pseudo = get_pseudo(socketClient);
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  if(handle_pseudo_client(socketClient, pseudo) == -1) {
+    pthread_exit(0);
+  }
 
+  // Loop to receive message and handle messages from client
+  int nbByteRead = 1;
+  while(nbByteRead != 0 && nbByteRead != -1) {
+
+    // Receive message from client 
+    char message[NB_CHARACTERS];
+    nbByteRead = recv_message(socketClient, message);
+
+    if(nbByteRead == 0) {
+      remove_client(socketClient);
+      pthread_exit(0);
+    } 
+    
+    printf("Message receive: %s\n", message);
+
+    int handlePrivateMessage = handle_private_message(message, socketClient, pseudo);
+    if(handlePrivateMessage == 0) {
+      // Send message to other clients
+      handle_global_message(message, socketClient, pseudo);
+    }
+  }
+
+  pthread_exit(0);
+}
+
+/**
+ * Handle the pseudo of the client
+ *
+ * @param socketClient The socket of the client which want to get a pseudo
+ *
+ * @return 1 if handle pseudo work correctly | -1 if not
+ */
+int handle_pseudo_client(int socketClient, char* pseudo) {
+  // Get pseudo of the client 
+  char* pseudoGet = get_pseudo(socketClient);
+  strcpy(pseudo, pseudoGet);
+  
   // Set pseudo of client in the list 
   if(pseudo != NULL) {
     set_pseudo(&listClient, socketClient, pseudo);
     printf("Client %s Connected !\n", pseudo);
     display_list(&listClient);
-  
-    // Loop to receive message and handle messages from client
-    int nbByteRead = 1;
-    while(nbByteRead != 0 && nbByteRead != -1) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
 
-      // Receive message from client 
-      char message[NB_CHARACTERS];
-      nbByteRead = recv_message(socketClient, message);
 
-      if(nbByteRead == 0) {
-        remove_client(socketClient);
-      } else {
-        printf("Message receive: %s\n", message);
+/**
+ * Get pseudo of the client and check if it is already used
+ *
+ * @param socketClient The socket of the client which want to get a pseudo
+ *
+ * @return The pseudo of the client
+ */
+char* get_pseudo(int socketClient) {
 
-        int handlePrivateMessage = handle_private_message(message, socketClient, pseudo);
-        if(handlePrivateMessage == 0) {
-          // Send message to other clients
-          handle_global_message(message, socketClient, pseudo);
-        }
-      }
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  int code;
+  int pseudoAlreadyUsed = 1;
+
+  while(pseudoAlreadyUsed) {
+    
+    int nbByteRead = recv_message(socketClient, pseudo);
+    if(nbByteRead == 0) {
+      remove_client(socketClient);
+      printf("Client disconnected during pseudo step\n");
+      return NULL;
+    }
+
+    // Check if pseudo is already used
+    if(search_element_pseudo(&listClient, pseudo) != NULL) {
+      code = PSEUDO_ALREADY_USED;
+      char* message = "This pseudo is already used";
+      send_response(socketClient, code, message, NULL);
+    } else {
+      code = PSEUDO_ACCEPTED;
+      char* message = "This pseudo is accepted";
+      send_response(socketClient, code, message, NULL);
+
+      // Break loop
+      pseudoAlreadyUsed = 0;
     }
   }
 
-  pthread_exit(0);
+  return pseudo;
 }
 
 
@@ -268,46 +329,6 @@ int send_to_other_clients(char* message, int socketClient, char* pseudoTransmitt
   printf("Message send to other clients\n");
   return 1;
 
-}
-
-
-/**
- * Get pseudo of the client and check if it is already used
- *
- * @param socketClient The socket of the client which want to get a pseudo
- *
- * @return The pseudo of the client
- */
-char* get_pseudo(int socketClient) {
-
-  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
-  int code;
-  int pseudoAlreadyUsed = 1;
-
-  while(pseudoAlreadyUsed) {
-    
-    int nbByteRead = recv_message(socketClient, pseudo);
-    if(nbByteRead == 0) {
-      remove_client(socketClient);
-      return NULL;
-    }
-
-    // Check if pseudo is already used
-    if(search_element_pseudo(&listClient, pseudo) != NULL) {
-      code = PSEUDO_ALREADY_USED;
-      char* message = "This pseudo is already used";
-      send_response(socketClient, code, message, NULL);
-    } else {
-      code = PSEUDO_ACCEPTED;
-      char* message = "This pseudo is accepted";
-      send_response(socketClient, code, message, NULL);
-
-      // Break loop
-      pseudoAlreadyUsed = 0;
-    }
-  }
-
-  return pseudo;
 }
 
 
