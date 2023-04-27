@@ -71,25 +71,3 @@ int recv_message(int socket, char* message) {
 
   return nbByteRead;
 }
-
-
-/**
- * Get the input of the user
- *
- * @param message The message to store the input
- * @param size The size of the message
- * @param prompt The prompt to display before getting the input
- *
- * @return void
- */
-void get_input(char* message, int size, char* prompt) {
-  if(prompt != NULL) {
-    printf("%s\n", prompt);
-  }
-
-  fgets(message, size, stdin);
-  char *findReturn = strchr(message,'\n'); // Return null if not found
-  if(findReturn != NULL) {
-    *findReturn = '\0';
-  }
-}
