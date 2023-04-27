@@ -87,9 +87,15 @@ int handle_private_message(char* message, int socketClient, char* pseudoTransmit
     char* messagePrivate = get_content_private_message(message);
 
     // Send private message
-    if(send_private_message(listClient, pseudo, messagePrivate, pseudoTransmitter) == -1) {
+    int code = send_private_message(listClient, pseudo, messagePrivate, pseudoTransmitter);
+
+    // Send response to the client who send the private message
+    if(code == -1) {
       char* message = "There is no user with this pseudo";
       send_response(socketClient, PRIVATE_MESSAGE_USER_NOT_EXIST, message, NULL);
+    } else {
+      char* message = "Private message send";
+      send_response(socketClient, MESSAGE_PRIVATE_SEND, message, NULL);
     }
     return 1;
   }
