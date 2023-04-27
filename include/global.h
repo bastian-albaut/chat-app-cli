@@ -2,12 +2,17 @@
 #define GLOBAL_H
 
 #include "list.h"
+#include "constants.h"
+
+typedef struct Response {
+  int code;
+  char* message;
+  char* from;
+} Response;
 
 extern int socketServer;
 extern Node* listClient;
 
 extern void close_socket(int socket);
-extern void send_message(int socket, char* message, char* prompt);
-extern int recv_message(int socket, char* message);
 
 #endif // GLOBAL_H

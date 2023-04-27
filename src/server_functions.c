@@ -45,7 +45,7 @@ void* thread_client(void* args) {
       } else {
         printf("Message receive: %s\n", message);
 
-        int handlePrivateMessage = handle_private_message(message, socketClient);
+        int handlePrivateMessage = handle_private_message(message, socketClient, pseudo);
         if(handlePrivateMessage == 0) {
           // Send message to other clients
           send_to_other_clients(listClient, socketClient, message);
@@ -68,13 +68,13 @@ void* thread_client(void* args) {
  *
  * @return 1 if the message is a private message | 0 if the message is not a private message
  */
-int handle_private_message(char* message, int socketClient) {
+int handle_private_message(char* message, int socketClient, char* pseudoTransmitter) {
   int privateMessage = is_private_message(message);
 
   // Message does not follow the good format
   if(privateMessage == -1) {
-    char* response = "Private message have to follow the format /mp <user> <message>";
-    send_message(socketClient, response, NULL);
+    char* message = "Private message have to follow the format /mp <user> <message>";
+    send_response(socketClient, PRIVATE_MESSAGE_NOT_CORRESPONDING, message, NULL);
     return 1;
   } 
   
@@ -87,11 +87,13 @@ int handle_private_message(char* message, int socketClient) {
     char* messagePrivate = get_content_private_message(message);
 
     // Send private message
-    if(send_private_message(listClient, pseudo, messagePrivate) == -1) {
-      char* response = "There is no user with this pseudo";
-      send_message(socketClient, response, NULL);
+    if(send_private_message(listClient, pseudo, messagePrivate, pseudoTransmitter) == -1) {
+      char* message = "There is no user with this pseudo";
+      send_response(socketClient, PRIVATE_MESSAGE_USER_NOT_EXIST, message, NULL);
     }
+    return 1;
   }
+  return 0;
 }
 
 /**
@@ -184,11 +186,11 @@ char* get_content_private_message(char* message) {
  *
  * @return 1 if the message is send | -1 if the message is not send
  */
-int send_private_message(Node* head, char* pseudo, char* message) {
+int send_private_message(Node* head, char* pseudo, char* message, char* pseudoTransmitter) {
   Node* elementToSend = search_element_pseudo(&head, pseudo);
   if(elementToSend != NULL) {
-    send_message(elementToSend->number, message, NULL);
-    printf("Message send to the client %s", pseudo);
+    send_response(elementToSend->number, MESSAGE_PRIVATE_REDIRECT, message, pseudoTransmitter);
+    printf("Message send to the client %s\n", pseudo);
     return 1;
   } else {
     return -1;
@@ -209,7 +211,7 @@ void send_to_other_clients(Node* head, int socketClient, char* message) {
   Node* currentClient = head->next;
   while(currentClient != head) {
     if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
-      send_message(currentClient->number, message, NULL);
+      send_response(currentClient->number, MESSAGE_GLOBAL_REDIRECT, message, NULL);
     }
     currentClient = currentClient->next;
   }
@@ -227,7 +229,7 @@ void send_to_other_clients(Node* head, int socketClient, char* message) {
 char* get_pseudo(int socketClient) {
 
   char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
-  char* response;
+  int code;
   int pseudoAlreadyUsed = 1;
 
   while(pseudoAlreadyUsed) {
@@ -240,15 +242,17 @@ char* get_pseudo(int socketClient) {
 
     // Check if pseudo is already used
     if(search_element_pseudo(&listClient, pseudo) != NULL) {
-      response = "ERROR";
+      code = PSEUDO_ALREADY_USED;
+      char* message = "This pseudo is already used";
+      send_response(socketClient, code, message, NULL);
     } else {
-      response = "SUCCESS";
+      code = PSEUDO_ACCEPTED;
+      char* message = "This pseudo is accepted";
+      send_response(socketClient, code, message, NULL);
 
       // Break loop
       pseudoAlreadyUsed = 0;
     }
-
-    send_message(socketClient, response, NULL);
   }
 
   return pseudo;
@@ -305,4 +309,99 @@ void remove_client(int socketClient) {
   close_socket(socketClient);
   printf("Client %d disconnected\n", socketClient);
   display_list(&listClient);
+}
+
+
+/**
+ * Receive a message from the client with the socket specified in parameter
+ *
+ * @param socket The socket of the client to recv the message
+ * @param message The message to store the received message
+ *
+ * @return The number of bytes received
+ */
+int recv_message(int socketClient, char* message) {
+  int nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
+  if(nbByteRead == -1) {
+    perror("Error: Receiving the message");
+    exit(1);
+  }
+  return nbByteRead;
+}
+
+
+/**
+ * Send an informative, a success, a redirection or an error response of the client with the socket specified in parameter
+ *
+ * @param socketClient The socket of the client to send the response
+ * @param code The code of the response
+ * @param message The message of the response
+ * @param pseudo The pseudo of the client who send the message (If the response is a redirection)
+ *
+ * @return void
+ */
+void send_response(int socketClient, int code, char* message, char* pseudo) {
+  Response* response = malloc(sizeof(Response));
+
+  // Initialise the code field
+  response->code = code;
+
+  // Initialise the message field
+  response->message = malloc(strlen(message) + 1);
+  strcpy(response->message, message);
+
+  // Initialise the from field
+  if(pseudo != NULL) {
+    response->from = malloc(strlen(pseudo) + 1);
+    strcpy(response->from, pseudo);
+  } else {
+    response->from = malloc(strlen(RESPONSE_FROM_SERVER) + 1);
+    strcpy(response->from, RESPONSE_FROM_SERVER);
+  }
+
+  // Serialize the response
+  char buffer[RESPONSE_BUFFER_SIZE];
+  serialize_response(response, buffer, sizeof(buffer));
+
+  // Send the response
+  if(send(socketClient, buffer, sizeof(buffer), 0) == -1) {
+    perror("Error: Sending the response");
+    exit(1);
+  }
+}
+
+/**
+ * Serialize all the fields of the response into a buffer specified in parameter
+ *
+ * @param response The response to serialize
+ * @param buffer The buffer to store the serialized response
+ * @param sizeBuffer The length of the buffer
+ *
+ * @return void
+ */
+void serialize_response(Response* response, char* buffer, size_t sizeBuffer) {
+  
+  // Pack the code field into the buffer
+  int code = htonl(response->code);
+  memcpy(buffer, &code, sizeof(code));
+  buffer += sizeof(code);
+  sizeBuffer -= sizeof(code);
+
+  // Pack the message field into the buffer
+  size_t lengthMessage = strlen(response->message) + 1;
+  if (lengthMessage > sizeBuffer) {
+    perror("Error: The buffer is too small to hold the serialized message");
+    exit(1);
+  }
+  memcpy(buffer, response->message, lengthMessage);
+  buffer += lengthMessage;
+  sizeBuffer -= lengthMessage;
+
+  // Pack the from field into the buffer
+  size_t lengthFrom = strlen(response->from) + 1;  // include the null terminator
+  if (lengthFrom > sizeBuffer) {
+    perror("Error: The buffer is too small to hold the serialized from field");
+    exit(1);
+  }
+  memcpy(buffer, response->from, lengthFrom);
 }

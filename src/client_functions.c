@@ -57,16 +57,15 @@ void send_pseudo() {
     send_message(socketServerFromClient, pseudo, NULL);
 
     // Receive the response from the server 
-    char response[NB_CHARACTERS];
-    
-    recv_message(socketServerFromClient, response);
-
-    if(strcmp(response, "SUCCESS") == 0) {
-      printf("Pseudo accepté\n");
-      pseudoIsOk = 1;
-    } else {
-      printf("Pseudo déjà utilisé\n");
+    Response* response = malloc(sizeof(Response));
+    if(recv_response(socketServerFromClient, response) == 0) {
+      printf("The connection was cut on the server side\n");
     }
+
+    if(response->code == PSEUDO_ACCEPTED) {
+      pseudoIsOk = 1;
+    }
+    printf("%d - %s\n", response->code, response->message);
   }
 }
 
@@ -106,4 +105,92 @@ void get_input(char* message, int size, char* prompt) {
   if(findReturn != NULL) {
     *findReturn = '\0';
   }
+}
+
+
+/**
+ * Send a message to the server with the socket specified in parameter
+ *
+ * @param socketServer The socket of the server to send the message
+ * @param message The message to send
+ * @param prompt The prompt to display after sending the message
+ *
+ * @return void
+ */
+void send_message(int socketServer, char* message, char* prompt) {
+  if(send(socketServer, message, strlen(message)+1, 0) == -1) {
+    perror("Error: Send message");
+    exit(1);
+  }
+  if(prompt != NULL) {
+    printf("%s\n", prompt);
+  }
+}
+
+
+/**
+ * Recv an informative, a success, a redirection or an error response of the server with the socket specified in parameter
+ *
+ * @param socketServer The socket of the server to recv the message
+ * @param response The response to store the message
+ *
+ * @return The number of bytes received
+ */
+int recv_response(int socketServer, Response* response) {
+
+  char buffer[RESPONSE_BUFFER_SIZE];
+  int nbBytes = recv(socketServer, buffer, sizeof(buffer), 0);
+  if(nbBytes == -1) {
+    perror("Error: Receiving the response");
+    exit(1);
+  }
+
+  if(nbBytes == 0) {
+    return 0;
+  }
+
+  // Deserialize the response
+  deserialize_response(buffer, sizeof(buffer), response);
+
+  return nbBytes;
+}
+
+
+/**
+ * Deserialize a response from the buffer specified in parameter and store it in an instance of Response
+ *
+ * @param buffer The buffer to deserialize
+ * @param sizeBuffer The length of the buffer
+ * @param response The response to store the deserialized buffer
+ *
+ * @return void
+ */
+void deserialize_response(char* buffer, size_t sizeBuffer, Response* response) {
+  
+  // Unpack the code field from the buffer
+  int code;
+  memcpy(&code, buffer, sizeof(code));
+  response->code = ntohl(code);
+  buffer += sizeof(code);
+  sizeBuffer -= sizeof(code);
+
+  // Allocate memory for the message field and copy the serialized message into it
+  size_t lengthMessage = strlen(buffer) + 1; 
+  response->message = malloc(lengthMessage);
+  if (response->message == NULL) {
+    printf("Memory allocation failed\n");
+    exit(1);
+  }
+  memcpy(response->message, buffer, lengthMessage);
+  buffer += lengthMessage;
+  sizeBuffer -= lengthMessage;
+
+  // Allocate memory for the from field and copy the serialized from field into it
+  size_t lengthFrom = strlen(buffer) + 1;
+  response->from = malloc(lengthFrom);
+  if (response->from == NULL) {
+    printf("Memory allocation failed\n");
+    exit(1);
+  }
+  memcpy(response->from, buffer, lengthFrom);
 }

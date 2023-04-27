@@ -2,6 +2,8 @@
     "files.associations": {
         "typeinfo": "c",
         "constants.h": "c",
-        "global.h": "c"
+        "global.h": "c",
+        "inet.h": "c",
+        "server_functions.h": "c"
     }
 }
