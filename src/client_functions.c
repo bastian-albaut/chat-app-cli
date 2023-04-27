@@ -209,7 +209,13 @@ void print_response(Response* response) {
   } else if(response->code >= 200 && response->code < 300) {
     printf(GREEN "%d - %s\n" RESET, response->code, response->message);
   } else if(response->code >= 300 && response->code < 400) {
-    printf(YELLOW "%d - %s\n" RESET, response->code, response->message);
+    if(response->code == MESSAGE_GLOBAL_REDIRECT) {
+      printf(YELLOW "%s: %s\n" RESET, response->from, response->message);
+    } else if(response->code == MESSAGE_PRIVATE_REDIRECT) {
+      printf(YELLOW "%s (Message Privé): %s\n" RESET, response->from, response->message);
+    } else {
+      printf(YELLOW "%d - %s\n" RESET, response->code, response->message);
+    }
   } else {
     printf(RED "%d - %s\n" RESET, response->code, response->message);
   }
