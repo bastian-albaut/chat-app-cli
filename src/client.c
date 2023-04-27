@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     if(nbByteRead == 0) {
       printf("The connection was cut on the server side\n");
     } else {
-      printf("%d - %s\n", response->code, response->message);
+      print_response(response);
     }
   }
 

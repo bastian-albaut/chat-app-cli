@@ -65,7 +65,7 @@ void send_pseudo() {
     if(response->code == PSEUDO_ACCEPTED) {
       pseudoIsOk = 1;
     }
-    printf("%d - %s\n", response->code, response->message);
+    print_response(response);
   }
 }
 
@@ -193,4 +193,24 @@ void deserialize_response(char* buffer, size_t sizeBuffer, Response* response) {
     exit(1);
   }
   memcpy(response->from, buffer, lengthFrom);
+}
+
+
+/**
+ * Print the response specified in parameter with a color depending on the code of the response
+ *
+ * @param response The response to print
+ *
+ * @return void
+ */
+void print_response(Response* response) {
+  if(response->code >= 100 && response->code < 200) {
+    printf(BLUE "%d - %s\n" RESET, response->code, response->message);
+  } else if(response->code >= 200 && response->code < 300) {
+    printf(GREEN "%d - %s\n" RESET, response->code, response->message);
+  } else if(response->code >= 300 && response->code < 400) {
+    printf(YELLOW "%d - %s\n" RESET, response->code, response->message);
+  } else {
+    printf(RED "%d - %s\n" RESET, response->code, response->message);
+  }
 }

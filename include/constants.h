@@ -26,4 +26,12 @@
 
 #define RESPONSE_FROM_SERVER "Server"
 
+
+/* Color for print */
+#define BLUE   "\x1B[34m"
+#define GREEN   "\x1B[32m"
+#define YELLOW   "\x1B[33m"
+#define RED   "\x1B[31m"
+#define RESET "\x1B[0m"
+
 #endif // CONSTANTS_H
