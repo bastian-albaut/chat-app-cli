@@ -48,7 +48,7 @@ void* thread_client(void* args) {
         int handlePrivateMessage = handle_private_message(message, socketClient, pseudo);
         if(handlePrivateMessage == 0) {
           // Send message to other clients
-          handle_global_message(listClient, socketClient, message);
+          handle_global_message(message, socketClient, pseudo);
         }
       }
     }
@@ -213,9 +213,9 @@ int send_private_message(Node* head, char* pseudo, char* message, char* pseudoTr
  *
  * @return void
  */
-void handle_global_message(Node* head, int socketClient, char* message) {
+void handle_global_message(char* message, int socketClient, char* pseudoTransmitter) {
   // Send message to other clients
-  int code = send_to_other_clients(listClient, socketClient, message);
+  int code = send_to_other_clients(message, socketClient, pseudoTransmitter);
   if(code == 1) {
     char* message = "Message send to all clients";
     send_response(socketClient, MESSAGE_GLOBAL_SEND, message, NULL);
@@ -232,19 +232,19 @@ void handle_global_message(Node* head, int socketClient, char* message) {
 /**
  * Send message to all clients whithout client corresponding to socketClient
  *
- * @param head The head of the list of clients
- * @param socketClient The socket of the client who send the message
  * @param message The message to send
+ * @param socketClient The socket of the client who send the message
+ * @param pseudoTransmitter The pseudo of the client who send the message
  *
  * @return 1 if all messages are send | -1 if at least one message is not send | 0 if there is no other clients
  */
-int send_to_other_clients(Node* head, int socketClient, char* message) {
-  Node* currentClient = head->next;
+int send_to_other_clients(char* message, int socketClient, char* pseudoTransmitter) {
+  Node* currentClient = listClient->next;
   int errorCatch = 0;
   int countSend = 0;
-  while(currentClient != head && errorCatch == 0) {
+  while(currentClient != listClient && errorCatch == 0) {
     if(currentClient->number != socketClient && currentClient->pseudo != NULL) {
-      if(send_response(currentClient->number, MESSAGE_GLOBAL_REDIRECT, message, NULL) == -1) {
+      if(send_response(currentClient->number, MESSAGE_GLOBAL_REDIRECT, message, pseudoTransmitter) == -1) {
         errorCatch = 1;
       } else {
         countSend += 1;
