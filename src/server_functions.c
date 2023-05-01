@@ -24,7 +24,7 @@ void* thread_client(void* args) {
   Node* listClient = data->listClient;
 
   // Get pseudo of the client 
-  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO_MAX * sizeof(char));
   if(handle_pseudo_client(socketClient, pseudo) == -1) {
     remove_client(socketClient);
     pthread_exit(0);
@@ -62,6 +62,12 @@ int handle_pseudo_client(int socketClient, char* pseudo) {
   // Get pseudo of the client 
   char* pseudoGet = get_pseudo(socketClient);
   
+  if(pseudoGet == NULL) {
+    return -1;
+  }
+
+
+
   // Set pseudo of client in the list 
   if(pseudoGet != NULL) {
     strcpy(pseudo, pseudoGet);
@@ -69,8 +75,6 @@ int handle_pseudo_client(int socketClient, char* pseudo) {
     printf("Client %s Connected !\n", pseudo);
     display_list(&listClient);
     return 1;
-  } else {
-    return -1;
   }
 }
 
@@ -84,11 +88,12 @@ int handle_pseudo_client(int socketClient, char* pseudo) {
  */
 char* get_pseudo(int socketClient) {
 
-  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO_MAX * sizeof(char));
   int code;
   int pseudoAlreadyUsed = 1;
+  int pseudoGoodFormat = 0;
 
-  while(pseudoAlreadyUsed) {
+  while(pseudoAlreadyUsed ) {
     
     int nbByteRead = recv_message(socketClient, pseudo);
     if(nbByteRead == 0) {
@@ -96,22 +101,59 @@ char* get_pseudo(int socketClient) {
       return NULL;
     }
 
+    // Check if pseudo is in the good format
+    char* responseMessage = malloc(NB_CHARACTERS * sizeof(char));
+    if(!check_format_pseudo(pseudo, responseMessage)) {
+      send_response(socketClient, PSEUDO_FORMAT_ERROR, responseMessage, NULL);
+      continue;
+    } else {
+      pseudoGoodFormat = 1;
+    }
+
     // Check if pseudo is already used
     if(search_element_pseudo(&listClient, pseudo) != NULL) {
-      code = PSEUDO_ALREADY_USED;
       char* message = "This pseudo is already used";
-      send_response(socketClient, code, message, NULL);
+      send_response(socketClient, PSEUDO_ALREADY_USED, message, NULL);
     } else {
-      code = PSEUDO_ACCEPTED;
-      char* message = "This pseudo is accepted";
-      send_response(socketClient, code, message, NULL);
-
-      // Break loop
       pseudoAlreadyUsed = 0;
     }
   }
 
+  // Send response to client
+  char* message = "This pseudo is accepted";
+  send_response(socketClient, PSEUDO_ACCEPTED, message, NULL);
+
   return pseudo;
+}
+
+
+/**
+ * Check if the pseudo is in the good format
+ *
+ * @param pseudo The pseudo to check
+ *
+ * @return 1 if the pseudo is in the good format | 0 if is not in the good format
+ */
+int check_format_pseudo(char* pseudo, char* responseMessage) {
+  // Check if the pseudo is not too long
+  if(strlen(pseudo) > NB_CHARACTERS_PSEUDO_MAX) {
+    sprintf(responseMessage, "Your pseudo is too long(>%d characters)", NB_CHARACTERS_PSEUDO_MAX);
+    return 0;
+  }
+
+  // Check if the pseudo is not too short
+  if(strlen(pseudo) < NB_CHARACTERS_PSEUDO_MIN) {
+    sprintf(responseMessage, "Your pseudo is too short (<%d characters)", NB_CHARACTERS_PSEUDO_MIN);
+    return 0;
+  }
+
+  // Check pseudo does not contain space
+  if(strchr(pseudo, ' ') != NULL) {
+    strcpy(responseMessage, "Your pseudo cannot contain space");
+    return 0;
+  }
+
+  return 1;
 }
 
 
@@ -309,7 +351,7 @@ int is_good_format_private_message(char* message) {
  * @return The pseudo of the private message
  */
 char* get_pseudo_private_message(char* message) {
-  char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
+  char* pseudo = malloc(NB_CHARACTERS_PSEUDO_MAX * sizeof(char));
   int i = 0;
   int j = 4;
   while(message[j] != ' ') {

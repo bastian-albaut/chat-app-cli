@@ -50,9 +50,9 @@ void send_pseudo() {
 
   while(!pseudoIsOk) {
     // Send the pseudo to the server
-    char pseudo[NB_CHARACTERS_PSEUDO];
+    char pseudo[NB_CHARACTERS];
 
-    get_input(pseudo, NB_CHARACTERS_PSEUDO, "Please enter your pseudo:");
+    get_input(pseudo, NB_CHARACTERS, "Please enter your pseudo:");
 
     send_message(socketServerFromClient, pseudo, NULL);
 

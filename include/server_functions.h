@@ -13,6 +13,7 @@ typedef struct ThreadArgs {
 extern void* thread_client(void* args);
 extern int handle_pseudo_client(int socketClient, char* pseudo);
 extern char* get_pseudo(int socketClient);
+extern int check_format_pseudo(char* pseudo, char* responseMessage);
 extern void handle_message(char* message, int socketClient, char* pseudo, pthread_t threadId);
 extern char is_special_command(char* message);
 extern int is_private_message(char* message);

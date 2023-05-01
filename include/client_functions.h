@@ -6,7 +6,7 @@
 extern int socketServerFromClient;
 
 extern void* thread_send(void *socket);
-void send_pseudo();
+extern void send_pseudo();
 extern void interrupt_handler(int signal);
 extern void get_input(char* message, int size, char* prompt);
 extern void send_message(int socket, char* message, char* prompt);
