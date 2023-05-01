@@ -45,7 +45,7 @@ void* thread_client(void* args) {
     
     printf("Message receive: %s\n", message);
 
-    handle_message(message, socketClient, pseudo);
+    handle_message(message, socketClient, pseudo, pthread_self());
   }
 
   pthread_exit(0);
@@ -124,7 +124,7 @@ char* get_pseudo(int socketClient) {
  *
  * @return void
  */
-void handle_message(char* message, int socketClient, char* pseudo) {
+void handle_message(char* message, int socketClient, char* pseudo, pthread_t threadId) {
   if(is_special_command(message)) {
     if(is_global_message(message)) {
       handle_global_message(message, socketClient, pseudo);
@@ -133,6 +133,11 @@ void handle_message(char* message, int socketClient, char* pseudo) {
 
     if(is_private_message(message)) {
       handle_private_message(message, socketClient, pseudo);
+      return;
+    }
+
+    if(is_logout_message(message)) {
+      handle_logout_message(message, socketClient, threadId);
       return;
     }
   }
@@ -182,6 +187,22 @@ int is_private_message(char* message) {
  */
 int is_global_message(char* message) {
   if (strncmp(message, "/all", 4) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to a logout message (start with "/logout")
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is a logout message | 0 if the message is not a logout message
+ */
+int is_logout_message(char* message) {
+  if (strncmp(message, "/logout", 7) == 0) {
     return 1;
   } else {
     return 0;
@@ -456,6 +477,60 @@ int send_to_other_clients(char* message, int socketClient, char* pseudoTransmitt
   printf("Message send to other clients\n");
   return 1;
 
+}
+
+
+
+/**
+ * Handle logout message. Send a message to the client to confirm the logout.
+ *
+ * @param message The message check
+ * @param socketClient The socket of the client who want to logout
+ *
+ * @return void
+ */
+void handle_logout_message(char* message, int socketClient, pthread_t threadId) {
+  int goodFormat = is_good_format_logout_message(message);
+
+  // Message does not follow the good format
+  if(goodFormat == 0) {
+    char* message = "Logout message have to follow the format /logout";
+    send_response(socketClient, DISCONNECT_NOT_CORRESPONDING, message, NULL);
+  }
+
+  // Message follow the good format
+  if(goodFormat == 1) {
+    remove_client(socketClient);
+    int result = pthread_cancel(threadId);
+    if(result == 0) {
+      printf("Thread %ld canceled\n", threadId);
+    } else {
+      printf("Error: Thread %ld not canceled\n", threadId);
+    }
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to the format /logout
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_logout_message(char* message) {
+  // Check if the string starts with "/logout"
+  if (strncmp(message, "/logout", 7) != 0) {
+    return 0;
+  }
+
+  // Check if there is no character after "/logout"
+  if(strlen(message + 7) != 0) {
+    return 0;
+  }
+
+  // The string is in the correct format
+  return 1;
 }
 
 
