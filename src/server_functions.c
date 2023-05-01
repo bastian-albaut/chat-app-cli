@@ -104,7 +104,7 @@ char* get_pseudo(int socketClient) {
     // Check if pseudo is in the good format
     char* responseMessage = malloc(NB_CHARACTERS * sizeof(char));
     if(!check_format_pseudo(pseudo, responseMessage)) {
-      send_response(socketClient, PSEUDO_FORMAT_ERROR, responseMessage, NULL);
+      send_response(socketClient, PSEUDO_BAD_FORMAT, responseMessage, NULL);
       continue;
     } else {
       pseudoGoodFormat = 1;
@@ -289,7 +289,7 @@ void handle_private_message(char* message, int socketClient, char* pseudoTransmi
   // Message does not follow the good format
   if(goodFormat == 0) {
     char* message = "Private message have to follow the format /mp <user> <message>";
-    send_response(socketClient, PRIVATE_MESSAGE_NOT_CORRESPONDING, message, NULL);
+    send_response(socketClient, PRIVATE_MESSAGE_BAD_FORMAT, message, NULL);
   } 
   
   // Message follow the good format
@@ -306,10 +306,10 @@ void handle_private_message(char* message, int socketClient, char* pseudoTransmi
     // Send response to the client who send the private message
     if(code == -1) {
       char* message = "There is no user with this pseudo";
-      send_response(socketClient, PRIVATE_MESSAGE_USER_NOT_EXIST, message, NULL);
+      send_response(socketClient, PRIVATE_MESSAGE_USER_NOT_FOUND, message, NULL);
     } else {
       char* message = "Private message send";
-      send_response(socketClient, MESSAGE_PRIVATE_SEND, message, NULL);
+      send_response(socketClient, PRIVATE_MESSAGE_SEND, message, NULL);
     }
   }
 }
@@ -444,7 +444,7 @@ void handle_global_message(char* message, int socketClient, char* pseudoTransmit
     int code = send_to_other_clients(globalMessage, socketClient, pseudoTransmitter);
     if(code == 1) {
       char* message = "Message send to all clients";
-      send_response(socketClient, MESSAGE_GLOBAL_SEND, message, NULL);
+      send_response(socketClient, GLOBAL_MESSAGE_SEND, message, NULL);
     } else if(code == -1) {
       char* message = "Error while sending message to all clients";
       send_response(socketClient, GLOBAL_MESSAGE_ERROR, message, NULL);
@@ -558,7 +558,7 @@ void handle_logout_message(char* message, int socketClient, pthread_t threadId) 
   // Message does not follow the good format
   if(goodFormat == 0) {
     char* message = "Logout message have to follow the format /logout";
-    send_response(socketClient, DISCONNECT_NOT_CORRESPONDING, message, NULL);
+    send_response(socketClient, DISCONNECT_BAD_FORMAT, message, NULL);
   }
 
   // Message follow the good format
