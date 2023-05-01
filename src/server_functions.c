@@ -26,6 +26,7 @@ void* thread_client(void* args) {
   // Get pseudo of the client 
   char* pseudo = malloc(NB_CHARACTERS_PSEUDO * sizeof(char));
   if(handle_pseudo_client(socketClient, pseudo) == -1) {
+    remove_client(socketClient);
     pthread_exit(0);
   }
 
@@ -64,10 +65,10 @@ void* thread_client(void* args) {
 int handle_pseudo_client(int socketClient, char* pseudo) {
   // Get pseudo of the client 
   char* pseudoGet = get_pseudo(socketClient);
-  strcpy(pseudo, pseudoGet);
   
   // Set pseudo of client in the list 
-  if(pseudo != NULL) {
+  if(pseudoGet != NULL) {
+    strcpy(pseudo, pseudoGet);
     set_pseudo(&listClient, socketClient, pseudo);
     printf("Client %s Connected !\n", pseudo);
     display_list(&listClient);
@@ -95,7 +96,6 @@ char* get_pseudo(int socketClient) {
     
     int nbByteRead = recv_message(socketClient, pseudo);
     if(nbByteRead == 0) {
-      remove_client(socketClient);
       printf("Client disconnected during pseudo step\n");
       return NULL;
     }
