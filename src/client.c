@@ -45,9 +45,9 @@ int main(int argc, char *argv[]) {
     perror("Error: Server connection request");
     exit(1);
   }
-  printf("\n==================================\n");
+  printf(BOLD "\n==================================\n");
   printf("You are connected to the server :)\n");
-  printf("==================================\n\n");
+  printf("==================================\n\n" RESET);
 
 
   // Catch the SIGINT signal
