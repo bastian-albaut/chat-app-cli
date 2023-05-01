@@ -45,11 +45,7 @@ void* thread_client(void* args) {
     
     printf("Message receive: %s\n", message);
 
-    int handlePrivateMessage = handle_private_message(message, socketClient, pseudo);
-    if(handlePrivateMessage == 0) {
-      // Send message to other clients
-      handle_global_message(message, socketClient, pseudo);
-    }
+    handle_message(message, socketClient, pseudo);
   }
 
   pthread_exit(0);
@@ -120,6 +116,80 @@ char* get_pseudo(int socketClient) {
 
 
 /**
+ * Handle the message of the client
+ *
+ * @param message The string to handle
+ * @param socketClient The socket of the client who send the message
+ * @param pseudo The pseudo of the client who send the message
+ *
+ * @return void
+ */
+void handle_message(char* message, int socketClient, char* pseudo) {
+  if(is_special_command(message)) {
+    if(is_global_message(message)) {
+      handle_global_message(message, socketClient, pseudo);
+      return;
+    }
+
+    if(is_private_message(message)) {
+      handle_private_message(message, socketClient, pseudo);
+      return;
+    }
+  }
+  char* responseMessage = "Command not found";
+  send_response(socketClient, COMMAND_NOT_FOUND, responseMessage, NULL);
+}
+
+
+/**
+ * Detect if the message corresponding to a special command (start with "/")
+ *
+ * @param param message The string to check
+ *
+ * @return 1 if the message is a special command | 0 if the message is not a special command
+ */
+char is_special_command(char* message) {
+  if (strncmp(message, "/", 1) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to a private message (start with "/mp")
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is a private message | 0 if the message is not a private message
+ */
+int is_private_message(char* message) {
+  if (strncmp(message, "/mp", 3) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to a global message (start with "/all")
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is a global message | 0 if the message is not a global message
+ */
+int is_global_message(char* message) {
+  if (strncmp(message, "/all", 4) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
  * Send private message to a client. OR send an error message if the private message
  * is not in the correct format or if the pseudo of the client does not exist. OR 
  * do nothing if the message is not a private message
@@ -127,20 +197,19 @@ char* get_pseudo(int socketClient) {
  * @param message The string to handle
  * @param socketClient The socket of the client who send the message
  *
- * @return 1 if the message is a private message | 0 if the message is not a private message
+ * @return void
  */
-int handle_private_message(char* message, int socketClient, char* pseudoTransmitter) {
-  int privateMessage = is_private_message(message);
+void handle_private_message(char* message, int socketClient, char* pseudoTransmitter) {
+  int goodFormat = is_good_format_private_message(message);
 
   // Message does not follow the good format
-  if(privateMessage == -1) {
+  if(goodFormat == 0) {
     char* message = "Private message have to follow the format /mp <user> <message>";
     send_response(socketClient, PRIVATE_MESSAGE_NOT_CORRESPONDING, message, NULL);
-    return 1;
   } 
   
-  // Message is a private message
-  if(privateMessage == 1) {
+  // Message follow the good format
+  if(goodFormat == 1) {
     // Get pseudo of the private message
     char* pseudo = get_pseudo_private_message(message);
 
@@ -158,9 +227,7 @@ int handle_private_message(char* message, int socketClient, char* pseudoTransmit
       char* message = "Private message send";
       send_response(socketClient, MESSAGE_PRIVATE_SEND, message, NULL);
     }
-    return 1;
   }
-  return 0;
 }
 
 /**
@@ -168,9 +235,9 @@ int handle_private_message(char* message, int socketClient, char* pseudoTransmit
  *
  * @param message The string to check
  *
- * @return 1 if the message is a private message | 0 if the message is not a private message | -1 if the message is private but not in the correct format
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
  */
-int is_private_message(char* message) {
+int is_good_format_private_message(char* message) {
   // Check if the string starts with "/mp "
   if (strncmp(message, "/mp ", 4) != 0) {
     return 0;
@@ -179,12 +246,12 @@ int is_private_message(char* message) {
   // Find the end of the user name (the first space after "/mp ")
   const char* user_end = strchr(message + 4, ' ');
   if (user_end == NULL) {
-    return -1;
+    return 0;
   }
 
   // Check if there is at least one character after the user name
   if (strlen(user_end + 1) == 0) {
-    return -1;
+    return 0;
   }
 
   // The string is in the correct format
@@ -275,18 +342,78 @@ int send_private_message(Node* head, char* pseudo, char* message, char* pseudoTr
  * @return void
  */
 void handle_global_message(char* message, int socketClient, char* pseudoTransmitter) {
-  // Send message to other clients
-  int code = send_to_other_clients(message, socketClient, pseudoTransmitter);
-  if(code == 1) {
-    char* message = "Message send to all clients";
-    send_response(socketClient, MESSAGE_GLOBAL_SEND, message, NULL);
-  } else if(code == -1) {
-    char* message = "Error while sending message to all clients";
+  int goodFormat = is_good_format_global_message(message);
+
+  // Message does not follow the good format
+  if(goodFormat == 0) {
+    char* message = "Global message have to follow the format /all <message>";
     send_response(socketClient, GLOBAL_MESSAGE_ERROR, message, NULL);
-  } else {
-    char* message = "There is no other clients";
-    send_response(socketClient, NO_OTHER_USERS, message, NULL);
+  } 
+  
+  // Message follow the good format
+  if(goodFormat == 1) {
+
+    // Get content of the global message
+    char* globalMessage = get_content_global_message(message);
+
+    // Send message to other clients
+    int code = send_to_other_clients(globalMessage, socketClient, pseudoTransmitter);
+    if(code == 1) {
+      char* message = "Message send to all clients";
+      send_response(socketClient, MESSAGE_GLOBAL_SEND, message, NULL);
+    } else if(code == -1) {
+      char* message = "Error while sending message to all clients";
+      send_response(socketClient, GLOBAL_MESSAGE_ERROR, message, NULL);
+    } else {
+      char* message = "There is no other clients";
+      send_response(socketClient, NO_OTHER_USERS, message, NULL);
+    }
   }
+}
+
+
+/**
+ * Detect if the message corresponding to the format /all <message>
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_global_message(char* message) {
+  // Check if the string starts with "/all "
+  if (strncmp(message, "/all ", 5) != 0) {
+    return 0;
+  }
+
+  // Check if there is at least one character after "/all "
+  if (strlen(message + 5) == 0) {
+    return 0;
+  }
+
+  // The string is in the correct format
+  return 1;
+}
+
+
+/**
+ * Get content of the global message
+ *
+ * @param message The string to split to get the content
+ *
+ * @return The content of the global message
+ */
+char* get_content_global_message(char* message) {
+  char* content = malloc(NB_CHARACTERS * sizeof(char));
+  int i = 0;
+  int j = 5;
+  while(message[j] != '\0') {
+    content[i] = message[j];
+    i++;
+    j++;
+  }
+  content[i] = '\0';
+
+  return content;
 }
 
 
