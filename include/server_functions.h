@@ -18,6 +18,7 @@ extern char is_special_command(char* message);
 extern int is_private_message(char* message);
 extern int is_global_message(char* message);
 extern int is_logout_message(char* message);
+extern int is_help_message(char* message);
 extern void handle_private_message(char* message, int socketClient, char* pseudoTransmitter);
 extern int is_good_format_private_message(char* message);
 extern char* get_pseudo_private_message(char* message);
@@ -29,6 +30,9 @@ extern void handle_global_message(char* message, int socketClient, char* pseudoT
 extern int send_to_other_clients(char* message, int socketClient, char* pseudoTransmitter);
 extern void handle_logout_message(char* message, int socketClient, pthread_t threadId);
 extern int is_good_format_logout_message(char* message);
+extern void handle_help_message(char* message, int socketClient);
+extern int is_good_format_help_message(char* message);
+extern char* get_content_of_file(char* filename);
 extern void interrupt_handler(int signal);
 extern void close_all_clients();
 extern void remove_client(int socketClient);

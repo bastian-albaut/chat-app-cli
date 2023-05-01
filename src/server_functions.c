@@ -140,6 +140,11 @@ void handle_message(char* message, int socketClient, char* pseudo, pthread_t thr
       handle_logout_message(message, socketClient, threadId);
       return;
     }
+
+    if(is_help_message(message)) {
+      handle_help_message(message, socketClient);
+      return;
+    }
   }
   char* responseMessage = "Command not found";
   send_response(socketClient, COMMAND_NOT_FOUND, responseMessage, NULL);
@@ -203,6 +208,22 @@ int is_global_message(char* message) {
  */
 int is_logout_message(char* message) {
   if (strncmp(message, "/logout", 7) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to a help message (start with "/help")
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is a help message | 0 if the message is not a help message
+ */
+int is_help_message(char* message) {
+  if (strncmp(message, "/help", 5) == 0) {
     return 1;
   } else {
     return 0;
@@ -531,6 +552,88 @@ int is_good_format_logout_message(char* message) {
 
   // The string is in the correct format
   return 1;
+}
+
+
+/**
+ * Handle help message. Send a message to the client to give him the list of commands.
+ *
+ * @param message The message to handle 
+ * @param socketClient The socket of the client who send the request of help
+ *
+ * @return void
+ */
+void handle_help_message(char* message, int socketClient) {
+  int goodFormat = is_good_format_help_message(message);
+
+  // Message does not follow the good format
+  if(goodFormat == 0) {
+    char* message = "Help message have to follow the format /help";
+    send_response(socketClient, HELP_ERROR, message, NULL);
+  }
+
+  // Message follow the good format
+  if(goodFormat == 1) {
+    char* filename = "command.txt";
+    char* contentCommandFile = get_content_of_file(filename);
+    send_response(socketClient, HELP_SUCCESS, contentCommandFile, NULL);
+  }
+}
+
+
+
+/**
+ * Detect if the message corresponding to the format /help
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_help_message(char* message) {
+  // Check if the string starts with "/help"
+  if (strncmp(message, "/help", 5) != 0) {
+    return 0;
+  }
+
+  // Check if there is no character after "/help"
+  if(strlen(message + 5) != 0) {
+    return 0;
+  }
+
+  // The string is in the correct format
+  return 1;
+}
+
+
+/**
+ * Get the content of the file specified in parameter
+ *
+ * @param filename The name of the file to read
+ * 
+ * @return The content of the file
+ */
+char* get_content_of_file(char *filename) {
+
+  FILE* fp = fopen(filename, "r");
+
+  if(fp == NULL) {
+    perror("Error: opening file");
+    exit(1);
+  }
+
+  // Get the size of the file
+  fseek(fp, 0, SEEK_END);
+  long file_size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  // Read the file into the buffer
+  char* buffer = malloc(file_size + 1);
+  size_t bytes_read = fread(buffer, 1, file_size, fp);
+  buffer[bytes_read] = '\0';
+
+  fclose(fp);
+
+  return buffer;
 }
 
 

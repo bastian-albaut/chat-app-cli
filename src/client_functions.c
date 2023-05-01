@@ -207,7 +207,11 @@ void print_response(Response* response) {
   if(response->code >= 100 && response->code < 200) {
     printf(BLUE "%d - %s\n" RESET, response->code, response->message);
   } else if(response->code >= 200 && response->code < 300) {
-    printf(GREEN "%d - %s\n" RESET, response->code, response->message);
+    if(response->code == 203) {
+      printf(GREEN "%s\n" RESET, response->message);
+    } else {
+      printf(GREEN "%d - %s\n" RESET, response->code, response->message);
+    }
   } else if(response->code >= 300 && response->code < 400) {
     if(response->code == MESSAGE_GLOBAL_REDIRECT) {
       printf(YELLOW "%s: %s\n" RESET, response->from, response->message);

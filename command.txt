@@ -1,0 +1,13 @@
+╔═══════════════════════╦═════════════════════════════════════════════════════╗
+║        Command        ║                       Action                        ║
+╠═══════════════════════╬═════════════════════════════════════════════════════╣
+║ /all <message>        ║ Send a message to everyone                          ║
+║                       ║                                                     ║
+║ /mp <user> <message>  ║ Send a private message to a specific user           ║
+║                       ║                                                     ║
+║ /logout               ║ Request server disconnection                        ║
+║                       ║                                                     ║
+║ /help                 ║ List all available commands                         ║
+╚═══════════════════════╩═════════════════════════════════════════════════════╝
+                       
+                        
