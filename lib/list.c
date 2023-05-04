@@ -18,6 +18,14 @@ void init_head(Node** head) {
     (*head)->next = *head;
     (*head)->prev = *head;
     (*head)->number = 0; // Corresponding to count of elements in list (head is not counted)
+
+    printf("Head of list initialized ");
+    // Initialize RWLock
+    if(pthread_rwlock_init(&rwlock, NULL) != 0) {
+        perror("pthread_rwlock_init");
+        exit(1);
+    }
+    printf("=> RWLock initialized\n");
 }
 
 
@@ -49,12 +57,24 @@ Node* insert_first(Node** head, int number){
     newHead->next = (*head)->next;
     newHead->prev = *head;
 
+    // Lock list for writing
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
+        exit(1);
+    }
+
     // Adjust reference of head and next element
     newHead->next->prev = newHead;
     (*head)->next = newHead;
 
     // Increment number of elements in list (count)
     (*head)->number++;
+
+    // Unlock list
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
+        exit(1);
+    }
 
     return newHead;
 }
@@ -70,6 +90,12 @@ Node* insert_first(Node** head, int number){
  */
 void remove_element(Node** head, Node* element) {
     
+    // Lock list for writing
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
+        exit(1);
+    }
+
     if(element == *head) {
         perror("Head is not an element");
         return;
@@ -90,6 +116,12 @@ void remove_element(Node** head, Node* element) {
 
     // Decrement number of elements in list (count)
     (*head)->number--;
+
+    // Unlock list
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
+        exit(1);
+    }
 }
 
 
@@ -102,6 +134,13 @@ void remove_element(Node** head, Node* element) {
  * @return The element if found | NULL if not found
  */
 Node* search_element(Node** head, int number) {
+    
+    // Lock list for reading
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
+        exit(1);
+    }
+
     // Check if list is empty
     if(is_empty(head)) {
         perror("List is empty");
@@ -116,6 +155,13 @@ Node* search_element(Node** head, int number) {
         }
         current_element = current_element->next;
     }
+
+    // Unlock list
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
+        exit(1);
+    }
+
     return NULL;
 }
 
@@ -129,11 +175,18 @@ Node* search_element(Node** head, int number) {
  * @return The element if found | NULL if not found
  */
 Node* search_element_pseudo(Node** head, char* pseudo) {
+    
+    // Lock list for reading
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
+        exit(1);
+    }
+    
     // Check if list is empty
     if(is_empty(head)) {
         perror("List is empty");
         return NULL;
-    }
+    }  
 
     // Search element
     Node *current_element = (*head)->next;
@@ -145,6 +198,13 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
         }
         current_element = current_element->next;
     }
+
+    // Unlock list
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
+        exit(1);
+    }
+
     return NULL;
 }
 
@@ -160,8 +220,21 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
  */
 void set_pseudo(Node** head, int socket, char* pseudo) {
     Node* element = search_element(head, socket);
+
+    // Lock list for writing
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
+        exit(1);
+    }    
+
     if(element != NULL) {
         element->pseudo = pseudo;
+    }
+
+    // Unlock list
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
+        exit(1);
     }
 }
 
@@ -174,6 +247,12 @@ void set_pseudo(Node** head, int socket, char* pseudo) {
  * @return void
  */
 void display_list(Node** head) {
+
+    // Lock list for reading
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
+        exit(1);
+    }
 
     // Check if list is empty
     if(is_empty(head)) {
@@ -191,4 +270,10 @@ void display_list(Node** head) {
         current_element = current_element->next;
     }
     printf("------ End list ------\n\n");
+
+    // Unlock list
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
+        exit(1);
+    }
 }
