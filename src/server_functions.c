@@ -66,12 +66,11 @@ int handle_pseudo_client(int socketClient, char* pseudo) {
     return -1;
   }
 
-
-
   // Set pseudo of client in the list 
   if(pseudoGet != NULL) {
     strcpy(pseudo, pseudoGet);
-    set_pseudo(&listClient, socketClient, pseudo);
+    Node* element = search_element(&listClient, socketClient);
+    set_pseudo(&element, pseudo);
     printf("Client %s Connected !\n", pseudo);
     display_list(&listClient);
     return 1;
