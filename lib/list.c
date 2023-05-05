@@ -21,12 +21,12 @@ void init_head(Node** head) {
     (*head)->number = 0; // Corresponding to count of elements in list (head is not counted)
 
     printf("Head of list initialized ");
-    // Initialize mutex
-    if(pthread_mutex_init(&mutex, NULL) != 0) {
-        perror("pthread_mutex_init");
+    // Initialize rwlock
+    if(pthread_rwlock_init(&rwlock, NULL) != 0) {
+        perror("pthread_rwlock_init");
         exit(1);
     }
-    printf("=> Mutex initialized\n");
+    printf("=> rwlock initialized\n");
 }
 
 
@@ -40,16 +40,16 @@ void init_head(Node** head) {
 int is_empty(Node** head){
 
     // Lock list for reading
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
         exit(1);
     }
 
     int isEmpty = (*head)->next == *head && (*head)->prev == *head;
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 
@@ -67,16 +67,16 @@ int is_empty(Node** head){
 int is_equal(Node* element1, Node* element2) {
 
     // Lock list for reading
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
         exit(1);
     }
 
     int isEqual = element1 == element2;
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 
@@ -101,8 +101,8 @@ Node* insert_first(Node** head, int number){
     newHead->prev = *head;
 
     // Lock list for writing
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
         exit(1);
     }
 
@@ -114,8 +114,8 @@ Node* insert_first(Node** head, int number){
     (*head)->number++;
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 
@@ -145,8 +145,8 @@ void remove_element(Node** head, Node* element) {
     }
     
     // Lock list for writing
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
         exit(1);
     }
 
@@ -161,8 +161,8 @@ void remove_element(Node** head, Node* element) {
     (*head)->number--;
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 }
@@ -185,8 +185,8 @@ Node* search_element(Node** head, int number) {
     }
 
     // Lock list for reading
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
         exit(1);
     }
 
@@ -202,8 +202,8 @@ Node* search_element(Node** head, int number) {
     }
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 
@@ -228,8 +228,8 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     }  
 
     // Lock list for reading
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
         exit(1);
     }
 
@@ -247,8 +247,8 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     }
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 
@@ -268,8 +268,8 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
 void set_pseudo(Node** element, char* pseudo) {
 
     // Lock list for writing
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
         exit(1);
     }    
 
@@ -278,8 +278,8 @@ void set_pseudo(Node** element, char* pseudo) {
     }
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 }
@@ -301,8 +301,8 @@ void display_list(Node** head) {
     }
 
     // Lock list for reading
-    if(pthread_mutex_lock(&mutex) != 0) {
-        perror("pthread_mutex_lock");
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
         exit(1);
     }
 
@@ -318,8 +318,8 @@ void display_list(Node** head) {
     printf("------ End list ------\n\n");
 
     // Unlock list
-    if(pthread_mutex_unlock(&mutex) != 0) {
-        perror("pthread_mutex_unlock");
+    if(pthread_rwlock_unlock(&rwlock) != 0) {
+        perror("pthread_rwlock_unlock");
         exit(1);
     }
 }

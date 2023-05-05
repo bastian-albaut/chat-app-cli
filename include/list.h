@@ -11,8 +11,8 @@ typedef struct Node {
     struct Node *prev;
 } Node;
 
-// mutex to handle concurrent access to list
-pthread_mutex_t mutex;
+// rwlock to handle concurrent access to list
+pthread_rwlock_t rwlock;
 
 extern void init_head(Node** head);
 extern int is_empty(Node** head);
