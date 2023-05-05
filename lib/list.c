@@ -26,7 +26,7 @@ void init_head(Node** head) {
         perror("pthread_mutex_init");
         exit(1);
     }
-    printf("=> mutex initialized\n");
+    printf("=> Mutex initialized\n");
 }
 
 
@@ -39,23 +39,19 @@ void init_head(Node** head) {
  */
 int is_empty(Node** head){
 
-    printf("Before Lock list is_empty\n");
     // Lock list for reading
     if(pthread_mutex_lock(&mutex) != 0) {
         perror("pthread_mutex_lock");
         exit(1);
     }
-    printf("test1\n");
 
     int isEmpty = (*head)->next == *head && (*head)->prev == *head;
 
-    printf("test2\n");
     // Unlock list
     if(pthread_mutex_unlock(&mutex) != 0) {
         perror("pthread_mutex_unlock");
         exit(1);
     }
-    printf("After Lock list is_empty\n");
 
     return isEmpty;
 }
@@ -104,7 +100,6 @@ Node* insert_first(Node** head, int number){
     newHead->next = (*head)->next;
     newHead->prev = *head;
 
-    printf("Lock list insert_first\n");
     // Lock list for writing
     if(pthread_mutex_lock(&mutex) != 0) {
         perror("pthread_mutex_lock");
@@ -123,7 +118,6 @@ Node* insert_first(Node** head, int number){
         perror("pthread_mutex_unlock");
         exit(1);
     }
-    printf("Unlock list insert_first\n");
 
     return newHead;
 }
@@ -190,13 +184,11 @@ Node* search_element(Node** head, int number) {
         return NULL;
     }
 
-    printf("Lock list search_element\n");
     // Lock list for reading
     if(pthread_mutex_lock(&mutex) != 0) {
         perror("pthread_mutex_lock");
         exit(1);
     }
-    printf("test1\n");
 
     // Search element
     Node *element_searched = NULL;
@@ -208,14 +200,12 @@ Node* search_element(Node** head, int number) {
         }
         current_element = current_element->next;
     }
-    printf("test2\n");
 
     // Unlock list
     if(pthread_mutex_unlock(&mutex) != 0) {
         perror("pthread_mutex_unlock");
         exit(1);
     }
-    printf("Unlock list search_element\n");
 
     return element_searched;
 }
@@ -277,14 +267,11 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
  */
 void set_pseudo(Node** element, char* pseudo) {
 
-    printf("Lock list set_pseudo\n");
     // Lock list for writing
     if(pthread_mutex_lock(&mutex) != 0) {
         perror("pthread_mutex_lock");
         exit(1);
     }    
-
-    printf("After lock\n");
 
     if(*element != NULL) {
         (*element)->pseudo = pseudo;
@@ -295,7 +282,6 @@ void set_pseudo(Node** element, char* pseudo) {
         perror("pthread_mutex_unlock");
         exit(1);
     }
-    printf("Unlock list set_pseudo\n");
 }
 
 

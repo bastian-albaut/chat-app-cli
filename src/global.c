@@ -27,7 +27,6 @@ void close_socket(int socket) {
     perror("Error: Close socket");
     exit(1);
   }
-  printf("Socket %d closed\n", socket);
 }
 
 
