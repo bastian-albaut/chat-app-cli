@@ -40,18 +40,12 @@ void init_head(Node** head) {
 int is_empty(Node** head){
 
     // Lock list for reading
-    if(pthread_rwlock_rdlock(&rwlock) != 0) {
-        perror("pthread_rwlock_rdlock");
-        exit(1);
-    }
+    read_lock();
 
     int isEmpty = (*head)->next == *head && (*head)->prev == *head;
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 
     return isEmpty;
 }
@@ -67,18 +61,12 @@ int is_empty(Node** head){
 int is_equal(Node* element1, Node* element2) {
 
     // Lock list for reading
-    if(pthread_rwlock_rdlock(&rwlock) != 0) {
-        perror("pthread_rwlock_rdlock");
-        exit(1);
-    }
+    read_lock();
 
     int isEqual = element1 == element2;
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 
     return isEqual;
 }
@@ -95,16 +83,13 @@ int is_equal(Node* element1, Node* element2) {
 Node* insert_first(Node** head, int number){
     Node *newHead = (Node*) malloc(sizeof(Node));
     
+    // Lock list for writing
+    write_lock();
+
     // Set newHead attributes
     newHead->number = number;
     newHead->next = (*head)->next;
     newHead->prev = *head;
-
-    // Lock list for writing
-    if(pthread_rwlock_wrlock(&rwlock) != 0) {
-        perror("pthread_rwlock_wrlock");
-        exit(1);
-    }
 
     // Adjust reference of head and next element
     newHead->next->prev = newHead;
@@ -114,10 +99,7 @@ Node* insert_first(Node** head, int number){
     (*head)->number++;
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 
     return newHead;
 }
@@ -145,10 +127,7 @@ void remove_element(Node** head, Node* element) {
     }
     
     // Lock list for writing
-    if(pthread_rwlock_wrlock(&rwlock) != 0) {
-        perror("pthread_rwlock_wrlock");
-        exit(1);
-    }
+    write_lock();
 
     // Adjust reference of previous and next element
     element->prev->next = element->next;
@@ -161,10 +140,7 @@ void remove_element(Node** head, Node* element) {
     (*head)->number--;
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 }
 
 
@@ -185,10 +161,7 @@ Node* search_element(Node** head, int number) {
     }
 
     // Lock list for reading
-    if(pthread_rwlock_rdlock(&rwlock) != 0) {
-        perror("pthread_rwlock_rdlock");
-        exit(1);
-    }
+    read_lock();
 
     // Search element
     Node *element_searched = NULL;
@@ -202,10 +175,7 @@ Node* search_element(Node** head, int number) {
     }
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 
     return element_searched;
 }
@@ -228,10 +198,7 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     }  
 
     // Lock list for reading
-    if(pthread_rwlock_rdlock(&rwlock) != 0) {
-        perror("pthread_rwlock_rdlock");
-        exit(1);
-    }
+    read_lock();
 
     // Search element
     Node *element_searched = NULL;
@@ -247,10 +214,7 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     }
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 
     return element_searched;
 }
@@ -268,20 +232,14 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
 void set_pseudo(Node** element, char* pseudo) {
 
     // Lock list for writing
-    if(pthread_rwlock_wrlock(&rwlock) != 0) {
-        perror("pthread_rwlock_wrlock");
-        exit(1);
-    }    
+    write_lock();    
 
     if(*element != NULL) {
         (*element)->pseudo = pseudo;
     }
 
     // Unlock list
-    if(pthread_rwlock_unlock(&rwlock) != 0) {
-        perror("pthread_rwlock_unlock");
-        exit(1);
-    }
+    unlock();
 }
 
 
@@ -301,10 +259,7 @@ void display_list(Node** head) {
     }
 
     // Lock list for reading
-    if(pthread_rwlock_rdlock(&rwlock) != 0) {
-        perror("pthread_rwlock_rdlock");
-        exit(1);
-    }
+    read_lock();
 
     // Display all elements
     Node *current_element = (*head)->next;
@@ -318,6 +273,42 @@ void display_list(Node** head) {
     printf("------ End list ------\n\n");
 
     // Unlock list
+    unlock();
+}
+
+
+/**
+ * Lock the list for reading
+ *
+ * @return void
+ */
+void read_lock() {
+    if(pthread_rwlock_rdlock(&rwlock) != 0) {
+        perror("pthread_rwlock_rdlock");
+        exit(1);
+    }
+}
+
+
+/**
+ * Lock the list for writing
+ *
+ * @return void
+ */
+void write_lock() {
+    if(pthread_rwlock_wrlock(&rwlock) != 0) {
+        perror("pthread_rwlock_wrlock");
+        exit(1);
+    }
+}
+
+
+/**
+ * Unlock the list
+ *
+ * @return void
+ */
+void unlock() {
     if(pthread_rwlock_unlock(&rwlock) != 0) {
         perror("pthread_rwlock_unlock");
         exit(1);
