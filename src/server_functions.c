@@ -33,7 +33,7 @@ void* thread_client(void* args) {
   // Get pseudo of the client 
   char* pseudo = malloc(NB_CHARACTERS_PSEUDO_MAX * sizeof(char));
   if(handle_pseudo_client(socketClient, pseudo) == -1) {
-    remove_client(socketClient);
+    remove_client(socketClient, *ptrTempIdThread);
     pthread_exit(0);
   }
 
@@ -53,7 +53,7 @@ void* thread_client(void* args) {
 
     // If the client is disconnected
     if(nbByteRead == 0 || nbByteRead == -1) {
-      remove_client(socketClient);
+      remove_client(socketClient, *ptrTempIdThread);
       break;
     } 
     
@@ -61,8 +61,6 @@ void* thread_client(void* args) {
 
     handle_message(message, socketClient, pseudo, pthread_self());
   }
-
-  pthread_exit(0);
 }
 
 
@@ -646,13 +644,7 @@ void handle_logout_message(char* message, int socketClient, pthread_t threadId) 
 
   // Message follow the good format
   if(goodFormat == 1) {
-    remove_client(socketClient);
-    int result = pthread_cancel(threadId);
-    if(result == 0) {
-      printf("Thread %ld canceled\n", threadId);
-    } else {
-      printf("Error: Thread %ld not canceled\n", threadId);
-    }
+    remove_client(socketClient, threadId);
   }
 }
 
@@ -791,10 +783,13 @@ void close_all_clients() {
   Node* currentClient = listClient->next;
   while(currentClient != listClient) {
 
-    // Close thread
-    pthread_cancel(currentClient->thread);
+    // Cancel the thread
+    if(pthread_cancel(currentClient->thread) != 0) {
+      perror("Error: Canceling the thread");
+      exit(1);
+    }
 
-    // Close socket
+    // Close the socket
     close_socket(currentClient->number);
 
     currentClient = currentClient->next;
@@ -809,12 +804,25 @@ void close_all_clients() {
  *
  * @return void
  */
-void remove_client(int socketClient) {
-  remove_element(&listClient, search_element(&listClient, socketClient));
-  close_socket(socketClient);
+void remove_client(int socketClient, pthread_t threadId) {
+  
+  // Leave a place in the semaphore
   leave_place_semaphore();
+
+  // Remove the client from the list
+  remove_element(&listClient, search_element(&listClient, socketClient));
+
+  // Close the socket
+  close_socket(socketClient);
+
   printf("Client %d disconnected\n", socketClient);
   display_list(&listClient);
+
+  // Cancel the thread
+  if(pthread_cancel(threadId) != 0) {
+    perror("Error: Canceling the thread");
+    exit(1);
+  }
 }
 
 

@@ -47,7 +47,7 @@ extern int is_good_format_help_message(char* message);
 extern char* get_content_of_file(char* filename);
 extern void interrupt_handler(int signal);
 extern void close_all_clients();
-extern void remove_client(int socketClient);
+extern void remove_client(int socketClient, pthread_t threadId);
 extern int recv_message(int socket, char* message);
 extern int send_response(int socketClient, int code, char* message, char* pseudo);
 extern void serialize_response(Response* response, char* buffer, size_t sizeBuffer);
