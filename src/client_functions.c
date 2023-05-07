@@ -45,6 +45,51 @@ void* thread_send(void *socket) {
 
 
 /**
+ *
+ * Initialize the socket of the client
+ *
+ * @return void
+ */
+void init_socket_client() {
+
+  socketServerFromClient = socket(PF_INET, SOCK_STREAM, 0);
+
+  if(socketServerFromClient == -1) {
+    perror("Error: Creation of socket");
+    exit(1);
+  }
+}
+
+
+/**
+ * Send a connection request to the server
+ *
+ * @param ipAdress The ip adress of the server
+ * @param port The port of the server
+ *
+ * @return void
+ */
+void connection_request(char* ipAdress, char* port) {
+  struct sockaddr_in adress;
+
+  adress.sin_family = AF_INET;
+  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
+  adress.sin_port = htons(atoi(port));
+  
+  socklen_t sizeAdress = sizeof(adress);
+  
+  if(connect(socketServerFromClient, (struct sockaddr *) &adress, sizeAdress) == -1){
+    perror("Error: Server connection request");
+    exit(1);
+  }
+
+  printf(BOLD "\n==================================\n");
+  printf("You are connected to the server :)\n");
+  printf("==================================\n\n" RESET);
+}
+
+
+/**
  * Choose and send pseudo to the server
  *
  * @return void

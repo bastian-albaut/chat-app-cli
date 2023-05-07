@@ -7,6 +7,8 @@ extern int socketServerFromClient;
 extern int idSemaphore;
 
 extern void* thread_send(void *socket);
+extern void init_socket_client();
+extern void connection_request(char* ipAdress, char* port);
 extern void send_pseudo();
 extern void interrupt_handler(int signal);
 extern void get_input(char* message, int size, char* prompt);

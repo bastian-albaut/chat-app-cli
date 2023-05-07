@@ -18,6 +18,10 @@ union semun{
 extern int idSemaphore;
 
 extern void* thread_client(void* args);
+extern void init_socket_server();
+extern void name_socket_server(char* port);
+extern void listen_socket_server();
+extern int accept_client();
 extern int handle_pseudo_client(int socketClient, char* pseudo);
 extern char* get_pseudo(int socketClient);
 extern int check_format_pseudo(char* pseudo, char* responseMessage);

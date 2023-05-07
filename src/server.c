@@ -28,43 +28,18 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-
-  // Creation of socket
-	socketServer = socket(PF_INET, SOCK_STREAM, 0);
-	if(socketServer == -1) {
-    perror("Error: Creation of socket");
-  }
-  printf("Socket Created");
-
-
-  // Allow to use address again
-  int optval = 1;
-  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
+  // Socket initialization
+  init_socket_server();
 
   // Socket naming
-	struct sockaddr_in ad;
-	ad.sin_family = AF_INET; 
-	ad.sin_addr.s_addr = INADDR_ANY;
-	ad.sin_port = htons(atoi(argv[1]));
-	if(bind(socketServer, (struct sockaddr*)&ad, sizeof(ad)) == -1) {
-    perror("Error: Socket naming");
-    exit(1);
-  }
-  printf(" => Named Socket successfully");
-
-
-  // Putting the socket in listening mode
-	if(listen(socketServer, 10) == -1) {
-		perror("Error: Putting the socket in listening mode");
-	}
-  printf(" => Listen mode\n\n");
-
+  name_socket_server(argv[1]);
+  
+  // Socket listening
+  listen_socket_server();
 
   // Initialize the clients list
   listClient = NULL;
   init_head(&listClient);
-
 
   // Initialize the semaphore
   deletion_semaphore();
@@ -75,21 +50,12 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, interrupt_handler);
 
 
-  // Prepare acceptation of client
-  struct sockaddr_in aC;
-  socklen_t lg = sizeof(struct sockaddr_in);
-  int socketClient = -1;
+  while(1) {
 
-
-  int errorCatch = 0;
-
-  while(!errorCatch) {
-
-    // Accept a client connection
-    socketClient = accept(socketServer, (struct sockaddr*) &aC,&lg) ;
+    int socketClient = accept_client();
     if(socketClient == -1) {
-      perror("Error: Acceptance of client connection");
-      errorCatch = 1;
+      perror("Error: Acceptation of client");
+      break;
     }
 
     // Add the client to the list

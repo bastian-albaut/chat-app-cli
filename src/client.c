@@ -30,28 +30,11 @@ int main(int argc, char *argv[]) {
   init_semaphore_client();
   take_place_semaphore();
 
-  // Creation of socket
-  socketServerFromClient = socket(PF_INET, SOCK_STREAM, 0);
-  if(socketServerFromClient == -1) {
-    perror("Error: Creation of socket");
-  }
-
+  // Socket initialization
+  init_socket_client();
 
   // Server connection request
-  struct sockaddr_in aS;
-  aS.sin_family = AF_INET;
-  inet_pton(AF_INET,argv[1],&(aS.sin_addr));
-  aS.sin_port = htons(atoi(argv[2]));
-  socklen_t lgA = sizeof(struct sockaddr_in);
-  
-  if(connect(socketServerFromClient, (struct sockaddr *) &aS, lgA) == -1){
-    perror("Error: Server connection request");
-    exit(1);
-  }
-  printf(BOLD "\n==================================\n");
-  printf("You are connected to the server :)\n");
-  printf("==================================\n\n" RESET);
-
+  connection_request(argv[1], argv[2]);
 
   // Catch the SIGINT signal
   signal(SIGINT, interrupt_handler);

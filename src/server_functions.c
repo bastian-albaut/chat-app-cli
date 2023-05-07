@@ -58,6 +58,80 @@ void* thread_client(void* args) {
   pthread_exit(0);
 }
 
+
+/**
+ *
+ * Initialize the socket in TCP which will be used to communicate with clients
+ *
+ * @return void
+ */
+void init_socket_server() {
+	socketServer = socket(PF_INET, SOCK_STREAM, 0);
+	
+  if(socketServer == -1) {
+    perror("Error: Creation of socket");
+    exit(1);
+  }
+
+  // Allow to use address again
+  int optval = 1;
+  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+  
+  printf("Socket Created");
+}
+
+/**
+ * Name the socket of the server
+ *
+ * @param port The port of the socket
+ *
+ * @return void
+ */
+void name_socket_server(char* port) {
+  struct sockaddr_in adress;
+  socklen_t sizeAdress= sizeof(adress);
+
+  adress.sin_family = AF_INET; 
+  adress.sin_addr.s_addr = INADDR_ANY;
+  adress.sin_port = htons(atoi(port));
+
+  if(bind(socketServer, (struct sockaddr*)&adress, sizeAdress) == -1) {
+    perror("Error: Socket naming");
+    exit(1);
+  }
+  printf(" => Named Socket successfully");
+}
+
+
+/**
+ * Listen the socket server
+ *
+ * @return description
+ */
+void listen_socket_server() {
+  if(listen(socketServer, 10) == -1) {
+    perror("Error: Socket listening");
+    exit(1);
+  }
+  printf(" => Socket listening\n\n");
+}
+
+
+/**
+ * handle acceptation of client
+ *
+ * @return The socket client if acceptation work correctly | -1 if not
+ */
+int accept_client() {
+  struct sockaddr_in adressClient;
+  socklen_t sizeAdressClient = sizeof(adressClient);
+
+  int socketClient = accept(socketServer, (struct sockaddr*)&adressClient, &sizeAdressClient);
+
+  return socketClient;
+}
+
+
 /**
  * Handle the pseudo of the client
  *
