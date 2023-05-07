@@ -54,5 +54,7 @@ extern void serialize_response(Response* response, char* buffer, size_t sizeBuff
 extern void init_semaphore_server();
 extern void set_capacity_semaphore(int capacity);
 extern void deletion_semaphore();
+extern void leave_place_semaphore();
+void display_remaining_places_semaphore();
 
 #endif // SERVER_FUNCTIONS_H

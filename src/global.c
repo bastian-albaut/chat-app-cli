@@ -29,19 +29,3 @@ void close_socket(int socket) {
     exit(1);
   }
 }
-
-
-/**
- * Increment the semaphore specified in parameter to leave place in it
- *
- * @return void
- */
-void leave_place_semaphore(int idSemaphore) {
-
-  struct sembuf operation = {0, 1, 0}; // Increment the semaphore
-
-  if(semop(idSemaphore, &operation, 1) == -1) {
-    perror("Error: Leaving place in the semaphore");
-    exit(1);
-  }
-}

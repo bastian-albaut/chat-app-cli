@@ -134,7 +134,6 @@ void interrupt_handler(int signal) {
   printf("\n");
   close_socket(socketServerFromClient);
   printf("  =>  Server socket is closed\n");
-  leave_place_semaphore(idSemaphore);
   printf("\n========== END OF CLIENT ==========\n");
   exit(0);
 }

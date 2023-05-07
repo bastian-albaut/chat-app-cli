@@ -809,7 +809,7 @@ void close_all_clients() {
 void remove_client(int socketClient) {
   remove_element(&listClient, search_element(&listClient, socketClient));
   close_socket(socketClient);
-  leave_place_semaphore(idSemaphore);
+  leave_place_semaphore();
   printf("Client %d disconnected\n", socketClient);
   display_list(&listClient);
 }
@@ -941,14 +941,14 @@ void init_semaphore_server() {
  * @return void
  */
 void set_capacity_semaphore(int capacity) {
-  union semun startValueSemaphore;
-  startValueSemaphore.val = capacity;
+  union semun startnbPlacesSemaphore;
+  startnbPlacesSemaphore.val = capacity;
 
-  if (semctl(idSemaphore, 0, SETVAL, startValueSemaphore) == -1){
+  if (semctl(idSemaphore, 0, SETVAL, startnbPlacesSemaphore) == -1){
     perror("Error semctl");
     exit(1);
   }
-  printf("Capacity: %d client(s)\n\n", startValueSemaphore.val);
+  printf("Capacity: %d client(s)\n\n", startnbPlacesSemaphore.val);
 }
 
 
@@ -969,4 +969,38 @@ void deletion_semaphore() {
     exit(1);
   }
   printf("Semaphore deleted\n");
+}
+
+
+/**
+ * Increment the semaphore specified in parameter to leave place in it
+ *
+ * @return void
+ */
+void leave_place_semaphore() {
+
+  struct sembuf operation = {0, 1, 0}; // Increment the semaphore
+
+  if(semop(idSemaphore, &operation, 1) == -1) {
+    perror("Error: Leaving place in the semaphore");
+    exit(1);
+  }
+
+  display_remaining_places_semaphore();
+}
+
+
+/**
+ * Display the remaining places in the semaphore
+ *
+ * @return void
+ */
+void display_remaining_places_semaphore() {
+  int countPlaces = semctl(idSemaphore, 0, GETVAL);
+
+  if(countPlaces == -1){
+    perror("Error: Getting semaphore nbPlaces");
+    exit(1);
+  }
+  printf("Remaining places: %d\n", countPlaces);
 }

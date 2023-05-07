@@ -58,6 +58,9 @@ int main(int argc, char *argv[]) {
       break;
     }
 
+    // Display the number of remaining places
+    display_remaining_places_semaphore();
+
     // Add the client to the list
     Node* currentClient = insert_first(&listClient, socketClient);
 

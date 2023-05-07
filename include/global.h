@@ -14,6 +14,5 @@ extern int socketServer;
 extern Node* listClient;
 
 extern void close_socket(int socket);
-extern void leave_place_semaphore(int idSemaphore);
 
 #endif // GLOBAL_H
