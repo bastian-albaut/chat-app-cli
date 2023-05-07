@@ -30,6 +30,7 @@ int idSemaphore;
 void* thread_send(void *socket) {
   int *socketServer = (int*) socket;
 
+  // Loop to send message(s) to the server
   while(1) {
 
     // Preparing to send the message to the server
@@ -40,7 +41,6 @@ void* thread_send(void *socket) {
     send_message(*socketServer, message, NULL);
 
   }
-  pthread_exit(0);
 }
 
 

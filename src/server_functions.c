@@ -38,16 +38,16 @@ void* thread_client(void* args) {
   }
 
   // Loop to receive message and handle messages from client
-  int nbByteRead = 1;
-  while(nbByteRead != 0 && nbByteRead != -1) {
+  while(1) {
 
     // Receive message from client 
     char message[NB_CHARACTERS];
-    nbByteRead = recv_message(socketClient, message);
+    int nbByteRead = recv_message(socketClient, message);
 
-    if(nbByteRead == 0) {
+    // If the client is disconnected
+    if(nbByteRead == 0 || nbByteRead == -1) {
       remove_client(socketClient);
-      pthread_exit(0);
+      break;
     } 
     
     printf("Message receive: %s\n", message);

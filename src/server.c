@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
   // Catch the SIGINT signal
   signal(SIGINT, interrupt_handler);
 
-
+  // Loop to accept clients and create threads for them
   while(1) {
 
     int socketClient = accept_client();
