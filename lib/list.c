@@ -26,7 +26,7 @@ void init_head(Node** head) {
         perror("pthread_rwlock_init");
         exit(1);
     }
-    printf("=> rwlock initialized\n");
+    printf("=> rwlock initialized\n\n");
 }
 
 

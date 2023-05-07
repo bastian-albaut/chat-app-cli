@@ -66,14 +66,19 @@ int main(int argc, char *argv[]) {
   init_head(&listClient);
 
 
+  // Initialize the semaphore
+  deletion_semaphore();
+  init_semaphore_server();
+  set_capacity_semaphore(CAPACITY_CLIENTS);
+
+  // Catch the SIGINT signal
+  signal(SIGINT, interrupt_handler);
+
+
   // Prepare acceptation of client
   struct sockaddr_in aC;
   socklen_t lg = sizeof(struct sockaddr_in);
   int socketClient = -1;
-
-
-  // Catch the SIGINT signal
-  signal(SIGINT, interrupt_handler);
 
 
   int errorCatch = 0;

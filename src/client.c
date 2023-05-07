@@ -26,6 +26,9 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
+  // Semaphore initialization and taking place
+  init_semaphore_client();
+  take_place_semaphore();
 
   // Creation of socket
   socketServerFromClient = socket(PF_INET, SOCK_STREAM, 0);

@@ -5,6 +5,8 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/sem.h>
+#include <errno.h>
 #include "../include/global.h"
 #include "../include/client_functions.h"
 #include "../include/constants.h"
@@ -13,6 +15,9 @@
 
 // Socket of the server get from the client
 int socketServerFromClient;
+
+// Semaphore for the capacity of the server
+int idSemaphore;
 
 
 /**
@@ -81,6 +86,7 @@ void interrupt_handler(int signal) {
   printf("\n");
   close_socket(socketServerFromClient);
   printf("  =>  Server socket is closed\n");
+  leave_place_semaphore(idSemaphore);
   printf("\n========== END OF CLIENT ==========\n");
   exit(0);
 }
@@ -222,5 +228,48 @@ void print_response(Response* response) {
     }
   } else {
     printf(RED "%d - %s\n" RESET, response->code, response->message);
+  }
+}
+
+
+/**
+ * Initialize the semaphore for handle capacity of clients
+ *
+ * @return void
+ */
+void init_semaphore_client() {
+  int keySemaphore = ftok("command.txt", 'r');
+  if (keySemaphore == -1) {
+    perror("Error ftok");
+    exit(1);
+  }
+
+  int nbSemaphores = 1;  
+  idSemaphore = semget(keySemaphore, nbSemaphores, 0666);
+  if(idSemaphore == -1){
+    perror("Error semget");
+    exit(1);
+  }
+}
+
+
+
+/**
+ * Decrement the semaphore in global variables to take place in it
+ *
+ * @return void
+ */
+void take_place_semaphore() {
+  
+  struct sembuf operation = {0, -1, IPC_NOWAIT}; // Decrement the semaphore (non-blocking)
+  
+  if (semop(idSemaphore, &operation, 1) == -1) {
+    if (errno == EAGAIN) {
+      // No place available in the semaphore
+      printf("\n\n\nNo place available in the semaphore. Please try again later.\n");
+      exit(0);
+    }
+    perror("Error: Taking place in the semaphore");
+    exit(1);
   }
 }

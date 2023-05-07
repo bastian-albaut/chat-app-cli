@@ -9,6 +9,13 @@ typedef struct ThreadArgs {
     void* listClient;
 } ThreadArgs;
 
+union semun{
+    int val;
+    struct semid_ds * buff;
+    short * array;
+};
+
+extern int idSemaphore;
 
 extern void* thread_client(void* args);
 extern int handle_pseudo_client(int socketClient, char* pseudo);
@@ -40,5 +47,8 @@ extern void remove_client(int socketClient);
 extern int recv_message(int socket, char* message);
 extern int send_response(int socketClient, int code, char* message, char* pseudo);
 extern void serialize_response(Response* response, char* buffer, size_t sizeBuffer);
+extern void init_semaphore_server();
+extern void set_capacity_semaphore(int capacity);
+extern void deletion_semaphore();
 
 #endif // SERVER_FUNCTIONS_H

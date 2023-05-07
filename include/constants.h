@@ -6,6 +6,8 @@
 #define NB_CHARACTERS_PSEUDO_MIN 4
 #define RESPONSE_BUFFER_SIZE 10000
 
+#define CAPACITY_CLIENTS 2
+
 /* Code for the response */
 
 #define NO_OTHER_USERS 100

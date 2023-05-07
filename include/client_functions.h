@@ -4,6 +4,7 @@
 #include "../include/global.h"
 
 extern int socketServerFromClient;
+extern int idSemaphore;
 
 extern void* thread_send(void *socket);
 extern void send_pseudo();
@@ -13,5 +14,7 @@ extern void send_message(int socket, char* message, char* prompt);
 extern int recv_response(int socketServer, Response* response);
 extern void deserialize_response(char* buffer, size_t sizeBuffer, Response* response);
 extern void print_response(Response* response);
+extern void init_semaphore_client();
+extern void take_place_semaphore();
 
 #endif // CLIENT_FUNCTIONS_H

@@ -6,9 +6,16 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "../include/server_functions.h"
+#include <sys/sem.h>
 #include "../include/list.h"
 #include "../include/constants.h"
 #include "../include/global.h"
+
+
+/* Global variables */
+
+// Semaphore to handle capacity of clients
+int idSemaphore;
 
 
 /**
@@ -691,6 +698,8 @@ void interrupt_handler(int signal) {
   printf("  =>  All client threads/sockets are closed\n");
   close_socket(socketServer);
   printf("  =>  Server socket is closed\n");
+  deletion_semaphore();
+  printf("  =>  Semaphore is deleted\n");
   printf("\n========== END OF SERVER ==========\n");
   exit(0);
 }
@@ -717,7 +726,7 @@ void close_all_clients() {
 
 
 /**
- * Remove the client from the list and close the socket corresponding
+ * Remove the client from the list, close the socket corresponding and leave a place in the semaphore
  *
  * @param socketClient The socket of the client to remove
  *
@@ -726,6 +735,7 @@ void close_all_clients() {
 void remove_client(int socketClient) {
   remove_element(&listClient, search_element(&listClient, socketClient));
   close_socket(socketClient);
+  leave_place_semaphore(idSemaphore);
   printf("Client %d disconnected\n", socketClient);
   display_list(&listClient);
 }
@@ -825,4 +835,64 @@ void serialize_response(Response* response, char* buffer, size_t sizeBuffer) {
     exit(1);
   }
   memcpy(buffer, response->from, lengthFrom);
+}
+
+
+/**
+ * Initialize the semaphore for handle capacity of clients
+ *
+ * @return void
+ */
+void init_semaphore_server() {
+  int keySemaphore = ftok("command.txt", 'r');
+  if (keySemaphore == -1) {
+    perror("Error ftok");
+    exit(1);
+  }
+
+  int nbSemaphores = 1;  
+  idSemaphore = semget(keySemaphore, nbSemaphores, IPC_CREAT | 0666);
+  if(idSemaphore == -1){
+    perror("Error semget");
+    exit(1);
+  }
+}
+
+
+/**
+ * Set the capacity of the semaphore in global variables
+ *
+ * @param capacity The capacity to set
+ *
+ * @return void
+ */
+void set_capacity_semaphore(int capacity) {
+  union semun startValueSemaphore;
+  startValueSemaphore.val = capacity;
+
+  if (semctl(idSemaphore, 0, SETVAL, startValueSemaphore) == -1){
+    perror("Error semctl");
+    exit(1);
+  }
+  printf("Capacity: %d client(s)\n\n", startValueSemaphore.val);
+}
+
+
+/**
+ * Deletion of the semaphore in global variables
+ *
+ * @return void
+ */
+void deletion_semaphore() {
+
+  // Check if the semaphore exists
+  if (idSemaphore == 0) {
+    return;
+  }
+
+  if (semctl(idSemaphore, 0, IPC_RMID) == -1) {
+    perror("Error semctl");
+    exit(1);
+  }
+  printf("Semaphore deleted\n");
 }
