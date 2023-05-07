@@ -108,8 +108,11 @@ void send_pseudo() {
 
     // Receive the response from the server 
     Response* response = malloc(sizeof(Response));
-    if(recv_response(socketServerFromClient, response) == 0) {
+    int nbByteRead = recv_response(socketServerFromClient, response);
+
+    if(nbByteRead == 0 || nbByteRead == -1) {
       printf("The connection was cut on the server side\n");
+      exit(1);
     }
 
     if(response->code == PSEUDO_ACCEPTED) {
