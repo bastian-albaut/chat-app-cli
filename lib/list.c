@@ -118,15 +118,18 @@ Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
  * @return void
  */
 void remove_element(Node** head, Node* element) {
-    
+    // Check if element is NULL
+    if(element == NULL) {
+        return;
+    }
+
+    // Check if element is head
     if(is_equal(*head, element)) {
-        perror("Head is not an element");
         return;
     }
 
     // Check if list is empty
     if(is_empty(head)) {
-        perror("List is empty");
         return;
     }
     
@@ -160,7 +163,6 @@ Node* search_element(Node** head, int number) {
     
     // Check if list is empty
     if(is_empty(head)) {
-        perror("List is empty");
         return NULL;
     }
 
