@@ -30,7 +30,6 @@ void* thread_client(void* args) {
   int socketClient = data->socketClient;
   pthread_t* ptrTempIdThread = data->ptrTempIdThread;
 
-
   // Get pseudo of the client 
   char* pseudo = malloc(NB_CHARACTERS_PSEUDO_MAX * sizeof(char));
   if(handle_pseudo_client(socketClient, pseudo) == -1) {
@@ -1006,5 +1005,5 @@ void display_remaining_places_semaphore() {
     perror("Error: Getting semaphore nbPlaces");
     exit(1);
   }
-  printf("Remaining places: %d\n", countPlaces);
+  printf("Remaining places: %d\n\n", countPlaces);
 }

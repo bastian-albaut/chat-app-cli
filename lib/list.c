@@ -197,7 +197,6 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     
     // Check if list is empty
     if(is_empty(head)) {
-        perror("List is empty");
         return NULL;
     }  
 
@@ -233,7 +232,7 @@ void display_list(Node** head) {
 
     // Check if list is empty
     if(is_empty(head)) {
-        printf("List of Client is empty\n");
+        printf("List of client is empty\n");
         return;
     }
 
@@ -242,7 +241,7 @@ void display_list(Node** head) {
 
     // Display all elements
     Node *current_element = (*head)->next;
-    printf("\n------ List of Clients ------\n");
+    printf("\n------ List of client(s) ------\n");
     while(current_element != *head) {
         printf("%d - %s\n", current_element->number, current_element->pseudo);
         current_element = current_element->next;
