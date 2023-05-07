@@ -61,12 +61,10 @@ int main(int argc, char *argv[]) {
     // Display the number of remaining places
     display_remaining_places_semaphore();
 
-    // Add the client to the list
-    Node* currentClient = insert_first(&listClient, socketClient);
-
     // Create a thread for the client
-    ThreadArgs args = {currentClient->number, listClient};
-    pthread_create(&(currentClient->thread), NULL, thread_client, &args);
+    pthread_t* ptrTempIdThread = malloc(sizeof(pthread_t));
+    ThreadArgs args = {ptrTempIdThread, socketClient};
+    pthread_create(ptrTempIdThread, NULL, thread_client, &args);
 
   }
   interrupt_handler(1);

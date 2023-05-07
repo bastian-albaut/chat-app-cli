@@ -28,7 +28,8 @@ int idSemaphore;
 void* thread_client(void* args) {
   ThreadArgs* data = (ThreadArgs*) args;
   int socketClient = data->socketClient;
-  Node* listClient = data->listClient;
+  pthread_t* ptrTempIdThread = data->ptrTempIdThread;
+
 
   // Get pseudo of the client 
   char* pseudo = malloc(NB_CHARACTERS_PSEUDO_MAX * sizeof(char));
@@ -36,6 +37,13 @@ void* thread_client(void* args) {
     remove_client(socketClient);
     pthread_exit(0);
   }
+
+  // Add the client to the list
+  Node* currentClient = insert_first(&listClient, socketClient, pseudo, *ptrTempIdThread);
+
+  // Inform the server that a new client is connected
+  printf("Client %s connected !\n", pseudo);
+  display_list(&listClient);
 
   // Loop to receive message and handle messages from client
   while(1) {
@@ -150,10 +158,6 @@ int handle_pseudo_client(int socketClient, char* pseudo) {
   // Set pseudo of client in the list 
   if(pseudoGet != NULL) {
     strcpy(pseudo, pseudoGet);
-    Node* element = search_element(&listClient, socketClient);
-    set_pseudo(&element, pseudo);
-    printf("Client %s connected !\n", pseudo);
-    display_list(&listClient);
     return 1;
   }
 }

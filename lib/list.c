@@ -77,10 +77,12 @@ int is_equal(Node* element1, Node* element2) {
  *
  * @param head The head of the list
  * @param number The number which will be set in the new element
+ * @param pseudo The pseudo which will be set in the new element
+ * @param thread The thread which will be set in the new element
  *
  * @return The new element
  */
-Node* insert_first(Node** head, int number){
+Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
     Node *newHead = (Node*) malloc(sizeof(Node));
     
     // Lock list for writing
@@ -88,6 +90,8 @@ Node* insert_first(Node** head, int number){
 
     // Set newHead attributes
     newHead->number = number;
+    newHead->pseudo = pseudo;
+    newHead->thread = thread;
     newHead->next = (*head)->next;
     newHead->prev = *head;
 
@@ -204,11 +208,9 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     Node *element_searched = NULL;
     Node *current_element = (*head)->next;
     while(current_element != *head) {
-        if(current_element->pseudo != NULL) {
-            if(strcmp(current_element->pseudo, pseudo) == 0) {
-                element_searched = current_element;
-                break;
-            }
+        if(strcmp(current_element->pseudo, pseudo) == 0) {
+            element_searched = current_element;
+            break;
         }
         current_element = current_element->next;
     }
@@ -217,29 +219,6 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
     unlock();
 
     return element_searched;
-}
-
-
-/**
- * Set pseudo of the element with the specified socket
- *
- * @param head The head of the list
- * @param socket The socket of the element to set pseudo
- * @param pseudo The pseudo to set
- *
- * @return void
- */
-void set_pseudo(Node** element, char* pseudo) {
-
-    // Lock list for writing
-    write_lock();    
-
-    if(*element != NULL) {
-        (*element)->pseudo = pseudo;
-    }
-
-    // Unlock list
-    unlock();
 }
 
 
@@ -265,9 +244,7 @@ void display_list(Node** head) {
     Node *current_element = (*head)->next;
     printf("\n------ List of Clients ------\n");
     while(current_element != *head) {
-        if(current_element->pseudo != NULL) {
-            printf("%d - %s\n", current_element->number, current_element->pseudo);
-        }
+        printf("%d - %s\n", current_element->number, current_element->pseudo);
         current_element = current_element->next;
     }
     printf("------ End list ------\n\n");

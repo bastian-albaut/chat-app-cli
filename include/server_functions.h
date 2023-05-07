@@ -5,8 +5,8 @@
 #include "global.h"
 
 typedef struct ThreadArgs {
+    pthread_t* ptrTempIdThread;
     int socketClient;
-    void* listClient;
 } ThreadArgs;
 
 union semun{
