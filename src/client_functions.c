@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <sys/sem.h>
 #include <errno.h>
-#include <termios.h>
 #include "../include/global.h"
 #include "../include/client_functions.h"
 #include "../include/constants.h"
@@ -33,11 +32,6 @@ void* thread_send(void *socket) {
 
   // Loop to send message(s) to the server
   while(1) {
-
-    // Handle the changement of color input
-    disable_input();
-    usleep(100000);  // Delay of 0.1 second
-    enable_input();
 
     // Preparing to send the message to the server
     char message[NB_CHARACTERS];
@@ -325,30 +319,4 @@ void take_place_semaphore() {
     perror("Error: Taking place in the semaphore");
     exit(1);
   }
-}
-
-
-
-/**
- * Disable user input
- *
- * @return void
- */
-void disable_input() {
-  struct termios term;
-  tcgetattr(STDIN_FILENO, &term);
-  term.c_lflag &= ~(ICANON | ECHO);  // Disable canonical mode and echoing
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
-}
-
-/**
- * Enable user input
- *
- * @return void
- */
-void enable_input() {
-  struct termios term;
-  tcgetattr(STDIN_FILENO, &term);
-  term.c_lflag |= ICANON | ECHO;  // Enable canonical mode and echoing
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }

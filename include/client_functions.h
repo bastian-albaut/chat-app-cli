@@ -18,7 +18,5 @@ extern void deserialize_response(char* buffer, size_t sizeBuffer, Response* resp
 extern void print_response(Response* response);
 extern void init_semaphore_client();
 extern void take_place_semaphore();
-extern void disable_input();
-extern void enable_input();
 
 #endif // CLIENT_FUNCTIONS_H
