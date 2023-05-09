@@ -18,5 +18,7 @@ extern void deserialize_response(char* buffer, size_t sizeBuffer, Response* resp
 extern void print_response(Response* response);
 extern void init_semaphore_client();
 extern void take_place_semaphore();
+extern int is_list_file_message(char* message);
+extern void handle_list_file_message();
 
 #endif // CLIENT_FUNCTIONS_H

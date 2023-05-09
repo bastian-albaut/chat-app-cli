@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <sys/sem.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include "../include/global.h"
 #include "../include/client_functions.h"
 #include "../include/constants.h"
@@ -36,6 +38,11 @@ void* thread_send(void *socket) {
     // Preparing to send the message to the server
     char message[NB_CHARACTERS];
     get_input(message, NB_CHARACTERS, NULL);
+
+    if(is_list_file_message(message)) {
+      handle_list_file_message();
+      continue;
+    }
 
     // Sending the message to the server
     send_message(*socketServer, message, NULL);
@@ -152,7 +159,7 @@ void get_input(char* message, int size, char* prompt) {
   if(prompt != NULL) {
     printf("%s\n", prompt);
   }
-
+  
   fgets(message, size, stdin);
   char *findReturn = strchr(message,'\n'); // Return null if not found
   if(findReturn != NULL) {
@@ -319,4 +326,46 @@ void take_place_semaphore() {
     perror("Error: Taking place in the semaphore");
     exit(1);
   }
+}
+
+
+/**
+ * Detect if the message corresponding to list file command (start with "/listfile")
+ *
+ * @param message The message to check
+ *
+ * @return 1 if the message is a list file command | 0 if the message is not a list file command
+ */
+int is_list_file_message(char* message) {
+  if(strncmp(message, "/listfile", 9) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Display the list of files int the directory "files"
+ *
+ * @return void
+ */
+void handle_list_file_message() {
+  DIR *directory;
+  struct dirent *file;
+  directory = opendir("files");
+
+  if(directory == NULL) {
+    perror("Error: Opening directory");
+    exit(1);
+  }
+
+  printf("\n\n------ List of file(s) ------\n");
+  while((file = readdir(directory)) != NULL) {
+    if(strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0) {
+      printf("%s\n", file->d_name);
+    }
+  }
+  printf("------ End list ------\n\n");
+  closedir(directory);
 }
