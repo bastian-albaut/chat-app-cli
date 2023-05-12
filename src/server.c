@@ -11,6 +11,15 @@
 #include "../include/server_functions.h"
 #include "../include/global.h"
 
+
+/**
+ * Main function of the server
+ *
+ * @param argc Number of arguments
+ * @param argv Array of arguments
+ *
+ * @return int
+ */
 int main(int argc, char *argv[]) {
 
   // Arguments verification

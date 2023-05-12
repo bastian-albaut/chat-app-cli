@@ -268,11 +268,6 @@ void handle_message(char* message, int socketClient, char* pseudo, pthread_t thr
       handle_help_message(message, socketClient);
       return;
     }
-
-    // if(is_send_file_message(message)) {
-    //   handle_send_file_message(message, socketClient, pseudo);
-    //   return;
-    // }
   }
   char* responseMessage = "Command not found";
   send_response(socketClient, COMMAND_NOT_FOUND, responseMessage, NULL);
@@ -352,22 +347,6 @@ int is_logout_message(char* message) {
  */
 int is_help_message(char* message) {
   if (strncmp(message, "/help", 5) == 0) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-
-/**
- * Detect if the message corresponding to a send file message (start with "/file")
- * 
- * @param message The string to check
- * 
- * @return 1 if the message is a send file message | 0 if the message is not a send file message
- */
-int is_send_file_message(char* message) {
-  if (strncmp(message, "/file", 5) == 0) {
     return 1;
   } else {
     return 0;
@@ -735,32 +714,6 @@ int is_good_format_help_message(char* message) {
 
   // Check if there is no character after "/help"
   if(strlen(message + 5) != 0) {
-    return 0;
-  }
-
-  // The string is in the correct format
-  return 1;
-}
-
-
-// void handle_send_file_message(char* message, int socketClient) {
-//   int goodFormat = is_good_format_send_file_message(message);
-
-//   // Message does not follow the good format
-//   if(goodFormat == 0) {
-//     char* message = "Send file message have to follow the format /file <filename>";
-//     send_response(socketClient, SEND_FILE_ERROR, message, NULL);
-//   }
-// }
-
-int is_good_format_send_file_message(char* message) {
-  // Check if the string starts with "/file"
-  if (strncmp(message, "/file", 5) != 0) {
-    return 0;
-  }
-
-  // Check if there is no character after "/file"
-  if(strlen(message + 5) == 0) {
     return 0;
   }
 
