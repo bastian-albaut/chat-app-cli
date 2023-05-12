@@ -5,8 +5,11 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "../include/server_functions.h"
 #include <sys/sem.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/select.h>
+#include "../include/server_functions.h"
 #include "../include/list.h"
 #include "../include/constants.h"
 #include "../include/global.h"
@@ -268,6 +271,11 @@ void handle_message(char* message, int socketClient, char* pseudo, pthread_t thr
       handle_help_message(message, socketClient);
       return;
     }
+
+    if(is_send_file_message(message)) {
+      handle_send_file_message(message, socketClient);
+      return;
+    }
   }
   char* responseMessage = "Command not found";
   send_response(socketClient, COMMAND_NOT_FOUND, responseMessage, NULL);
@@ -347,6 +355,22 @@ int is_logout_message(char* message) {
  */
 int is_help_message(char* message) {
   if (strncmp(message, "/help", 5) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to a send file message (start with "/sendfile")
+ * 
+ * @param message The string to check
+ * 
+ * @return 1 if the message is a send file message | 0 if the message is not a send file message
+ */
+int is_send_file_message(char* message) {
+  if (strncmp(message, "/sendfile", 5) == 0) {
     return 1;
   } else {
     return 0;
@@ -752,6 +776,242 @@ char* get_content_of_file(char *filename) {
 
   return buffer;
 }
+
+
+
+/**
+ * Handle send file message. Send a message to the client to confirm the send of the file.
+ *
+ * @param message The message to handle
+ * @param socketClient The socket of the client who send the request of send file
+ *
+ * @return description
+ */
+void handle_send_file_message(char* message, int socketClient) {
+
+  // Message does not follow the good format
+  if(!is_good_format_send_file_message(message)) {
+    char* message = "Send file message have to follow the format /sendfile <file_name> <file_size>";
+    send_response(socketClient, SEND_FILE_ERROR, message, NULL);
+    return;
+  }
+
+  // Get the name and the size of the file
+  char* file_name;
+  int file_size;
+  get_file_name_and_size(message, &file_name, &file_size);
+
+  // Create the file
+  FILE* file = create_file(file_name);
+
+  // Connect to the new socket create by the client
+  int socketFile = init_socket_file();
+  connection_request(socketFile, PORT_FILE_SOCKET);
+
+  // Create thread to receive the content of the file
+  ThreadArgsFile args = {file, socketFile, file_size};
+  pthread_t threadId;
+  pthread_create(&threadId, NULL, thread_receive_file, &args);
+}
+
+
+/**
+ * Detect if the message corresponding to the format "/sendfile <file_name> <file_size>"
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_send_file_message(char* message) {
+  // Check if the string starts with "/sendfile "
+  if (strncmp(message, "/sendfile ", 10) != 0) {
+    return 0;
+  }
+
+  // Find the end of the file name (the first space after "/sendfile ")
+  const char* file_name_end = strchr(message + 10, ' ');
+  if (file_name_end == NULL) {
+    return 0;
+  }
+
+  // Check if there is at least one character after the user name
+  if (strlen(file_name_end + 1) == 0) {
+    return 0;
+  }
+
+  // The string is in the correct format
+  return 1;
+}
+
+
+/**
+ * 
+ *
+ * @param param description
+ *
+ * @return description
+ */
+void get_file_name_and_size(char* message, char** file_name, int* file_size) {
+  // Find the end of the file name (the first space after "/sendfile ")
+  const char* file_name_end = strchr(message + 10, ' ');
+
+  // Get the file name
+  int file_name_length = file_name_end - (message + 10);
+  *file_name = malloc(file_name_length + 1);
+  strncpy(*file_name, message + 10, file_name_length);
+  (*file_name)[file_name_length] = '\0';
+
+  // Get the file size
+  *file_size = atoi(file_name_end + 1);
+}
+
+
+/**
+ * Create the file with the name specified in parameter
+ *
+ * @param file_name The name of the file to create
+ *
+ * @return The file created
+ */
+FILE* create_file(char* file_name) {
+  FILE* file = fopen(file_name, "w");
+
+  if(file == NULL) {
+    perror("Error: opening file");
+    exit(1);
+  }
+
+  return file;
+}
+
+
+/**
+ *
+ * Initialize the socket for file transfer
+ *
+ * @return The socket file
+ */
+int init_socket_file() {
+
+  int socketFile = socket(PF_INET, SOCK_STREAM, 0);
+
+  if(socketFile == -1) {
+    perror("Error: Creation of socket");
+    exit(1);
+  }
+
+  printf("Socket file created\n");
+  return socketFile;
+}
+
+
+/**
+ * Send a connection request to the new soket for file transfer
+ *
+ * @param socketFile The socket file
+ * @param port The port of the server
+ *
+ * @return void
+ */
+void connection_request(int socketFile, int port) {
+  struct sockaddr_in adress;
+  socklen_t sizeAdress = sizeof(adress);
+
+  // Get the ip address of the client
+  struct sockaddr_in clientAddress;
+  getpeername(socketFile, (struct sockaddr*)&clientAddress, &sizeAdress);
+  char clientIP[INET_ADDRSTRLEN];
+  inet_ntop(AF_INET, &(clientAddress.sin_addr), clientIP, INET_ADDRSTRLEN);
+  printf(" => IP of client: %s\n", clientIP);
+
+  adress.sin_family = AF_INET;
+  inet_pton(AF_INET, clientIP, &(adress.sin_addr));
+  adress.sin_port = htons(port);
+
+  printf(" => Waiting for the client to connect\n");
+
+  // Set the socket to non-blocking mode
+    int flags = fcntl(socketFile, F_GETFL, 0);
+    flags |= O_NONBLOCK;
+    fcntl(socketFile, F_SETFL, flags);
+
+    // Attempt the connection (non-blocking)
+    int result = connect(socketFile, (struct sockaddr*) &adress, sizeAdress);
+
+    if (result == 0) {
+        // Connection successful (immediately)
+        printf(" => Connected to the client\n");
+    } else if (errno == EINPROGRESS) {
+        // Connection in progress (non-blocking)
+        // Wait for the connection to complete or timeout
+        fd_set writeSet;
+        FD_ZERO(&writeSet);
+        FD_SET(socketFile, &writeSet);
+
+        struct timeval timeout;
+        timeout.tv_sec = 5;  // Timeout value (adjust as needed)
+        timeout.tv_usec = 0;
+
+        result = select(socketFile + 1, NULL, &writeSet, NULL, &timeout);
+
+        if (result > 0) {
+            // Connection successful
+            printf(" => Connected to the client\n");
+        } else if (result == 0) {
+            // Connection timeout
+            printf(" => Connection to the client timed out\n");
+            // Handle the timeout scenario as needed
+        } else {
+            // Connection error
+            perror("Error: Client connection request");
+            exit(1);
+            // Handle the connection error as needed
+        }
+    } else {
+        // Connection error
+        perror("Error: Client connection request");
+        exit(1);
+        // Handle the connection error as needed
+    }
+}
+
+
+/**
+ * Function thread to receive the content of the file
+ *
+ * @param param description
+ *
+ * @return description
+ */
+void* thread_receive_file(void* args) {
+  ThreadArgsFile* data = (ThreadArgsFile*) args;
+  int socketFile = data->socketFile;
+  int sizeFile = data->sizeFile;
+  FILE* file = data->file;
+
+  // Send client information that the server is ready to receive the file
+  char* message = "The server is ready to handle file content";
+  send_response(socketFile, SERVER_READY_FILE, message, NULL);
+
+  printf("Waiting for receiving file content...\n");
+
+  // Receive the content of the file
+  char buffer[1024];
+  while (sizeFile > 0) {
+    int bytesRead = recv(socketFile, buffer, sizeof(buffer), 0);
+    if (bytesRead == -1) {
+      perror("Error receiving file");
+      exit(1);
+    } else if (bytesRead == 0) {
+      printf("Connection closed by client\n");
+      break;
+    }
+    printf("Received %d bytes\n", bytesRead);
+    fwrite(buffer, 1, bytesRead, file);
+    sizeFile -= bytesRead;
+  }
+
+} 
 
 
 /**

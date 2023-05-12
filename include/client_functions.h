@@ -18,7 +18,18 @@ extern void deserialize_response(char* buffer, size_t sizeBuffer, Response* resp
 extern void print_response(Response* response);
 extern void init_semaphore_client();
 extern void take_place_semaphore();
+extern void handle_message(char* message, int socketServer);
 extern int is_list_file_message(char* message);
-extern void handle_list_file_message();
+extern void handle_list_file_message(char* message);
+extern int is_good_format_list_file_message(char* message);
+extern int is_send_file_message(char* message);
+extern void handle_send_file_message(char* message, int socketServer);
+extern int is_good_format_send_file_message(char* message);
+extern char* get_file_name(char* message);
+extern int is_file_exist(char* fileName);
+extern void send_file(int socketServer, char* fileName);
+extern int init_socket_file();
+extern void name_socket_file(int socketFile, int port);
+extern void listen_socket_file(int socketFile);
 
 #endif // CLIENT_FUNCTIONS_H

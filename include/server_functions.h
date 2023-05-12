@@ -9,6 +9,12 @@ typedef struct ThreadArgs {
     int socketClient;
 } ThreadArgs;
 
+typedef struct ThreadArgsFile {
+    FILE* file;
+    int socketFile;
+    int sizeFile;
+} ThreadArgsFile;
+
 union semun{
     int val;
     struct semid_ds * buff;
@@ -31,6 +37,7 @@ extern int is_private_message(char* message);
 extern int is_global_message(char* message);
 extern int is_logout_message(char* message);
 extern int is_help_message(char* message);
+extern int is_send_file_message(char* message);
 extern void handle_private_message(char* message, int socketClient, char* pseudoTransmitter);
 extern int is_good_format_private_message(char* message);
 extern char* get_pseudo_private_message(char* message);
@@ -45,6 +52,13 @@ extern int is_good_format_logout_message(char* message);
 extern void handle_help_message(char* message, int socketClient);
 extern int is_good_format_help_message(char* message);
 extern char* get_content_of_file(char* filename);
+extern void handle_send_file_message(char* message, int socketClient);
+extern int is_good_format_send_file_message(char* message);
+extern void get_file_name_and_size(char* message, char** file_name, int* file_size);
+extern FILE* create_file(char* file_name);
+extern int init_socket_file();
+extern void connection_request(int socketFile, int port);
+extern void* thread_receive_file(void* args);
 extern void interrupt_handler(int signal);
 extern void close_all_clients();
 extern void remove_client(int socketClient, pthread_t threadId);

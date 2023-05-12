@@ -39,14 +39,7 @@ void* thread_send(void *socket) {
     char message[NB_CHARACTERS];
     get_input(message, NB_CHARACTERS, NULL);
 
-    if(is_list_file_message(message)) {
-      handle_list_file_message();
-      continue;
-    }
-
-    // Sending the message to the server
-    send_message(*socketServer, message, NULL);
-
+    handle_message(message, *socketServer);
   }
 }
 
@@ -330,14 +323,38 @@ void take_place_semaphore() {
 
 
 /**
- * Detect if the message corresponding to list file command (start with "/listfile")
+ * Handle the message specified in parameter
+ *
+ * @param message The message to handle
+ * @param socketServer The socket of the server
+ *
+ * @return void
+ */
+void handle_message(char* message, int socketServer) {
+  if(is_list_file_message(message)) {
+    handle_list_file_message(message);
+    return;
+  }
+
+  if(is_send_file_message(message)) {
+    handle_send_file_message(message, socketServer);
+    return;
+  }
+
+  // Sending the message to the server
+  send_message(socketServer, message, NULL);
+}
+
+
+/**
+ * Detect if the message corresponding to list file command (start with "/listfiles")
  *
  * @param message The message to check
  *
  * @return 1 if the message is a list file command | 0 if the message is not a list file command
  */
 int is_list_file_message(char* message) {
-  if(strncmp(message, "/listfile", 9) == 0) {
+  if(strncmp(message, "/listfiles", 10) == 0) {
     return 1;
   } else {
     return 0;
@@ -346,21 +363,27 @@ int is_list_file_message(char* message) {
 
 
 /**
- * Display the list of files int the directory "files"
+ * Display the list of files of the directory FILE_DIRECTORY
  *
  * @return void
  */
-void handle_list_file_message() {
+void handle_list_file_message(char* message) {
+
+  if(!is_good_format_list_file_message(message)) {
+    printf("Error: Bad format for the message\n");
+    return;
+  }
+
   DIR *directory;
   struct dirent *file;
-  directory = opendir("files");
+  directory = opendir(FILE_DIRECTORY);
 
   if(directory == NULL) {
     perror("Error: Opening directory");
     exit(1);
   }
 
-  printf("\n\n------ List of file(s) ------\n");
+  printf("\n------ List of file(s) ------\n");
   while((file = readdir(directory)) != NULL) {
     if(strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0) {
       printf("%s\n", file->d_name);
@@ -368,4 +391,284 @@ void handle_list_file_message() {
   }
   printf("------ End list ------\n\n");
   closedir(directory);
+}
+
+
+
+/**
+ * Detect if the message corresponding to the format /listfiles local
+ *
+ * @param param description
+ *
+ * @return description
+ */
+int is_good_format_list_file_message(char* message) {
+  
+  char* token = strtok(message, " ");
+  if(token == NULL) {
+    return 0;
+  }
+
+  if(strcmp(token, "/listfiles") != 0) {
+    return 0;
+  }
+
+  token = strtok(NULL, " ");
+  if(token == NULL) {
+    return 0;
+  }
+
+  if(strcmp(token, "local") != 0) {
+    return 0;
+  }
+
+  return 1;
+}
+
+
+/**
+ * Detect if the message corresponding to send file command (start with "/sendfile")
+ *
+ * @param message The message to check
+ *
+ * @return 1 if the message is a send file command | 0 if the message is not a send file command
+ */
+int is_send_file_message(char* message) {
+  if(strncmp(message, "/sendfile", 9) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Handle the send file command
+ *
+ * @param message The message to handle
+ * @param socketServer The socket of the server
+ *
+ * @return void
+ */
+void handle_send_file_message(char* message, int socketServer) {
+  if(!is_good_format_send_file_message(message)) {
+    printf("Error: Bad format of the message\n");
+    return;
+  }
+
+  char* fileName = get_file_name(message);
+  if(fileName == NULL) {
+    printf("Error: No file name specified\n");
+    return;
+  }
+
+  if(!is_file_exist(fileName)) {
+    printf("Error: File %s doesn't exist\n", fileName);
+    return;
+  }
+
+  // Sending the file to the server
+  send_file(socketServer, fileName);
+}
+
+
+/**
+ * Detect if the message corresponding to the format /sendfile <file_name>
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_send_file_message(char* message) {
+  // Check if the string starts with "/sendfile "
+  if(strncmp(message, "/sendfile ", 10) != 0) {
+    return 0;
+  }
+
+  // Chech if there is at least one character after "/sendfile "
+  if(strlen(message + 10) == 0) {
+    return 0;
+  }
+}
+
+
+/**
+ * Get the file name in the message
+ *
+ * @param message The message to check
+ *
+ * @return The file name in the message
+ */
+char* get_file_name(char* message) {
+  char* content = malloc(NB_CHARACTERS * sizeof(char));
+  int i = 0;
+  int j = 0;
+  while(message[j] != ' ') {
+    j++;
+  }
+  j++;
+  while(message[j] != '\0') {
+    content[i] = message[j];
+    i++;
+    j++;
+  }
+  content[i] = '\0';
+
+  return content;
+}
+
+
+/**
+ * Detect if the file specified in parameter exist
+ *
+ * @param fileName The name of the file to check
+ *
+ * @return 1 if the file exist | 0 if the file doesn't exist
+ */
+int is_file_exist(char* fileName) {
+  DIR *directory;
+  struct dirent *file;
+  directory = opendir(FILE_DIRECTORY);
+
+  if(directory == NULL) {
+    perror("Error: Opening directory");
+    exit(1);
+  }
+
+  while((file = readdir(directory)) != NULL) {
+    if(strcmp(file->d_name, fileName) == 0) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+
+/**
+ * Send name and size of the file specified in parameter to the server 
+ * Create a new socket to handle the file transfer
+ * Send the content of the file by blocks of 1024 bytes with the new socket
+ *
+ * @param socketServer The socket of the server
+ * @param fileName The name of the file to send
+ *
+ * @return void
+ */
+void send_file(int socketServer, char* fileName) {
+
+  // Concatenate the directory and the file name
+  char* filePath = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(filePath, FILE_DIRECTORY);
+  strcat(filePath, fileName);
+
+  FILE* file = fopen(filePath, "r");
+  if(file == NULL) {
+    perror("Error: Opening file");
+    exit(1);
+  }
+
+  // Get the size of the file
+  fseek(file, 0, SEEK_END);
+  int fileSize = ftell(file);
+  fseek(file, 0, SEEK_SET);
+  char* fileSizeString = malloc(NB_CHARACTERS * sizeof(char));
+  sprintf(fileSizeString, "%d", fileSize);
+
+  printf("Sending file %s (%d bytes)\n", fileName, fileSize);
+
+  // Configure the new socket to handle file transfer
+  int socketFile = init_socket_file();
+  name_socket_file(socketFile, PORT_FILE_SOCKET);
+  listen_socket_file(socketFile);
+
+  // Send the command the name and the size of the file whith the format "/sendfile <file_name> <file_size>"
+  char* command = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(command, "/sendfile ");
+  strcat(command, fileName);
+  strcat(command, " ");
+  strcat(command, fileSizeString);  
+  if(send(socketServer, command, strlen(command), 0) == -1) {
+    perror("Error sending command of sending file");
+    exit(1);
+  }
+
+  // Accept the connection of the server
+  int socketFileServer = accept(socketFile, NULL, NULL);
+  printf("Server connected for file transfer...\n");
+
+  // Receive the confirmation of the server
+  Response* response = malloc(sizeof(Response));
+  int nbByteRead = recv_response(socketFileServer, response);
+  if(nbByteRead == 0 || nbByteRead == -1) {
+    perror("The connection was cut on the server sideeeeeeeeeeeeeeeee\n");
+    exit(1);
+  }
+  printf("Server: %s\n", response->message);
+
+  // Send the content of the file
+  char buffer[1024];
+  int nbBytesRead;
+  while((nbBytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+    if(send(socketFileServer, buffer, nbBytesRead, 0) == -1) {
+      perror("Error sending file");
+      exit(1);
+    }
+  }
+}
+
+
+/**
+ *
+ * Initialize the socket in TCP which will be used to communicate with server to handle file transfer
+ *
+ * @return The socket of the file
+ */
+int init_socket_file() {
+	int socketFile = socket(PF_INET, SOCK_STREAM, 0);
+	
+  if(socketFile == -1) {
+    perror("Error: Creation of socket");
+    exit(1);
+  }
+
+  printf("Socket for file Created");
+  return socketFile;
+}
+
+/**
+ * Name the socket of the file transfer
+ *
+ * @param socket The socket of the file transfer
+ * @param port The port of the socket
+ *
+ * @return void
+ */
+void name_socket_file(int socketFile, int port) {
+  struct sockaddr_in adress;
+  socklen_t sizeAdress= sizeof(adress);
+
+  adress.sin_family = AF_INET; 
+  adress.sin_addr.s_addr = INADDR_ANY;
+  adress.sin_port = htons(port);
+
+  if(bind(socketFile, (struct sockaddr*)&adress, sizeAdress) == -1) {
+    perror("Error: Socket naming");
+    exit(1);
+  }
+  printf(" => Named Socket file successfully");
+}
+
+
+/**
+ * Listen the socket for file transfer
+ *
+ * @return void
+ */
+void listen_socket_file(int socketFile) {
+  if(listen(socketFile, 2) == -1) {
+    perror("Error: Socket listening");
+    exit(1);
+  }
+  printf(" => Socket file listening\n\n");
 }
