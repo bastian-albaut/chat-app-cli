@@ -267,7 +267,7 @@ void print_response(Response* response) {
   if(response->code >= 100 && response->code < 200) {
     printf(BLUE "%d - %s\n" RESET, response->code, response->message);
   } else if(response->code >= 200 && response->code < 300) {
-    if(response->code == 203) {
+    if(response->code == HELP_SUCCESS) {
       printf(GREEN "%s\n" RESET, response->message);
     } else {
       printf(GREEN "%d - %s\n" RESET, response->code, response->message);
