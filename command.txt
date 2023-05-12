@@ -7,6 +7,10 @@
 ║                       ║                                                     ║
 ║ /logout               ║ Request server disconnection                        ║
 ║                       ║                                                     ║
+║ /listfiles local      ║ List all local files                                ║
+║                       ║                                                     ║
+║ /sendfile <file_name> ║ Send a file to the server                           ║
+║                       ║                                                     ║
 ║ /help                 ║ List all available commands                         ║
 ╚═══════════════════════╩═════════════════════════════════════════════════════╝
                        
