@@ -58,6 +58,10 @@ void init_socket_client() {
     perror("Error: Creation of socket");
     exit(1);
   }
+
+  // Allow to use address again
+  int optval = 1;
+  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 }
 
 
