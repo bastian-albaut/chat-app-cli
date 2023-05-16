@@ -367,7 +367,7 @@ int is_list_file_message(char* message) {
 
 
 /**
- * Display the list of files of the directory FILE_DIRECTORY
+ * Display the list of files of the directory FILE_DIRECTORY_CLIENT
  *
  * @return void
  */
@@ -380,7 +380,7 @@ void handle_list_file_message(char* message) {
 
   DIR *directory;
   struct dirent *file;
-  directory = opendir(FILE_DIRECTORY);
+  directory = opendir(FILE_DIRECTORY_CLIENT);
 
   if(directory == NULL) {
     perror("Error: Opening directory");
@@ -532,7 +532,7 @@ char* get_file_name(char* message) {
 int is_file_exist(char* fileName) {
   DIR *directory;
   struct dirent *file;
-  directory = opendir(FILE_DIRECTORY);
+  directory = opendir(FILE_DIRECTORY_CLIENT);
 
   if(directory == NULL) {
     perror("Error: Opening directory");
@@ -563,7 +563,7 @@ void send_file(int socketServer, char* fileName) {
 
   // Concatenate the directory and the file name
   char* filePath = malloc(NB_CHARACTERS * sizeof(char));
-  strcpy(filePath, FILE_DIRECTORY);
+  strcpy(filePath, FILE_DIRECTORY_CLIENT);
   strcat(filePath, fileName);
 
   FILE* file = fopen(filePath, "r");
@@ -579,12 +579,11 @@ void send_file(int socketServer, char* fileName) {
   char* fileSizeString = malloc(NB_CHARACTERS * sizeof(char));
   sprintf(fileSizeString, "%d", fileSize);
 
-  printf("Sending file %s (%d bytes)\n", fileName, fileSize);
+  printf("Sending file %s (%d bytes) ...\n", fileName, fileSize);
 
-  // Configure the new socket to handle file transfer
-  int socketFile = init_socket_file();
-  name_socket_file(socketFile, PORT_FILE_SOCKET);
-  listen_socket_file(socketFile);
+  // Create new thread to handle the file transfer
+  pthread_t thread;
+  pthread_create(&thread, NULL, thread_file_transfer, (void*)file);
 
   // Send the command the name and the size of the file whith the format "/sendfile <file_name> <file_size>"
   char* command = malloc(NB_CHARACTERS * sizeof(char));
@@ -597,29 +596,73 @@ void send_file(int socketServer, char* fileName) {
     exit(1);
   }
 
+  // Wait the server to confirm the file transfer
+  // Response* response = malloc(sizeof(Response));
+  // int nbByteRead = recv_response(socketServer, response);
+  // if(nbByteRead == 0 || nbByteRead == -1) {
+  //   perror("The connection was cut on the server side\n");
+  //   exit(1);
+  // }
+}
+
+
+/**
+ * Function thread for handle file transfer
+ *
+ * @param socket The socket of the server
+ *
+ * @return void
+ */
+void* thread_file_transfer(void *arg) {
+  FILE* file = (FILE*) arg;
+
+  // Configure the new socket to handle file transfer
+  int socketFile = init_socket_file();
+  name_socket_file(socketFile, PORT_FILE_SOCKET);
+  listen_socket_file(socketFile);
+
   // Accept the connection of the server
   int socketFileServer = accept(socketFile, NULL, NULL);
-  printf("Server connected for file transfer...\n");
 
   // Receive the confirmation of the server
   Response* response = malloc(sizeof(Response));
   int nbByteRead = recv_response(socketFileServer, response);
   if(nbByteRead == 0 || nbByteRead == -1) {
-    perror("The connection was cut on the server sideeeeeeeeeeeeeeeee\n");
+    perror("The connection was cut on the server side\n");
     exit(1);
   }
-  printf("Server: %s\n", response->message);
+  print_response(response);
 
   // Send the content of the file
   char buffer[1024];
   int nbBytesRead;
-  while((nbBytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-    if(send(socketFileServer, buffer, nbBytesRead, 0) == -1) {
+  do {
+    nbBytesRead = fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
+    // Error reading file
+    if (nbBytesRead < 0) {
+      perror("Error reading file");
+      exit(1);
+    }
+    // End of file
+    if(nbByteRead == 0) {
+      break;
+    }
+    if (send(socketFileServer, buffer, nbBytesRead, 0) == -1) {
       perror("Error sending file");
       exit(1);
     }
-  }
+  } while (nbBytesRead > 0);
+
+  printf("File sent\n");
+
+  // End of thread
+  close(socketFileServer);
+  close(socketFile);
+  fclose(file);
+  free(response);
+  pthread_exit(0);
 }
+
 
 
 /**
@@ -636,7 +679,7 @@ int init_socket_file() {
     exit(1);
   }
 
-  printf("Socket for file Created");
+  printf("Socket for file Created\n");
   return socketFile;
 }
 
@@ -660,7 +703,7 @@ void name_socket_file(int socketFile, int port) {
     perror("Error: Socket naming");
     exit(1);
   }
-  printf(" => Named Socket file successfully");
+  printf(" => Named Socket file\n");
 }
 
 
@@ -674,5 +717,5 @@ void listen_socket_file(int socketFile) {
     perror("Error: Socket listening");
     exit(1);
   }
-  printf(" => Socket file listening\n\n");
+  printf(" => Socket file listening\n");
 }

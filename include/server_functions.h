@@ -53,6 +53,7 @@ extern void handle_help_message(char* message, int socketClient);
 extern int is_good_format_help_message(char* message);
 extern char* get_content_of_file(char* filename);
 extern void handle_send_file_message(char* message, int socketClient);
+extern int is_file_name_and_size_ok(char* fileName, int size, char* message);
 extern int is_good_format_send_file_message(char* message);
 extern void get_file_name_and_size(char* message, char** file_name, int* file_size);
 extern FILE* create_file(char* file_name);

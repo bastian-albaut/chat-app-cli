@@ -798,20 +798,70 @@ void handle_send_file_message(char* message, int socketClient) {
 
   // Get the name and the size of the file
   char* file_name;
-  int file_size;
-  get_file_name_and_size(message, &file_name, &file_size);
+  int sizeFile;
+  get_file_name_and_size(message, &file_name, &sizeFile);
+  
+  // Check if the file name and the size of the file are correct
+  char* messageError = malloc(NB_CHARACTERS * sizeof(char));
+  if(!is_file_name_and_size_ok(file_name, sizeFile, messageError)) {
+    send_response(socketClient, SEND_FILE_ERROR, messageError, NULL);
+    return;
+  }
+
+  send_response(socketClient, REQUEST_SEND_FILE_ACCEPTED, "File transfer request accepted", NULL);
 
   // Create the file
   FILE* file = create_file(file_name);
 
   // Connect to the new socket create by the client
-  int socketFile = init_socket_file();
+  int socketFile;
+  socketFile = init_socket_file();
   connection_request(socketFile, PORT_FILE_SOCKET);
 
   // Create thread to receive the content of the file
-  ThreadArgsFile args = {file, socketFile, file_size};
+  ThreadArgsFile* args = malloc(sizeof(ThreadArgsFile));
+  args->file = file;
+  args->socketFile = socketFile;
+  args->sizeFile = sizeFile;
+
+  printf("file: %p\n", args->file);
+
   pthread_t threadId;
-  pthread_create(&threadId, NULL, thread_receive_file, &args);
+  pthread_create(&threadId, NULL, thread_receive_file, (void*) args);
+}
+
+
+/**
+ * Check if the file name and the size of the file are correct
+ *
+ * @param fileName The name of the file
+ * @param size The size of the file
+ * @param message The message to send to the client if the file name or the size of the file are not correct
+ *
+ * @return 1 if the file name and the size of the file are correct | 0 if not
+ */
+int is_file_name_and_size_ok(char* fileName, int size, char* message) {
+  if(size == 0) {
+    strcpy(message, "The file is empty");
+    return 0;
+  }
+
+  if(size > MAX_SIZE_FILE) {
+    strcpy(message, "The file is too big (> 10Mo)");
+    message = "The file is too big (> 10Mo)";
+    return 0;
+  }
+
+  // Check if another file with the same name already exist
+  char* filePath = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(filePath, FILE_DIRECTORY_SERVER);
+  strcat(filePath, fileName);
+  if(access(filePath, F_OK) != -1) {
+    strcpy(message, "A file with the same name already exist");
+    return 0;
+  }
+
+  return 1;
 }
 
 
@@ -863,6 +913,8 @@ void get_file_name_and_size(char* message, char** file_name, int* file_size) {
 
   // Get the file size
   *file_size = atoi(file_name_end + 1);
+
+  printf("file transfer request receive: %s (%d bytes)\n", *file_name, *file_size);
 }
 
 
@@ -874,12 +926,20 @@ void get_file_name_and_size(char* message, char** file_name, int* file_size) {
  * @return The file created
  */
 FILE* create_file(char* file_name) {
-  FILE* file = fopen(file_name, "w");
+
+  // Concatenate the directory and the file name
+  char* filePath = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(filePath, FILE_DIRECTORY_SERVER);
+  strcat(filePath, file_name);
+
+  FILE* file = fopen(filePath, "w");
 
   if(file == NULL) {
     perror("Error: opening file");
     exit(1);
   }
+
+  printf("File \"%s\" created\n", file_name);
 
   return file;
 }
@@ -915,71 +975,28 @@ int init_socket_file() {
  */
 void connection_request(int socketFile, int port) {
   struct sockaddr_in adress;
-  socklen_t sizeAdress = sizeof(adress);
-
-  // Get the ip address of the client
-  struct sockaddr_in clientAddress;
-  getpeername(socketFile, (struct sockaddr*)&clientAddress, &sizeAdress);
-  char clientIP[INET_ADDRSTRLEN];
-  inet_ntop(AF_INET, &(clientAddress.sin_addr), clientIP, INET_ADDRSTRLEN);
-  printf(" => IP of client: %s\n", clientIP);
+  char* ipAdress = malloc(16);
+  strcpy(ipAdress, "127.0.0.1");
 
   adress.sin_family = AF_INET;
-  inet_pton(AF_INET, clientIP, &(adress.sin_addr));
+  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
   adress.sin_port = htons(port);
+  
+  socklen_t sizeAdress = sizeof(adress);
+  
+  if(connect(socketFile, (struct sockaddr *) &adress, sizeAdress) == -1){
+    perror("Error: Server connection request");
+    exit(1);
+  }
 
-  printf(" => Waiting for the client to connect\n");
-
-  // Set the socket to non-blocking mode
-    int flags = fcntl(socketFile, F_GETFL, 0);
-    flags |= O_NONBLOCK;
-    fcntl(socketFile, F_SETFL, flags);
-
-    // Attempt the connection (non-blocking)
-    int result = connect(socketFile, (struct sockaddr*) &adress, sizeAdress);
-
-    if (result == 0) {
-        // Connection successful (immediately)
-        printf(" => Connected to the client\n");
-    } else if (errno == EINPROGRESS) {
-        // Connection in progress (non-blocking)
-        // Wait for the connection to complete or timeout
-        fd_set writeSet;
-        FD_ZERO(&writeSet);
-        FD_SET(socketFile, &writeSet);
-
-        struct timeval timeout;
-        timeout.tv_sec = 5;  // Timeout value (adjust as needed)
-        timeout.tv_usec = 0;
-
-        result = select(socketFile + 1, NULL, &writeSet, NULL, &timeout);
-
-        if (result > 0) {
-            // Connection successful
-            printf(" => Connected to the client\n");
-        } else if (result == 0) {
-            // Connection timeout
-            printf(" => Connection to the client timed out\n");
-            // Handle the timeout scenario as needed
-        } else {
-            // Connection error
-            perror("Error: Client connection request");
-            exit(1);
-            // Handle the connection error as needed
-        }
-    } else {
-        // Connection error
-        perror("Error: Client connection request");
-        exit(1);
-        // Handle the connection error as needed
-    }
+  printf(" => Connected to the client\n");
 }
 
 
 /**
  * Function thread to receive the content of the file
  *
- * @param param description
+ * @param agrs The arguments of the thread
  *
  * @return description
  */
@@ -989,6 +1006,10 @@ void* thread_receive_file(void* args) {
   int sizeFile = data->sizeFile;
   FILE* file = data->file;
 
+  printf("file: %p\n", file);
+
+  free(data);
+
   // Send client information that the server is ready to receive the file
   char* message = "The server is ready to handle file content";
   send_response(socketFile, SERVER_READY_FILE, message, NULL);
@@ -996,22 +1017,31 @@ void* thread_receive_file(void* args) {
   printf("Waiting for receiving file content...\n");
 
   // Receive the content of the file
-  char buffer[1024];
+  char buffer[1025];  // Increase buffer size by 1 for null termination
   while (sizeFile > 0) {
-    int bytesRead = recv(socketFile, buffer, sizeof(buffer), 0);
+    int bytesRead = recv(socketFile, buffer, sizeof(buffer) - 1, 0);
     if (bytesRead == -1) {
       perror("Error receiving file");
-      exit(1);
+      pthread_exit(0);
     } else if (bytesRead == 0) {
       printf("Connection closed by client\n");
+      pthread_exit(0);
       break;
     }
-    printf("Received %d bytes\n", bytesRead);
-    fwrite(buffer, 1, bytesRead, file);
+    printf(" => %d bytes received\n", bytesRead);
+
+    buffer[bytesRead] = '\0';  // Add null termination
+    if (fputs(buffer, file) == EOF) {
+      perror("Error writing to file");
+      pthread_exit(NULL);
+    }
     sizeFile -= bytesRead;
   }
+  printf("File content received\n");
 
-} 
+  pthread_exit(0);
+}
+
 
 
 /**

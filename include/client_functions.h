@@ -28,6 +28,7 @@ extern int is_good_format_send_file_message(char* message);
 extern char* get_file_name(char* message);
 extern int is_file_exist(char* fileName);
 extern void send_file(int socketServer, char* fileName);
+extern void* thread_file_transfer(void *arg);
 extern int init_socket_file();
 extern void name_socket_file(int socketFile, int port);
 extern void listen_socket_file(int socketFile);
