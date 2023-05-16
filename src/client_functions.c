@@ -625,8 +625,6 @@ void* thread_file_transfer(void *arg) {
     perror("Error: Receiving the response");
   } else {
     
-    print_response(response);
-
     // If the server is ready to receive the file
     if(response->code == REQUEST_SEND_FILE_ACCEPTED) {
 
@@ -650,14 +648,16 @@ void* thread_file_transfer(void *arg) {
         }
       } while (nbBytesRead > 0);
 
-      printf("File sent\n");
-
       // Wait for the confirmation of the server
       Response* response = malloc(sizeof(Response));
       int nbByteRead = recv_response(socketFileServer, response);
       if(nbByteRead > 0) {
         print_response(response);
       }
+    } else {
+
+      // Display the server error
+      print_response(response);
     }
   }
 

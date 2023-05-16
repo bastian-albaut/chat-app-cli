@@ -1027,7 +1027,7 @@ void* thread_receive_file(void* args) {
     buffer[bytesRead] = '\0';  // Add null termination
     if (fputs(buffer, file) == EOF) {
       perror("Error writing to file");
-      pthread_exit(NULL);
+      pthread_exit(0);
     }
     sizeFile -= bytesRead;
   }
