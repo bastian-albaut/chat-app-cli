@@ -61,7 +61,7 @@ void init_socket_client() {
 
   // Allow to use address again
   int optval = 1;
-  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+  setsockopt(socketServerFromClient, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 }
 
 
