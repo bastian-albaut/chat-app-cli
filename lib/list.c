@@ -34,18 +34,23 @@ void init_head(Node** head) {
  * Check if the list is empty
  *
  * @param head The head of the list
+ * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
  *
  * @return 1 if list is empty | 0 if list is not empty
  */
-int is_empty(Node** head){
+int is_empty(Node** head, int isMutexAccess){
 
-    // Lock list for reading
-    read_lock();
+    if(isMutexAccess) {
+        // Lock list for reading
+        read_lock();
+    }
 
     int isEmpty = (*head)->next == *head && (*head)->prev == *head;
 
-    // Unlock list
-    unlock();
+    if(isMutexAccess) {
+        // Unlock list
+        unlock();
+    }
 
     return isEmpty;
 }
@@ -55,18 +60,23 @@ int is_empty(Node** head){
  *
  * @param element1 The first element
  * @param element2 The second element
+ * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
  *
  * @return 1 if elements are equal | 0 if elements are not equal
  */
-int is_equal(Node* element1, Node* element2) {
+int is_equal(Node* element1, Node* element2, int isMutexAccess) {
 
-    // Lock list for reading
-    read_lock();
-
+    if(isMutexAccess) {
+        // Lock list for reading
+        read_lock();
+    }
+    
     int isEqual = element1 == element2;
 
-    // Unlock list
-    unlock();
+    if(isMutexAccess) {
+        // Unlock list
+        unlock();
+    }
 
     return isEqual;
 }
@@ -123,18 +133,20 @@ void remove_element(Node** head, Node* element) {
         return;
     }
 
+    // Lock list for writing
+    write_lock();
+
     // Check if element is head
-    if(is_equal(*head, element)) {
+    if(is_equal(*head, element, 0)) {
+        unlock();
         return;
     }
 
     // Check if list is empty
-    if(is_empty(head)) {
+    if(is_empty(head, 0)) {
+        unlock();
         return;
     }
-    
-    // Lock list for writing
-    write_lock();
 
     // Adjust reference of previous and next element
     element->prev->next = element->next;
@@ -161,13 +173,14 @@ void remove_element(Node** head, Node* element) {
  */
 Node* search_element(Node** head, int number) {
     
-    // Check if list is empty
-    if(is_empty(head)) {
-        return NULL;
-    }
-
     // Lock list for reading
     read_lock();
+
+    // Check if list is empty
+    if(is_empty(head, 0)) {
+        unlock();
+        return NULL;
+    }
 
     // Search element
     Node *element_searched = NULL;
@@ -197,13 +210,14 @@ Node* search_element(Node** head, int number) {
  */
 Node* search_element_pseudo(Node** head, char* pseudo) {
     
-    // Check if list is empty
-    if(is_empty(head)) {
-        return NULL;
-    }  
-
     // Lock list for reading
     read_lock();
+
+    // Check if list is empty
+    if(is_empty(head, 0)) {
+        unlock();
+        return NULL;
+    }  
 
     // Search element
     Node *element_searched = NULL;
@@ -232,14 +246,15 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
  */
 void display_list(Node** head) {
 
-    // Check if list is empty
-    if(is_empty(head)) {
-        printf("List of client is empty\n");
-        return;
-    }
-
     // Lock list for reading
     read_lock();
+
+    // Check if list is empty
+    if(is_empty(head, 0)) {
+        printf("List of client is empty\n");
+        unlock();
+        return;
+    }
 
     // Display all elements
     Node *current_element = (*head)->next;

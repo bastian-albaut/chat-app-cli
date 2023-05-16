@@ -15,8 +15,8 @@ typedef struct Node {
 pthread_rwlock_t rwlock;
 
 extern void init_head(Node** head);
-extern int is_empty(Node** head);
-extern int is_equal(Node* element1, Node* element2);
+extern int is_empty(Node** head, int isMutexAccess);
+extern int is_equal(Node* element1, Node* element2, int isMutexAccess);
 extern Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread);
 extern void remove_element(Node** head, Node* element);
 extern Node* search_element(Node** head, int number);
