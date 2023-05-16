@@ -9,7 +9,11 @@
 ║                       ║                                                     ║
 ║ /listfiles local      ║ List all local files                                ║
 ║                       ║                                                     ║
-║ /sendfile <file_name> ║ Send a file to the server                           ║
+║ /sendfile <file_name> ║ Upload a file to the server                         ║
+║                       ║                                                     ║
+║ /listfiles server     ║ List all files on the server                        ║
+║                       ║                                                     ║
+║ /recvfile <file_name> ║ Download a file from the server                     ║
 ║                       ║                                                     ║
 ║ /help                 ║ List all available commands                         ║
 ╚═══════════════════════╩═════════════════════════════════════════════════════╝
