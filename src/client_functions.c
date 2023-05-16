@@ -58,10 +58,6 @@ void init_socket_client() {
     perror("Error: Creation of socket");
     exit(1);
   }
-
-  // Allow to use address again
-  int optval = 1;
-  setsockopt(socketServerFromClient, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 }
 
 
@@ -678,6 +674,10 @@ int init_socket_file() {
     perror("Error: Creation of socket");
     exit(1);
   }
+
+  // Allow to use address again
+  int optval = 1;
+  setsockopt(socketFile, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
   printf("Socket for file Created\n");
   return socketFile;
