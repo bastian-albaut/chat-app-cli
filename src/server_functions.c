@@ -1038,6 +1038,10 @@ void* thread_receive_file(void* args) {
   sprintf(responseMessage, "File transfer (%s) success", fileName);
   send_response(socketFile, FILE_TRANSFER_SUCCESS, responseMessage, NULL);
 
+  // Close the socket and the file
+  close_socket(socketFile);
+  fclose(file);
+
   pthread_exit(0);
 }
 
