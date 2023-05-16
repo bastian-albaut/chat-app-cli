@@ -258,24 +258,25 @@ void deserialize_response(char* buffer, size_t sizeBuffer, Response* response) {
  */
 void print_response(Response* response) {
   if(response->code >= 100 && response->code < 200) {
-    printf(BLUE "%d - %s\n" RESET, response->code, response->message);
+    printf(BLUE "%d - %s" RESET, response->code, response->message);
   } else if(response->code >= 200 && response->code < 300) {
     if(response->code == HELP_SUCCESS) {
-      printf(GREEN "%s\n" RESET, response->message);
+      printf(GREEN "%s" RESET, response->message);
     } else {
-      printf(GREEN "%d - %s\n" RESET, response->code, response->message);
+      printf(GREEN "%d - %s" RESET, response->code, response->message);
     }
   } else if(response->code >= 300 && response->code < 400) {
     if(response->code == MESSAGE_GLOBAL_REDIRECT) {
-      printf(YELLOW "%s: %s\n" RESET, response->from, response->message);
+      printf(YELLOW "%s: %s" RESET, response->from, response->message);
     } else if(response->code == MESSAGE_PRIVATE_REDIRECT) {
-      printf(YELLOW "%s (Message Privé): %s\n" RESET, response->from, response->message);
+      printf(YELLOW "%s (Message Privé): %s" RESET, response->from, response->message);
     } else {
-      printf(YELLOW "%d - %s\n" RESET, response->code, response->message);
+      printf(YELLOW "%d - %s" RESET, response->code, response->message);
     }
   } else {
-    printf(RED "%d - %s\n" RESET, response->code, response->message);
+    printf(RED "%d - %s" RESET , response->code, response->message);
   }
+  printf("\n");
 }
 
 
@@ -665,7 +666,7 @@ void* thread_file_transfer(void *arg) {
   close_socket(socketFile);
   fclose(file);
   free(response);
-  
+
   pthread_exit(0);
 }
 
