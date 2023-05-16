@@ -575,7 +575,7 @@ void send_file(int socketServer, char* fileName) {
   char* fileSizeString = malloc(NB_CHARACTERS * sizeof(char));
   sprintf(fileSizeString, "%d", fileSize);
 
-  printf("Sending file %s (%d bytes) ...\n", fileName, fileSize);
+  printf("Sending file %s (%d bytes)...\n", fileName, fileSize);
 
   // Create new thread to handle the file transfer
   pthread_t thread;
@@ -586,19 +586,11 @@ void send_file(int socketServer, char* fileName) {
   strcpy(command, "/sendfile ");
   strcat(command, fileName);
   strcat(command, " ");
-  strcat(command, fileSizeString);  
+  strcat(command, fileSizeString); 
   if(send(socketServer, command, strlen(command), 0) == -1) {
     perror("Error sending command of sending file");
     exit(1);
   }
-
-  // Wait the server to confirm the file transfer
-  // Response* response = malloc(sizeof(Response));
-  // int nbByteRead = recv_response(socketServer, response);
-  // if(nbByteRead == 0 || nbByteRead == -1) {
-  //   perror("The connection was cut on the server side\n");
-  //   exit(1);
-  // }
 }
 
 
@@ -620,42 +612,60 @@ void* thread_file_transfer(void *arg) {
   // Accept the connection of the server
   int socketFileServer = accept(socketFile, NULL, NULL);
 
+  printf("Server connected to handle file transfer\n");
+
   // Receive the confirmation of the server
   Response* response = malloc(sizeof(Response));
   int nbByteRead = recv_response(socketFileServer, response);
-  if(nbByteRead == 0 || nbByteRead == -1) {
-    perror("The connection was cut on the server side\n");
-    exit(1);
+
+  if(nbByteRead == 0) {
+    printf("The connection was cut on the server side\n");
+  } else if(nbByteRead == -1) {
+    perror("Error: Receiving the response");
+  } else {
+    
+    print_response(response);
+
+    // If the server is ready to receive the file
+    if(response->code == REQUEST_SEND_FILE_ACCEPTED) {
+
+      // Send the content of the file
+      char buffer[1024];
+      int nbBytesRead;
+      do {
+        nbBytesRead = fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
+        // Error reading file
+        if (nbBytesRead < 0) {
+          perror("Error reading file");
+          exit(1);
+        }
+        // End of file
+        if(nbByteRead == 0) {
+          break;
+        }
+        if (send(socketFileServer, buffer, nbBytesRead, 0) == -1) {
+          perror("Error sending file");
+          exit(1);
+        }
+      } while (nbBytesRead > 0);
+
+      printf("File sent\n");
+
+      // Wait for the confirmation of the server
+      Response* response = malloc(sizeof(Response));
+      int nbByteRead = recv_response(socketFileServer, response);
+      if(nbByteRead > 0) {
+        print_response(response);
+      }
+    }
   }
-  print_response(response);
 
-  // Send the content of the file
-  char buffer[1024];
-  int nbBytesRead;
-  do {
-    nbBytesRead = fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
-    // Error reading file
-    if (nbBytesRead < 0) {
-      perror("Error reading file");
-      exit(1);
-    }
-    // End of file
-    if(nbByteRead == 0) {
-      break;
-    }
-    if (send(socketFileServer, buffer, nbBytesRead, 0) == -1) {
-      perror("Error sending file");
-      exit(1);
-    }
-  } while (nbBytesRead > 0);
-
-  printf("File sent\n");
-
-  // End of thread
-  close(socketFileServer);
-  close(socketFile);
+  // Close the sockets, the file and free the memory
+  close_socket(socketFileServer);
+  close_socket(socketFile);
   fclose(file);
   free(response);
+  
   pthread_exit(0);
 }
 
@@ -679,7 +689,7 @@ int init_socket_file() {
   int optval = 1;
   setsockopt(socketFile, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
-  printf("Socket for file Created\n");
+  printf("Socket for file created\n");
   return socketFile;
 }
 

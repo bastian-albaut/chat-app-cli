@@ -10,9 +10,9 @@ typedef struct ThreadArgs {
 } ThreadArgs;
 
 typedef struct ThreadArgsFile {
-    FILE* file;
     int socketFile;
     int sizeFile;
+    char* fileName;
 } ThreadArgsFile;
 
 union semun{

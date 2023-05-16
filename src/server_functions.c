@@ -800,18 +800,6 @@ void handle_send_file_message(char* message, int socketClient) {
   char* file_name;
   int sizeFile;
   get_file_name_and_size(message, &file_name, &sizeFile);
-  
-  // Check if the file name and the size of the file are correct
-  char* messageError = malloc(NB_CHARACTERS * sizeof(char));
-  if(!is_file_name_and_size_ok(file_name, sizeFile, messageError)) {
-    send_response(socketClient, SEND_FILE_ERROR, messageError, NULL);
-    return;
-  }
-
-  send_response(socketClient, REQUEST_SEND_FILE_ACCEPTED, "File transfer request accepted", NULL);
-
-  // Create the file
-  FILE* file = create_file(file_name);
 
   // Connect to the new socket create by the client
   int socketFile;
@@ -820,11 +808,9 @@ void handle_send_file_message(char* message, int socketClient) {
 
   // Create thread to receive the content of the file
   ThreadArgsFile* args = malloc(sizeof(ThreadArgsFile));
-  args->file = file;
+  args->fileName = file_name;
   args->socketFile = socketFile;
   args->sizeFile = sizeFile;
-
-  printf("file: %p\n", args->file);
 
   pthread_t threadId;
   pthread_create(&threadId, NULL, thread_receive_file, (void*) args);
@@ -1004,15 +990,23 @@ void* thread_receive_file(void* args) {
   ThreadArgsFile* data = (ThreadArgsFile*) args;
   int socketFile = data->socketFile;
   int sizeFile = data->sizeFile;
-  FILE* file = data->file;
-
-  printf("file: %p\n", file);
+  char* fileName = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(fileName, data->fileName);
 
   free(data);
 
+  // Check if the file name and the size of the file are correct
+  char* messageError = malloc(NB_CHARACTERS * sizeof(char));
+  if(!is_file_name_and_size_ok(fileName, sizeFile, messageError)) {
+    send_response(socketFile, SEND_FILE_ERROR, messageError, NULL);
+    pthread_exit(0);
+  }
+
   // Send client information that the server is ready to receive the file
-  char* message = "The server is ready to handle file content";
-  send_response(socketFile, SERVER_READY_FILE, message, NULL);
+  send_response(socketFile, REQUEST_SEND_FILE_ACCEPTED, "The server is ready to handle file content", NULL);
+
+  // Create the file
+  FILE* file = create_file(fileName);
 
   printf("Waiting for receiving file content...\n");
 
@@ -1038,6 +1032,11 @@ void* thread_receive_file(void* args) {
     sizeFile -= bytesRead;
   }
   printf("File content received\n");
+
+  // Send confirmation to the client
+  char* responseMessage = malloc(NB_CHARACTERS * sizeof(char));
+  sprintf(responseMessage, "File transfer (%s) success", fileName);
+  send_response(socketFile, FILE_TRANSFER_SUCCESS, responseMessage, NULL);
 
   pthread_exit(0);
 }
