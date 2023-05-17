@@ -903,11 +903,13 @@ int is_good_format_send_file_message(char* message) {
 
 
 /**
- * 
+ * Get the name and the size of the file
  *
- * @param param description
+ * @param message The string to split to get the name and the size of the file
+ * @param file_name The name of the file
+ * @param file_size The size of the file
  *
- * @return description
+ * @return void
  */
 void get_file_name_and_size(char* message, char** file_name, int* file_size) {
   // Find the end of the file name (the first space after "/sendfile ")
