@@ -64,6 +64,7 @@ extern void* thread_receive_file(void* args);
 extern void handle_list_files_server(char* message, int socketClient);
 extern int is_good_format_list_files_server(char* message);
 extern char* get_list_files();
+extern char* get_file_name_recv_file_message(char* message)
 extern void interrupt_handler(int signal);
 extern void close_all_clients();
 extern void remove_client(int socketClient, pthread_t threadId);

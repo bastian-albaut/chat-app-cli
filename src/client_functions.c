@@ -360,6 +360,11 @@ void handle_message(char* message, int socketServer) {
     return;
   }
 
+  if(is_recv_file_message(message)) {
+    handle_recv_file_message(message, socketServer);
+    return;
+  }
+
   // Sending the message to the server
   send_message(socketServer, message, NULL);
 }
@@ -508,6 +513,8 @@ int is_good_format_send_file_message(char* message) {
   if(strlen(message + 10) == 0) {
     return 0;
   }
+
+  return 1;
 }
 
 
@@ -625,7 +632,7 @@ void* thread_file_transfer(void *arg) {
 
   // Configure the new socket to handle file transfer
   int socketFile = init_socket_file();
-  name_socket_file(socketFile, PORT_FILE_SOCKET);
+  name_socket_file(socketFile, PORT_SEND_FILE_SOCKET);
   listen_socket_file(socketFile);
 
   // Accept the connection of the server
@@ -689,7 +696,6 @@ void* thread_file_transfer(void *arg) {
 }
 
 
-
 /**
  *
  * Initialize the socket in TCP which will be used to communicate with server to handle file transfer
@@ -711,6 +717,7 @@ int init_socket_file() {
   printf("Socket for file created\n");
   return socketFile;
 }
+
 
 /**
  * Name the socket of the file transfer
@@ -747,4 +754,64 @@ void listen_socket_file(int socketFile) {
     exit(1);
   }
   printf(" => Socket file listening\n");
+}
+
+
+/**
+ * Detect if the message corresponding to recv file command (start with "/recvfile")
+ *
+ * @param message The message to check
+ *
+ * @return 1 if the message is a recv file command | 0 if the message is not a recv file command
+ */
+int is_recv_file_message(char* message) {
+  if(strncmp(message, "/recvfile", 9) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+void handle_recv_file_message(char* message, int socketServer) {
+  if(!is_good_format_recv_file_message(message)) {
+    printf("Error: Bad format of the message\n");
+    return;
+  }
+
+  // Create new thread to handle the file transfer
+  pthread_t thread;
+  pthread_create(&thread, NULL, thread_file_transfer, (void*)NULL);
+}
+
+
+int is_good_format_recv_file_message(char* message) {
+  // Check if the string starts with "/recvfile "
+  if(strncmp(message, "/recvfile ", 10) != 0) {
+    return 0;
+  }
+
+  // Chech if there is at least one character after "/recvfile "
+  if(strlen(message + 10) == 0) {
+    return 0;
+  }
+
+  return 1;
+}
+
+
+void* thread_file_transfer(void* args) {
+
+  // Connect to the new socket create by the server
+  int socketFile;
+  socketFile = init_socket_file();
+  connection_request(socketFile, PORT_RECV_FILE_SOCKET);
+
+
+  // Receive the file name and size
+
+
+  // Receive the file content
+  
+
 }
