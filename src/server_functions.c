@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/select.h>
+#include <dirent.h>
 #include "../include/server_functions.h"
 #include "../include/list.h"
 #include "../include/constants.h"
@@ -276,6 +277,11 @@ void handle_message(char* message, int socketClient, char* pseudo, pthread_t thr
       handle_send_file_message(message, socketClient);
       return;
     }
+
+    if(is_list_files_server(message)) {
+      handle_list_files_server(message, socketClient);
+      return;
+    }
   }
   char* responseMessage = "Command not found";
   send_response(socketClient, COMMAND_NOT_FOUND, responseMessage, NULL);
@@ -371,6 +377,22 @@ int is_help_message(char* message) {
  */
 int is_send_file_message(char* message) {
   if (strncmp(message, "/sendfile", 5) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
+/**
+ * Detect if the message corresponding to a list files server message (start with "/listfiles server")
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is a list files server message | 0 if the message is not a list files server message
+ */
+int is_list_files_server(char* message) {
+  if (strncmp(message, "/listfiles server", 17) == 0) {
     return 1;
   } else {
     return 0;
@@ -1045,6 +1067,83 @@ void* thread_receive_file(void* args) {
   pthread_exit(0);
 }
 
+
+/**
+ * Handle list files server message. Send a message to the client to give him the list of files in the server directory.
+ *
+ * @param message The message to handle
+ * @param socketClient The socket of the client who send the request of list files server
+ *
+ * @return void
+ */
+void handle_list_files_server(char* message, int socketClient) {
+
+  // Message does not follow the good format
+  if(!is_good_format_list_files_server(message)) {
+    char* message = "List files server message have to follow the format /listfiles server";
+    send_response(socketClient, LIST_FILE_ERROR, message, NULL);
+    return;
+  }
+
+  // Get the list of files
+  char* listFiles = get_list_files();
+
+  // Send the list of files to the client
+  send_response(socketClient, LIST_FILE_SUCCESS, listFiles, NULL);
+}
+
+
+/**
+ * Detect if the message corresponding to the format "/listfiles server"
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_list_files_server(char* message) {
+  // Check if the string starts with "/listfiles server"
+  if (strncmp(message, "/listfiles server", 17) != 0) {
+    return 0;
+  }
+
+  // Check if there is no character after "/listfiles server"
+  if(strlen(message + 17) != 0) {
+    return 0;
+  }
+
+  // The string is in the correct format
+  return 1;
+}
+
+
+/**
+ * Get the list of files in the server directory
+ *
+ * @return The list of files
+ */
+char* get_list_files() {
+  DIR *directory;
+  struct dirent *file;
+  directory = opendir(FILE_DIRECTORY_SERVER);
+
+  char* listFiles = malloc(RESPONSE_BUFFER_SIZE * sizeof(char));
+
+  if(directory == NULL) {
+    perror("Error: Opening directory");
+    exit(1);
+  }
+
+  while((file = readdir(directory)) != NULL) {
+    if(strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0) {
+      strcat(listFiles, file->d_name);
+      strcat(listFiles, "\n");
+    }
+  }
+  strcat(listFiles, "\0");
+  closedir(directory);
+
+  return listFiles;
+}
 
 
 /**

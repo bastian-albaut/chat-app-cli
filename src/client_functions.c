@@ -259,21 +259,33 @@ void deserialize_response(char* buffer, size_t sizeBuffer, Response* response) {
 void print_response(Response* response) {
   if(response->code >= 100 && response->code < 200) {
     printf(BLUE "%d - %s" RESET, response->code, response->message);
-  } else if(response->code >= 200 && response->code < 300) {
+  } 
+  else if(response->code >= 200 && response->code < 300) {
     if(response->code == HELP_SUCCESS) {
       printf(GREEN "%s" RESET, response->message);
-    } else {
+    } 
+    else if(response->code == LIST_FILE_SUCCESS) {
+      printf(GREEN "\n------ List of server file(s) ------\n");
+      printf("%s", response->message);
+      printf("------ End list ------" RESET);
+      printf("\n\n");
+    }
+    else {
       printf(GREEN "%d - %s" RESET, response->code, response->message);
     }
-  } else if(response->code >= 300 && response->code < 400) {
+  } 
+  else if(response->code >= 300 && response->code < 400) {
     if(response->code == MESSAGE_GLOBAL_REDIRECT) {
       printf(YELLOW "%s: %s" RESET, response->from, response->message);
-    } else if(response->code == MESSAGE_PRIVATE_REDIRECT) {
+    } 
+    else if(response->code == MESSAGE_PRIVATE_REDIRECT) {
       printf(YELLOW "%s (Message Privé): %s" RESET, response->from, response->message);
-    } else {
+    }
+    else {
       printf(YELLOW "%d - %s" RESET, response->code, response->message);
     }
-  } else {
+  } 
+  else {
     printf(RED "%d - %s" RESET , response->code, response->message);
   }
   printf("\n");
@@ -355,7 +367,7 @@ void handle_message(char* message, int socketServer) {
  * @return 1 if the message is a list file command | 0 if the message is not a list file command
  */
 int is_list_file_message(char* message) {
-  if(strncmp(message, "/listfiles", 10) == 0) {
+  if(strncmp(message, "/listfiles local", 16) == 0) {
     return 1;
   } else {
     return 0;
@@ -384,7 +396,7 @@ void handle_list_file_message(char* message) {
     exit(1);
   }
 
-  printf("\n------ List of file(s) ------\n");
+  printf("\n------ List of local file(s) ------\n");
   while((file = readdir(directory)) != NULL) {
     if(strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0) {
       printf("%s\n", file->d_name);
