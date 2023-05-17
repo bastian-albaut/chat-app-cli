@@ -51,7 +51,8 @@
 #define GREEN "\x1B[32m"
 #define YELLOW "\x1B[33m"
 #define RED "\x1B[31m"
-#define BOLD "\e[1m"
+#define GREY "\x1B[90m"
+#define BOLD "\x1B[1m"
 #define RESET "\x1B[0m"
 
 #endif // CONSTANTS_H

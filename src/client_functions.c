@@ -83,9 +83,15 @@ void connection_request(char* ipAdress, char* port) {
     exit(1);
   }
 
-  printf(BOLD "\n==================================\n");
-  printf("You are connected to the server :)\n");
-  printf("==================================\n\n" RESET);
+  printf(" __        __   _                            \n");
+  printf(" \\ \\      / /__| | ___ ___  _ __ ___   ___  \n");
+  printf("  \\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\ \n");
+  printf("   \\ V  V /  __/ | (_| (_) | | | | | |  __/ \n");
+  printf("    \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___| \n");
+  printf("                                                    \n");
+  printf(BOLD "            Welcome to the server!               \n\n\n" RESET);
+
+  printf(GREY "Type /help to see the list of commands\n\n\n" RESET);
 }
 
 
