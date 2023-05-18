@@ -30,8 +30,13 @@ extern int is_file_exist(char* fileName);
 extern void send_file(int socketServer, char* fileName);
 extern void* thread_file_transfer(void *arg);
 extern int is_recv_file_message(char* message);
+extern void handle_recv_file_message(char* message, int socketServer);
+extern int is_good_format_recv_file_message(char* message);
+extern void* thread_recv_file(void* args);
 extern int init_socket_file();
 extern void name_socket_file(int socketFile, int port);
 extern void listen_socket_file(int socketFile);
+extern void connection_request_file_transfer(int socketFile, int port);
+extern int init_socket_recv_file();
 
 #endif // CLIENT_FUNCTIONS_H

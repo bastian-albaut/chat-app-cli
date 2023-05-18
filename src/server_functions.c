@@ -850,7 +850,7 @@ void handle_send_file_message(char* message, int socketClient) {
   connection_request(socketFile, PORT_SEND_FILE_SOCKET);
 
   // Create thread to receive the content of the file
-  ThreadArgsFile* args = malloc(sizeof(ThreadArgsFile));
+  ThreadArgsRecvFile* args = malloc(sizeof(ThreadArgsRecvFile));
   args->fileName = file_name;
   args->socketFile = socketFile;
   args->sizeFile = sizeFile;
@@ -950,33 +950,6 @@ void get_file_name_and_size(char* message, char** file_name, int* file_size) {
 
 
 /**
- * Create the file with the name specified in parameter
- *
- * @param file_name The name of the file to create
- *
- * @return The file created
- */
-FILE* create_file(char* file_name) {
-
-  // Concatenate the directory and the file name
-  char* filePath = malloc(NB_CHARACTERS * sizeof(char));
-  strcpy(filePath, FILE_DIRECTORY_SERVER);
-  strcat(filePath, file_name);
-
-  FILE* file = fopen(filePath, "w");
-
-  if(file == NULL) {
-    perror("Error: opening file");
-    exit(1);
-  }
-
-  printf("File \"%s\" created\n", file_name);
-
-  return file;
-}
-
-
-/**
  *
  * Initialize the socket for file transfer
  *
@@ -1032,7 +1005,7 @@ void connection_request(int socketFile, int port) {
  * @return description
  */
 void* thread_receive_file(void* args) {
-  ThreadArgsFile* data = (ThreadArgsFile*) args;
+  ThreadArgsRecvFile* data = (ThreadArgsRecvFile*) args;
   int socketFile = data->socketFile;
   int sizeFile = data->sizeFile;
   char* fileName = malloc(NB_CHARACTERS * sizeof(char));
@@ -1051,7 +1024,7 @@ void* thread_receive_file(void* args) {
   send_response(socketFile, REQUEST_SEND_FILE_ACCEPTED, "The server is ready to handle file content", NULL);
 
   // Create the file
-  FILE* file = create_file(fileName);
+  FILE* file = create_file(fileName, FILE_DIRECTORY_SERVER);
 
   printf("Waiting for receiving file content...\n");
 
@@ -1169,6 +1142,15 @@ char* get_list_files() {
 }
 
 
+
+/**
+ * Handle recv file message. Send a message to the client to confirm the send of the file.
+ *
+ * @param message The message to handle
+ * @param socketClient The socket of the client who send the request of recv file
+ *
+ * @return void
+ */
 void handle_recv_file_message(char* message, int socketClient) {
 
   // Message does not follow the good format
@@ -1179,27 +1161,49 @@ void handle_recv_file_message(char* message, int socketClient) {
   }
 
   // Get the name of the file
-  char* file_name = get_file_name_recv_file_message(message);
+  char* fileName = get_file_name_recv_file_message(message);
 
   // Check if the file exist
   char* filePath = malloc(NB_CHARACTERS * sizeof(char));
   strcpy(filePath, FILE_DIRECTORY_SERVER);
-  strcat(filePath, file_name);
+  strcat(filePath, fileName);
+  printf("File path: %s\n", filePath);
   if(access(filePath, F_OK) == -1) {
     char* message = "The file does not exist";
     send_response(socketClient, RECV_FILE_ERROR, message, NULL);
     return;
   }
 
-  // Create a new socket to send the file
-  int socketFile = init_socket_send_file();
-  name_socket_send_file(socketFile, PORT_SEND_FILE_SOCKET);
-  listen_socket_send_file(socketFile);
-
-
   // Create thread to send the name, the size and the content of the file
+  ThreadArgsSendFile* args = malloc(sizeof(ThreadArgsSendFile));
+  args->socket = socketClient;
+  args->fileName = fileName;
+
   pthread_t threadId;
-  pthread_create(&threadId, NULL, thread_send_file, (void*) &socketFile);
+  pthread_create(&threadId, NULL, thread_send_file, (void*) args);
+}
+
+
+/**
+ * Detect if the message corresponding to the format "/recvfile <file_name>"
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
+int is_good_format_recv_file_message(char* message) {
+  // Check if the string starts with "/recvfile "
+  if (strncmp(message, "/recvfile ", 10) != 0) {
+    return 0;
+  }
+
+  // Check if there is at least one character after "/recvfile "
+  if (strlen(message + 10) == 0) {
+    return 0;
+  }
+
+  // The string is in the correct format
+  return 1;
 }
 
 
@@ -1235,7 +1239,7 @@ int init_socket_send_file() {
   int optval = 1;
   setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   
-  printf("Socket created");
+  printf("Socket created\n");
 
   return socketServer;
 }
@@ -1249,19 +1253,19 @@ int init_socket_send_file() {
  *
  * @return void
  */
-void name_socket_send_file(int socket, char* port) {
+void name_socket_send_file(int socket, int port) {
   struct sockaddr_in adress;
   socklen_t sizeAdress= sizeof(adress);
 
   adress.sin_family = AF_INET; 
   adress.sin_addr.s_addr = INADDR_ANY;
-  adress.sin_port = htons(atoi(port));
+  adress.sin_port = htons(port);
 
-  if(bind(socketServer, (struct sockaddr*)&adress, sizeAdress) == -1) {
+  if(bind(socket, (struct sockaddr*)&adress, sizeAdress) == -1) {
     perror("Error: Socket naming");
     exit(1);
   }
-  printf(" => Named Socket successfully");
+  printf(" => Named Socket successfully\n");
 }
 
 
@@ -1288,35 +1292,82 @@ void listen_socket_send_file(int socket) {
  * @return void
  */
 void* thread_send_file(void* args) {
-  int socketFile = *(int*) args;
-  free(args);
+  ThreadArgsSendFile* data = (ThreadArgsSendFile*) args;
+  char* fileName = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(fileName, data->fileName);
+  int socketClient = data->socket;
+
+  free(data);
+
+  // Create a new socket to send the file to the client
+  int socketFile = init_socket_send_file();
+  name_socket_send_file(socketFile, PORT_RECV_FILE_SOCKET);
+  listen_socket_send_file(socketFile);
+
+
+  // Send confirmation to the client
+  char* responseMessage = "The server is ready to send the file";
+  send_response(socketClient, SERVER_READY_FILE, responseMessage, NULL);
 
   // Accept the connection request
-  int socketClient = accept_connection_request(socketFile);
+  int socketClientFile = accept(socketFile, NULL, NULL);
+  printf("Connection accepted\n");
 
   // Get the name and the size of the file
   int sizeFile = get_size_recv_file(fileName);
+  
+  printf("Sending file informations (%s, %d bytes)...\n", fileName, sizeFile);
 
   // Send the name and the size of the file
+  char* fileNameAndSize = malloc(NB_CHARACTERS * sizeof(char));
+  sprintf(fileNameAndSize, "%s %d", fileName, sizeFile);
+  send_response(socketClientFile, FILE_TRANSFER_SUCCESS, fileNameAndSize, NULL);
 
+  printf("Sending file content...\n");
+
+  // Get the FILE* of the file
+  char* filePath = malloc(NB_CHARACTERS * sizeof(char));
+  strcpy(filePath, FILE_DIRECTORY_SERVER);
+  strcat(filePath, fileName);
+  FILE* file = fopen(filePath, "r");
 
   // Send the content of the file
+  char buffer[1024];
+  int nbBytesRead;
+  do {
+    nbBytesRead = fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
+    // Error reading file
+    if (nbBytesRead < 0) {
+      perror("Error reading file");
+      exit(1);
+    }
+    // End of file
+    if(nbBytesRead == 0) {
+      break;
+    }
+    if(send(socketClientFile, buffer, nbBytesRead, 0) == -1) {
+      perror("Error sending file");
+      exit(1);
+    }
+  } while (nbBytesRead > 0);
 
+  printf("File send\n");
+
+  fclose(file);
 }
 
 
 /**
  * Get the size of the file that correspond to the file name specified in parameter
  *
- * @param fileName The name of the file
+ * @param fileName The path of the file
  *
  * @return The size of the file
  */
-char* get_size_recv_file(char* fileName) {
+int get_size_recv_file(char* fileName) {
   char* filePath = malloc(NB_CHARACTERS * sizeof(char));
   strcpy(filePath, FILE_DIRECTORY_SERVER);
   strcat(filePath, fileName);
-
   FILE* file = fopen(filePath, "r");
 
   if(file == NULL) {
@@ -1326,15 +1377,10 @@ char* get_size_recv_file(char* fileName) {
 
   // Get the size of the file
   fseek(file, 0, SEEK_END);
-  long file_size = ftell(file);
+  int fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
 
-  char* sizeFile = malloc(NB_CHARACTERS * sizeof(char));
-  sprintf(sizeFile, "%ld", file_size);
-
-  fclose(file);
-
-  return sizeFile;
+  return fileSize;
 }
 
 

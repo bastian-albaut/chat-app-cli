@@ -9,11 +9,16 @@ typedef struct ThreadArgs {
     int socketClient;
 } ThreadArgs;
 
-typedef struct ThreadArgsFile {
+typedef struct ThreadArgsRecvFile {
     int socketFile;
     int sizeFile;
     char* fileName;
-} ThreadArgsFile;
+} ThreadArgsRecvFile;
+
+typedef struct ThreadArgsSendFile {
+    int socket;
+    char* fileName;
+} ThreadArgsSendFile;
 
 union semun{
     int val;
@@ -39,6 +44,7 @@ extern int is_logout_message(char* message);
 extern int is_help_message(char* message);
 extern int is_send_file_message(char* message);
 extern int is_list_files_server(char* message);
+extern int is_recv_file_message(char* message);
 extern void handle_private_message(char* message, int socketClient, char* pseudoTransmitter);
 extern int is_good_format_private_message(char* message);
 extern char* get_pseudo_private_message(char* message);
@@ -57,14 +63,20 @@ extern void handle_send_file_message(char* message, int socketClient);
 extern int is_file_name_and_size_ok(char* fileName, int size, char* message);
 extern int is_good_format_send_file_message(char* message);
 extern void get_file_name_and_size(char* message, char** file_name, int* file_size);
-extern FILE* create_file(char* file_name);
 extern int init_socket_file();
 extern void connection_request(int socketFile, int port);
 extern void* thread_receive_file(void* args);
 extern void handle_list_files_server(char* message, int socketClient);
 extern int is_good_format_list_files_server(char* message);
 extern char* get_list_files();
-extern char* get_file_name_recv_file_message(char* message)
+extern void handle_recv_file_message(char* message, int socketClient);
+extern int is_good_format_recv_file_message(char* message);
+extern char* get_file_name_recv_file_message(char* message);
+extern int init_socket_send_file();
+extern void name_socket_send_file(int socket, int port);
+extern void listen_socket_send_file(int socket);
+extern void* thread_send_file(void* args);
+extern int get_size_recv_file(char* fileName);
 extern void interrupt_handler(int signal);
 extern void close_all_clients();
 extern void remove_client(int socketClient, pthread_t threadId);

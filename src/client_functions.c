@@ -664,7 +664,7 @@ void* thread_file_transfer(void *arg) {
           exit(1);
         }
         // End of file
-        if(nbByteRead == 0) {
+        if(nbBytesRead == 0) {
           break;
         }
         if (send(socketFileServer, buffer, nbBytesRead, 0) == -1) {
@@ -773,18 +773,44 @@ int is_recv_file_message(char* message) {
 }
 
 
+/**
+ * Handle the recv file command
+ *
+ * @param message The message to handle
+ * @param socketServer The socket of the server
+ *
+ * @return void
+ */
 void handle_recv_file_message(char* message, int socketServer) {
   if(!is_good_format_recv_file_message(message)) {
     printf("Error: Bad format of the message\n");
     return;
   }
 
+  // Send the command to the server
+  send_message(socketServer, message, NULL);
+
+  printf("Waiting for the server to create the socket...\n");
+
+  // Receive the confirmation of the server
+  Response* response = malloc(sizeof(Response));
+  int nbByteRead = recv_response(socketServer, response);
+
+  print_response(response);
+
   // Create new thread to handle the file transfer
   pthread_t thread;
-  pthread_create(&thread, NULL, thread_file_transfer, (void*)NULL);
+  pthread_create(&thread, NULL, thread_recv_file, (void*)NULL);
 }
 
 
+/**
+ * Detect if the message corresponding to the format /recvfile <file_name>
+ *
+ * @param message The string to check
+ *
+ * @return 1 if the message is in the correct format | 0 if the message is not in the correct format
+ */
 int is_good_format_recv_file_message(char* message) {
   // Check if the string starts with "/recvfile "
   if(strncmp(message, "/recvfile ", 10) != 0) {
@@ -800,18 +826,101 @@ int is_good_format_recv_file_message(char* message) {
 }
 
 
-void* thread_file_transfer(void* args) {
+/**
+ * Function thread for handle file transfer
+ *
+ * @param args The arguments of the thread
+ *
+ * @return void
+ */
+void* thread_recv_file(void* args) {
 
   // Connect to the new socket create by the server
-  int socketFile;
-  socketFile = init_socket_file();
-  connection_request(socketFile, PORT_RECV_FILE_SOCKET);
-
+  int socketFile = init_socket_recv_file();
+  connection_request_file_transfer(socketFile, PORT_RECV_FILE_SOCKET);
 
   // Receive the file name and size
+  Response* response = malloc(sizeof(Response));
+  int nbByteRead = recv_response(socketFile, response);
+  char* fileName = strtok(response->message, " ");
+  char* fileSizeString = strtok(NULL, " ");
+  int fileSize = atoi(fileSizeString);
+
+  printf("Receiving file %s (%d bytes)...\n", fileName, fileSize);
+
+  // Create the file
+  FILE* file = create_file(fileName, FILE_DIRECTORY_CLIENT);
+
+  // Receive the content of the file
+  char buffer[1025];  // Increase buffer size by 1 for null termination
+  while (fileSize > 0) {
+    int bytesRead = recv(socketFile, buffer, sizeof(buffer) - 1, 0);
+    if (bytesRead == -1) {
+      perror("Error receiving file");
+      pthread_exit(0);
+    } else if (bytesRead == 0) {
+      printf("Connection closed by client\n");
+      pthread_exit(0);
+      break;
+    }
+    printf(" => %d bytes received\n", bytesRead);
+
+    buffer[bytesRead] = '\0';  // Add null termination
+    if (fputs(buffer, file) == EOF) {
+      perror("Error writing to file");
+      pthread_exit(0);
+    }
+    fileSize -= bytesRead;
+  }
+  printf("File content received\n");
+
+}
 
 
-  // Receive the file content
+/**
+ *
+ * Initialize the socket in TCP which will be used to receive the file from the server
+ *
+ * @return The socket created
+ */
+int init_socket_recv_file() {
+	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
+	
+  if(socketServer == -1) {
+    perror("Error: Creation of socket");
+    exit(1);
+  }
+
   
+  printf("Socket created\n");
 
+  return socketServer;
+}
+
+
+/**
+ * Send a connection request to the new soket for file transfer
+ *
+ * @param socketFile The socket file
+ * @param port The port of the server
+ *
+ * @return void
+ */
+void connection_request_file_transfer(int socketFile, int port) {
+  struct sockaddr_in adress;
+  char* ipAdress = malloc(16);
+  strcpy(ipAdress, "127.0.0.1");
+
+  adress.sin_family = AF_INET;
+  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
+  adress.sin_port = htons(port);
+  
+  socklen_t sizeAdress = sizeof(adress);
+  
+  if(connect(socketFile, (struct sockaddr *) &adress, sizeAdress) == -1){
+    perror("Error: Server connection request");
+    exit(1);
+  }
+
+  printf(" => Connected to the server\n");
 }

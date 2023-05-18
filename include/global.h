@@ -14,5 +14,6 @@ extern int socketServer;
 extern Node* listClient;
 
 extern void close_socket(int socket);
+extern FILE* create_file(char* fileName, char* path);
 
 #endif // GLOBAL_H
