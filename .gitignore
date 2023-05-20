@@ -1,3 +1,5 @@
 # Executable files
 **/client
 **/server
+
+.vscode
