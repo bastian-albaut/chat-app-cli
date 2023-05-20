@@ -3,17 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/list.h"
+#include "../include/list/list.h"
 #include <pthread.h>
 
-
-/**
- * Initialize the head of the list
- *
- * @param head The head of the list which was declare before
- *
- * @return void
- */
 void init_head(Node** head) {
     *head = (Node*) malloc(sizeof(Node));
     (*head)->next = *head;
@@ -30,14 +22,6 @@ void init_head(Node** head) {
 }
 
 
-/**
- * Check if the list is empty
- *
- * @param head The head of the list
- * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
- *
- * @return 1 if list is empty | 0 if list is not empty
- */
 int is_empty(Node** head, int isMutexAccess){
 
     if(isMutexAccess) {
@@ -55,15 +39,7 @@ int is_empty(Node** head, int isMutexAccess){
     return isEmpty;
 }
 
-/**
- * Check if the two elements are equal
- *
- * @param element1 The first element
- * @param element2 The second element
- * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
- *
- * @return 1 if elements are equal | 0 if elements are not equal
- */
+
 int is_equal(Node* element1, Node* element2, int isMutexAccess) {
 
     if(isMutexAccess) {
@@ -82,16 +58,6 @@ int is_equal(Node* element1, Node* element2, int isMutexAccess) {
 }
 
 
-/**
- * Add an element at start of the list
- *
- * @param head The head of the list
- * @param number The number which will be set in the new element
- * @param pseudo The pseudo which will be set in the new element
- * @param thread The thread which will be set in the new element
- *
- * @return The new element
- */
 Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
     Node *newHead = (Node*) malloc(sizeof(Node));
     
@@ -119,14 +85,6 @@ Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
 }
 
 
-/**
- * Remove the element specified in parameter from the list
- *
- * @param head The head of the list
- * @param element The element to remove
- *
- * @return void
- */
 void remove_element(Node** head, Node* element) {
     // Check if element is NULL
     if(element == NULL) {
@@ -163,14 +121,6 @@ void remove_element(Node** head, Node* element) {
 }
 
 
-/**
- * Search an element with the specified number in the list
- *
- * @param head The head of the list
- * @param number The number to search
- *
- * @return The element if found | NULL if not found
- */
 Node* search_element(Node** head, int number) {
     
     // Lock list for reading
@@ -200,14 +150,6 @@ Node* search_element(Node** head, int number) {
 }
 
 
-/**
- * Search an element with the specified pseudo in the list
- *
- * @param head The head of the list
- * @param pseudo The pseudo to search
- *
- * @return The element if found | NULL if not found
- */
 Node* search_element_pseudo(Node** head, char* pseudo) {
     
     // Lock list for reading
@@ -237,13 +179,6 @@ Node* search_element_pseudo(Node** head, char* pseudo) {
 }
 
 
-/**
- * Display all elements of the list
- *
- * @param head The head of the list
- *
- * @return void
- */
 void display_list(Node** head) {
 
     // Lock list for reading
@@ -270,11 +205,6 @@ void display_list(Node** head) {
 }
 
 
-/**
- * Lock the list for reading
- *
- * @return void
- */
 void read_lock() {
     if(pthread_rwlock_rdlock(&rwlock) != 0) {
         perror("pthread_rwlock_rdlock");
@@ -283,11 +213,6 @@ void read_lock() {
 }
 
 
-/**
- * Lock the list for writing
- *
- * @return void
- */
 void write_lock() {
     if(pthread_rwlock_wrlock(&rwlock) != 0) {
         perror("pthread_rwlock_wrlock");
@@ -296,11 +221,6 @@ void write_lock() {
 }
 
 
-/**
- * Unlock the list
- *
- * @return void
- */
 void unlock() {
     if(pthread_rwlock_unlock(&rwlock) != 0) {
         perror("pthread_rwlock_unlock");

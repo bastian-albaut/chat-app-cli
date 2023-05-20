@@ -1,3 +1,8 @@
+#include "../include/list/list.h"
+#include "../include/constants.h"
+#include "../include/server/global_server.h"
+#include "../include/server/semaphore/semaphore_server.h"
+#include "../include/global.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -6,11 +11,6 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
-#include "../include/list.h"
-#include "../include/constants.h"
-#include "../include/server_functions.h"
-#include "../include/global.h"
-
 
 int main(int argc, char *argv[]) {
 

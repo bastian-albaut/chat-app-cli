@@ -1,3 +1,7 @@
+#include "../include/client/global_client.h"
+#include "../include/constants.h"
+#include "../include/global.h"
+#include "../include/client/semaphore/semaphore_client.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -5,10 +9,6 @@
 #include <string.h>
 #include <pthread.h>
 #include <signal.h>
-#include "../include/client_functions.h"
-#include "../include/constants.h"
-#include "../include/global.h"
-
 
 int main(int argc, char *argv[]) {
 
