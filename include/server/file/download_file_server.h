@@ -36,7 +36,7 @@ extern void handle_recv_file_message(char* message, int socketClient);
 extern int is_good_format_recv_file_message(char* message);
 
 /**
- * Return <file_name> from /recvfile <file_name> message
+ * Return the file name from /recvfile <file_name>
  *
  * @param message The message to split
  *

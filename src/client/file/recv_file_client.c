@@ -32,6 +32,7 @@ void handle_recv_file_message(char* message, int socketServer) {
   int nbByteRead = recv_response(socketServer, response);
 
   if(response->code != SERVER_READY_FILE) {
+    print_response(response);
     return;
   }
 
