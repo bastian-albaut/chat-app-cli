@@ -57,15 +57,6 @@ void* thread_client(void* args) {
 }
 
 
-void listen_socket_server() {
-  if(listen(socketServer, 10) == -1) {
-    perror("Error: Socket listening");
-    exit(1);
-  }
-  printf(" => Socket listening\n\n");
-}
-
-
 int accept_client() {
   struct sockaddr_in adressClient;
   socklen_t sizeAdressClient = sizeof(adressClient);

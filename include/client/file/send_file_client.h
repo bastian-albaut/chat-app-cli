@@ -68,11 +68,4 @@ extern void send_file(int socketServer, char* fileName);
  */
 extern void* thread_file_transfer(void *arg);
 
-/**
- * Listen the socket for file transfer
- *
- * @return void
- */
-extern void listen_socket_file(int socketFile);
-
 #endif // SEND_FILE_CLIENT_H

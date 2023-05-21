@@ -76,6 +76,18 @@ void name_socket(int* socket, int port, int isPrint) {
 }
 
 
+void listen_socket(int* socket, int capacityWait, int isPrint) {
+  if(listen(*socket, capacityWait) == -1) {
+    perror("Error: Socket listening");
+    exit(1);
+  }
+
+  if(isPrint) {
+    printf(" => Socket listening\n\n");
+  }
+}
+
+
 void close_socket(int socket) {
   if(shutdown(socket, 2)) {
     perror("Error: Close socket");

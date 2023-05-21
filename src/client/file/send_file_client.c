@@ -140,7 +140,7 @@ void* thread_file_transfer(void *arg) {
   int socketFile;
   init_socket(&socketFile, 1, 1);
   name_socket(&socketFile, PORT_SEND_FILE_SOCKET, 1);
-  listen_socket_file(socketFile);
+  listen_socket(&socketFile, 1, 1);
 
   // Accept the connection of the server
   int socketFileServer = accept(socketFile, NULL, NULL);
@@ -200,13 +200,4 @@ void* thread_file_transfer(void *arg) {
   free(response);
 
   pthread_exit(0);
-}
-
-
-void listen_socket_file(int socketFile) {
-  if(listen(socketFile, 2) == -1) {
-    perror("Error: Socket listening");
-    exit(1);
-  }
-  printf(" => Socket file listening\n");
 }

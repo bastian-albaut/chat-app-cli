@@ -45,13 +45,6 @@ extern int is_good_format_recv_file_message(char* message);
 extern char* get_file_name_recv_file_message(char* message);
 
 /**
- * Listen the socket for file transfer
- *
- * @return description
- */
-extern void listen_socket_send_file(int socket);
-
-/**
  * Function thread to send the name, the size and the content of the file
  *
  * @param args The arguments of the thread

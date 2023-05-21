@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   name_socket(&socketServer, atoi(argv[1]), 1);
   
   // Socket listening
-  listen_socket_server();
+  listen_socket(&socketServer, 10, 1);
 
   // Initialize the clients list
   listClient = NULL;

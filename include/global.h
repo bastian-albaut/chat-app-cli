@@ -53,6 +53,17 @@ extern void connection_request(int* socket, char* ipAdress, int port, int isPrin
 extern void name_socket(int* socket, int port, int isPrint);
 
 /**
+ * Listen the socket specified in parameter
+ *
+ * @param socket The socket to listen
+ * @param capacityWait The capacity of the waiting queue
+ * @param isPrint If the function have to print the message
+ *
+ * @return void
+ */
+extern void listen_socket(int* socket, int capacityWait, int isPrint);
+
+/**
  * Close the socket specified in parameter
  *
  * @param socket The socket to close

@@ -20,13 +20,6 @@ typedef struct ThreadArgs {
 extern void* thread_client(void* args);
 
 /**
- * Listen the socket server
- *
- * @return description
- */
-extern void listen_socket_server();
-
-/**
  * handle acceptation of client
  *
  * @return The socket client if acceptation work correctly | -1 if not

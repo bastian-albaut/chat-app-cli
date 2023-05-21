@@ -75,16 +75,6 @@ char* get_file_name_recv_file_message(char* message) {
 }
 
 
-void listen_socket_send_file(int socket) {
-  if(listen(socket, 10) == -1) {
-    perror("Error: Socket listening");
-    exit(1);
-  }
-  printf(" => Socket listening\n\n");
-}
-
-
-
 void* thread_send_file(void* args) {
   ThreadArgsSendFile* data = (ThreadArgsSendFile*) args;
   char* fileName = malloc(NB_CHARACTERS * sizeof(char));
@@ -97,8 +87,7 @@ void* thread_send_file(void* args) {
   int socketFile;
   init_socket(&socketFile, 1, 1);
   name_socket(&socketFile, PORT_RECV_FILE_SOCKET, 1);
-  listen_socket_send_file(socketFile);
-
+  listen_socket(&socketFile, 1, 1);
 
   // Send confirmation to the client
   char* responseMessage = "The server is ready to send the file";
