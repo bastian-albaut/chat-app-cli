@@ -61,7 +61,7 @@ void* thread_recv_file(void* args) {
   // Connect to the new socket create by the server
   int socketFile;
   init_socket(&socketFile, 0, 1);
-  connection_request_file_transfer(socketFile, PORT_RECV_FILE_SOCKET);
+  connection_request(&socketFile, IP_LOCAL, PORT_RECV_FILE_SOCKET, 1);
 
   // Receive the file name and size
   Response* response = malloc(sizeof(Response));
@@ -103,24 +103,4 @@ void* thread_recv_file(void* args) {
   fclose(file);
 
   pthread_exit(0);
-}
-
-
-void connection_request_file_transfer(int socketFile, int port) {
-  struct sockaddr_in adress;
-  char* ipAdress = malloc(16);
-  strcpy(ipAdress, "127.0.0.1");
-
-  adress.sin_family = AF_INET;
-  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
-  adress.sin_port = htons(port);
-  
-  socklen_t sizeAdress = sizeof(adress);
-  
-  if(connect(socketFile, (struct sockaddr *) &adress, sizeAdress) == -1){
-    perror("Error: Server connection request");
-    exit(1);
-  }
-
-  printf(" => Connected to the server\n");
 }

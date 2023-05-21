@@ -37,7 +37,7 @@ void handle_send_file_message(char* message, int socketClient) {
   // Connect to the new socket create by the client
   int socketFile;
   init_socket(&socketFile, 0, 1);
-  connection_request(socketFile, PORT_SEND_FILE_SOCKET);
+  connection_request(&socketFile, IP_LOCAL, PORT_SEND_FILE_SOCKET, 1);
 
   // Create thread to receive the content of the file
   ThreadArgsRecvFile* args = malloc(sizeof(ThreadArgsRecvFile));
@@ -111,26 +111,6 @@ void get_file_name_and_size(char* message, char** file_name, int* file_size) {
   *file_size = atoi(file_name_end + 1);
 
   printf("file transfer request receive: %s (%d bytes)\n", *file_name, *file_size);
-}
-
-
-void connection_request(int socketFile, int port) {
-  struct sockaddr_in adress;
-  char* ipAdress = malloc(16);
-  strcpy(ipAdress, "127.0.0.1");
-
-  adress.sin_family = AF_INET;
-  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
-  adress.sin_port = htons(port);
-  
-  socklen_t sizeAdress = sizeof(adress);
-  
-  if(connect(socketFile, (struct sockaddr *) &adress, sizeAdress) == -1){
-    perror("Error: Server connection request");
-    exit(1);
-  }
-
-  printf(" => Connected to the client\n");
 }
 
 

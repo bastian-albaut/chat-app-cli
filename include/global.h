@@ -30,6 +30,18 @@ extern Node* listClient;
 extern void init_socket(int* newSocket, int isCreation, int isPrint);
 
 /**
+ * Send a connection request to a socket
+ *
+ * @param socket The socket to send the connection request
+ * @param ipAdress The ip adress of the instance to connect
+ * @param port The port of the instance to connect
+ * @param isPrint If the function have to print the message
+ *
+ * @return void
+ */
+extern void connection_request(int* socket, char* ipAdress, int port, int isPrint);
+
+/**
  * Close the socket specified in parameter
  *
  * @param socket The socket to close

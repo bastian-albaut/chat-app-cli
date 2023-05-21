@@ -38,14 +38,4 @@ extern int is_good_format_recv_file_message(char* message);
  */
 extern void* thread_recv_file(void* args);
 
-/**
- * Send a connection request to the new soket for file transfer
- *
- * @param socketFile The socket file
- * @param port The port of the server
- *
- * @return void
- */
-extern void connection_request_file_transfer(int socketFile, int port);
-
 #endif // RECV_FILE_CLIENT_H

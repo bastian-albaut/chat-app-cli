@@ -32,7 +32,27 @@ void init_socket(int* newSocket, int isCreation, int isPrint) {
   }
 
   if(isPrint) {
-    printf("Socket created\n");
+    printf(" => Socket created\n");
+  }
+}
+
+
+void connection_request(int* socket, char* ipAdress, int port, int isPrint) {
+  struct sockaddr_in adress;
+
+  adress.sin_family = AF_INET;
+  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
+  adress.sin_port = htons(port);
+  
+  socklen_t sizeAdress = sizeof(adress);
+  
+  if(connect(*socket, (struct sockaddr *) &adress, sizeAdress) == -1){
+    perror("Error: Server connection request");
+    exit(1);
+  }
+
+  if(isPrint) {
+    printf(" => Connection socket accepted\n");
   }
 }
 

@@ -59,16 +59,6 @@ extern int is_good_format_send_file_message(char* message);
 extern void get_file_name_and_size(char* message, char** file_name, int* file_size);
 
 /**
- * Send a connection request to the new soket for file transfer
- *
- * @param socketFile The socket file
- * @param port The port of the server
- *
- * @return void
- */
-extern void connection_request(int socketFile, int port);
-
-/**
  * Function thread to receive the content of the file
  *
  * @param agrs The arguments of the thread

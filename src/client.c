@@ -27,7 +27,15 @@ int main(int argc, char *argv[]) {
   init_socket(&socketServerFromClient, 0, 0);
 
   // Server connection request
-  connection_request(argv[1], argv[2]);
+  connection_request(&socketServerFromClient, argv[1], atoi(argv[2]), 0);
+
+  printf(" __        __   _                            \n");
+  printf(" \\ \\      / /__| | ___ ___  _ __ ___   ___  \n");
+  printf("  \\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\ \n");
+  printf("   \\ V  V /  __/ | (_| (_) | | | | | |  __/ \n");
+  printf("    \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___| \n");
+  printf("                                                    \n");
+  printf(BOLD "            Welcome to the server!               \n\n\n" RESET);
 
   // Catch the SIGINT signal
   signal(SIGINT, interrupt_handler);

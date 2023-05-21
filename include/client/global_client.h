@@ -29,16 +29,6 @@ extern void interrupt_handler(int signal);
 extern void* thread_send(void *socket);
 
 /**
- * Send a connection request to the server
- *
- * @param ipAdress The ip adress of the server
- * @param port The port of the server
- *
- * @return void
- */
-extern void connection_request(char* ipAdress, char* port);
-
-/**
  * Get the input of the user
  *
  * @param message The message to store the input

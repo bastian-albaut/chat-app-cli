@@ -41,30 +41,6 @@ void* thread_send(void *socket) {
 }
 
 
-void connection_request(char* ipAdress, char* port) {
-  struct sockaddr_in adress;
-
-  adress.sin_family = AF_INET;
-  inet_pton(AF_INET, ipAdress, &(adress.sin_addr));
-  adress.sin_port = htons(atoi(port));
-  
-  socklen_t sizeAdress = sizeof(adress);
-  
-  if(connect(socketServerFromClient, (struct sockaddr *) &adress, sizeAdress) == -1){
-    perror("Error: Server connection request");
-    exit(1);
-  }
-
-  printf(" __        __   _                            \n");
-  printf(" \\ \\      / /__| | ___ ___  _ __ ___   ___  \n");
-  printf("  \\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\ \n");
-  printf("   \\ V  V /  __/ | (_| (_) | | | | | |  __/ \n");
-  printf("    \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___| \n");
-  printf("                                                    \n");
-  printf(BOLD "            Welcome to the server!               \n\n\n" RESET);
-}
-
-
 void get_input(char* message, int size, char* prompt) {
   if(prompt != NULL) {
     printf("%s\n", prompt);

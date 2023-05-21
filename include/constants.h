@@ -51,6 +51,7 @@ typedef enum ErrorCode {
 #define FILE_DIRECTORY_SERVER "files/server/"
 #define MAX_SIZE_FILE 1000000
 
+#define IP_LOCAL "127.0.0.1"
 #define PORT_SEND_FILE_SOCKET 5000
 #define PORT_RECV_FILE_SOCKET 6000
 
