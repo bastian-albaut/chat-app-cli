@@ -12,8 +12,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+
 int socketServerFromClient;
 int idSemaphore;
+
 
 void interrupt_handler(int signal) {
   printf("\n");

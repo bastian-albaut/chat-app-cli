@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+
 int socketServer;
 Node* listClient;
 

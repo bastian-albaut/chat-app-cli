@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <dirent.h>
 
+
 int is_send_file_message(char* message) {
   if(strncmp(message, "/sendfile", 9) == 0) {
     return 1;

@@ -57,7 +57,6 @@ void* thread_client(void* args) {
 }
 
 
-
 void init_socket_server() {
 	socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	
@@ -88,7 +87,6 @@ void name_socket_server(char* port) {
   }
   printf(" => Named Socket successfully");
 }
-
 
 
 void listen_socket_server() {
@@ -174,7 +172,6 @@ void interrupt_handler(int signal) {
 }
 
 
-
 void close_all_clients() {
   Node* currentClient = listClient->next;
   while(currentClient != listClient) {
@@ -191,7 +188,6 @@ void close_all_clients() {
     currentClient = currentClient->next;
   }
 }
-
 
 
 void remove_client(int socketClient, pthread_t threadId) {
@@ -216,7 +212,6 @@ void remove_client(int socketClient, pthread_t threadId) {
 }
 
 
-
 int recv_message(int socketClient, char* message) {
   int nbByteRead = recv(socketClient, message, NB_CHARACTERS, 0);
   if(nbByteRead == -1) {
@@ -225,7 +220,6 @@ int recv_message(int socketClient, char* message) {
   }
   return nbByteRead;
 }
-
 
 
 int send_response(int socketClient, int code, char* message, char* pseudo) {

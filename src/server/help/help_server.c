@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 int is_help_message(char* message) {
   if (strncmp(message, "/help", 5) == 0) {
     return 1;

@@ -6,6 +6,7 @@
 #include <sys/sem.h>
 #include <errno.h>
 
+
 void init_semaphore_client() {
   // Generate the key for the semaphore 
   int keySemaphore = ftok("command.txt", 'r');

@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+
 int is_recv_file_message(char* message) {
   if (strncmp(message, "/recvfile", 9) == 0) {
     return 1;
@@ -40,7 +41,6 @@ void handle_recv_file_message(char* message, int socketServer) {
 }
 
 
-
 int is_good_format_recv_file_message(char* message) {
   // Check if the string starts with "/recvfile "
   if(strncmp(message, "/recvfile ", 10) != 0) {
@@ -54,7 +54,6 @@ int is_good_format_recv_file_message(char* message) {
 
   return 1;
 }
-
 
 
 void* thread_recv_file(void* args) {
@@ -106,7 +105,6 @@ void* thread_recv_file(void* args) {
 }
 
 
-
 int init_socket_recv_file() {
 	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
 	
@@ -120,7 +118,6 @@ int init_socket_recv_file() {
 
   return socketServer;
 }
-
 
 
 void connection_request_file_transfer(int socketFile, int port) {

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <dirent.h>
 
+
 int is_list_file_message(char* message) {
   if(strncmp(message, "/listfiles local", 16) == 0) {
     return 1;

@@ -4,7 +4,9 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
+
 int idSemaphore;
+
 
 void init_semaphore_server() {
   // Generate a key for the semaphore

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 int is_list_files_server(char* message) {
   if (strncmp(message, "/listfiles server", 17) == 0) {
     return 1;

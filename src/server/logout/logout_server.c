@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 int is_logout_message(char* message) {
   if (strncmp(message, "/logout", 7) == 0) {
     return 1;
