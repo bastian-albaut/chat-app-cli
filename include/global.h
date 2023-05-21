@@ -7,7 +7,7 @@
 
 // Structure of a response of the server
 typedef struct Response {
-  int code;
+  ErrorCode code;
   char* message;
   char* from;
 } Response;
