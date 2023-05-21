@@ -83,7 +83,7 @@ void listen_socket(int* socket, int capacityWait, int isPrint) {
   }
 
   if(isPrint) {
-    printf(" => Socket listening\n\n");
+    printf(" => Socket listening\n");
   }
 }
 

@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
   
   // Socket listening
   listen_socket(&socketServer, 10, 1);
+  printf("\n");
 
   // Initialize the clients list
   listClient = NULL;

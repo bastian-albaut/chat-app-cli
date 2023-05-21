@@ -27,13 +27,13 @@ void handle_recv_file_message(char* message, int socketServer) {
   // Send the command to the server
   send_message(socketServer, message, NULL);
 
-  printf("Waiting for the server to create the socket...\n");
-
   // Receive the confirmation of the server
   Response* response = malloc(sizeof(Response));
   int nbByteRead = recv_response(socketServer, response);
 
-  print_response(response);
+  if(response->code != SERVER_READY_FILE) {
+    return;
+  }
 
   // Create new thread to handle the file transfer
   pthread_t thread;
@@ -70,8 +70,6 @@ void* thread_recv_file(void* args) {
   char* fileSizeString = strtok(NULL, " ");
   int fileSize = atoi(fileSizeString);
 
-  printf("Receiving file %s (%d bytes)...\n", fileName, fileSize);
-
   // Create the file
   FILE* file = create_file(fileName, FILE_DIRECTORY_CLIENT);
 
@@ -96,7 +94,7 @@ void* thread_recv_file(void* args) {
     }
     fileSize -= bytesRead;
   }
-  printf("File content received\n");
+  printf("File received\n\n");
 
   // Close the socket and the file
   close_socket(socketFile);

@@ -35,7 +35,6 @@ void handle_recv_file_message(char* message, int socketClient) {
   char* filePath = malloc(NB_CHARACTERS * sizeof(char));
   strcpy(filePath, FILE_DIRECTORY_SERVER);
   strcat(filePath, fileName);
-  printf("File path: %s\n", filePath);
   if(access(filePath, F_OK) == -1) {
     char* message = "The file does not exist";
     send_response(socketClient, RECV_FILE_ERROR, message, NULL);
@@ -95,19 +94,19 @@ void* thread_send_file(void* args) {
 
   // Accept the connection request
   int socketClientFile = accept(socketFile, NULL, NULL);
-  printf("Connection accepted\n");
+  printf("Connection accepted...\n");
 
   // Get the name and the size of the file
   int sizeFile = get_size_recv_file(fileName);
   
-  printf("Sending file informations (%s, %d bytes)...\n", fileName, sizeFile);
+  printf(" => Sending file informations (%s, %d bytes)\n", fileName, sizeFile);
 
   // Send the name and the size of the file
   char* fileNameAndSize = malloc(NB_CHARACTERS * sizeof(char));
   sprintf(fileNameAndSize, "%s %d", fileName, sizeFile);
   send_response(socketClientFile, FILE_TRANSFER_SUCCESS, fileNameAndSize, NULL);
 
-  printf("Sending file content...\n");
+  printf(" => Sending file content\n");
 
   // Get the FILE* of the file
   char* filePath = malloc(NB_CHARACTERS * sizeof(char));
@@ -135,7 +134,7 @@ void* thread_send_file(void* args) {
     }
   } while (nbBytesRead > 0);
 
-  printf("File send\n");
+  printf("File send\n\n");
 
   fclose(file);
 }

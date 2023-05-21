@@ -109,8 +109,6 @@ void get_file_name_and_size(char* message, char** file_name, int* file_size) {
 
   // Get the file size
   *file_size = atoi(file_name_end + 1);
-
-  printf("file transfer request receive: %s (%d bytes)\n", *file_name, *file_size);
 }
 
 
@@ -136,8 +134,6 @@ void* thread_receive_file(void* args) {
   // Create the file
   FILE* file = create_file(fileName, FILE_DIRECTORY_SERVER);
 
-  printf("Waiting for receiving file content...\n");
-
   // Receive the content of the file
   char buffer[1025];  // Increase buffer size by 1 for null termination
   while (sizeFile > 0) {
@@ -159,7 +155,7 @@ void* thread_receive_file(void* args) {
     }
     sizeFile -= bytesRead;
   }
-  printf("File content received\n");
+  printf("File received\n\n");
 
   // Send confirmation to the client
   char* responseMessage = malloc(NB_CHARACTERS * sizeof(char));

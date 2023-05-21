@@ -114,11 +114,11 @@ void send_file(int socketServer, char* fileName) {
   char* fileSizeString = malloc(NB_CHARACTERS * sizeof(char));
   sprintf(fileSizeString, "%d", fileSize);
 
-  printf("Sending file %s (%d bytes)...\n", fileName, fileSize);
-
   // Create new thread to handle the file transfer
   pthread_t thread;
   pthread_create(&thread, NULL, thread_file_transfer, (void*)file);
+  
+  printf(" => Sending file informations (%s, %d bytes)\n", fileName, fileSize);
 
   // Send the command the name and the size of the file whith the format "/sendfile <file_name> <file_size>"
   char* command = malloc(NB_CHARACTERS * sizeof(char));
@@ -130,6 +130,7 @@ void send_file(int socketServer, char* fileName) {
     perror("Error sending command of sending file");
     exit(1);
   }
+
 }
 
 
@@ -145,7 +146,7 @@ void* thread_file_transfer(void *arg) {
   // Accept the connection of the server
   int socketFileServer = accept(socketFile, NULL, NULL);
 
-  printf("Server connected to handle file transfer\n");
+  printf("Connection accepted...\n");
 
   // Receive the confirmation of the server
   Response* response = malloc(sizeof(Response));
@@ -159,6 +160,8 @@ void* thread_file_transfer(void *arg) {
     
     // If the server is ready to receive the file
     if(response->code == REQUEST_SEND_FILE_ACCEPTED) {
+
+      printf(" => Sending file content\n");
 
       // Send the content of the file
       char buffer[1024];
@@ -185,6 +188,7 @@ void* thread_file_transfer(void *arg) {
       int nbByteRead = recv_response(socketFileServer, response);
       if(nbByteRead > 0) {
         print_response(response);
+        printf("\n");
       }
     } else {
 
