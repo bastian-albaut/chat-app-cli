@@ -136,7 +136,13 @@ void* thread_send_file(void* args) {
 
   printf("File send\n\n");
 
+  // Close the sockets, the file and free the memory
+  close_socket(socketFile);
+  close_socket(socketClientFile);
   fclose(file);
+  free(fileName);
+
+  pthread_exit(0);
 }
 
 
