@@ -45,16 +45,6 @@ extern int is_good_format_recv_file_message(char* message);
 extern char* get_file_name_recv_file_message(char* message);
 
 /**
- * Name the socket for file transfer
- *
- * @param socket The socket to name
- * @param port The port of the socket
- *
- * @return void
- */
-extern void name_socket_send_file(int socket, int port);
-
-/**
  * Listen the socket for file transfer
  *
  * @return description

@@ -57,22 +57,6 @@ void* thread_client(void* args) {
 }
 
 
-void name_socket_server(char* port) {
-  struct sockaddr_in adress;
-  socklen_t sizeAdress= sizeof(adress);
-
-  adress.sin_family = AF_INET; 
-  adress.sin_addr.s_addr = INADDR_ANY;
-  adress.sin_port = htons(atoi(port));
-
-  if(bind(socketServer, (struct sockaddr*)&adress, sizeAdress) == -1) {
-    perror("Error: Socket naming");
-    exit(1);
-  }
-  printf(" => Named Socket successfully");
-}
-
-
 void listen_socket_server() {
   if(listen(socketServer, 10) == -1) {
     perror("Error: Socket listening");

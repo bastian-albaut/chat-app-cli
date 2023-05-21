@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   init_socket(&socketServer, 1, 1);
 
   // Socket naming
-  name_socket_server(argv[1]);
+  name_socket(&socketServer, atoi(argv[1]), 1);
   
   // Socket listening
   listen_socket_server();

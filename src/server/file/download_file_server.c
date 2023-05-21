@@ -75,23 +75,6 @@ char* get_file_name_recv_file_message(char* message) {
 }
 
 
-void name_socket_send_file(int socket, int port) {
-  struct sockaddr_in adress;
-  socklen_t sizeAdress= sizeof(adress);
-
-  adress.sin_family = AF_INET; 
-  adress.sin_addr.s_addr = INADDR_ANY;
-  adress.sin_port = htons(port);
-
-  if(bind(socket, (struct sockaddr*)&adress, sizeAdress) == -1) {
-    perror("Error: Socket naming");
-    exit(1);
-  }
-  printf(" => Named Socket successfully\n");
-}
-
-
-
 void listen_socket_send_file(int socket) {
   if(listen(socket, 10) == -1) {
     perror("Error: Socket listening");
@@ -113,7 +96,7 @@ void* thread_send_file(void* args) {
   // Create a new socket to send the file to the client
   int socketFile;
   init_socket(&socketFile, 1, 1);
-  name_socket_send_file(socketFile, PORT_RECV_FILE_SOCKET);
+  name_socket(&socketFile, PORT_RECV_FILE_SOCKET, 1);
   listen_socket_send_file(socketFile);
 
 

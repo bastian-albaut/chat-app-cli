@@ -57,6 +57,25 @@ void connection_request(int* socket, char* ipAdress, int port, int isPrint) {
 }
 
 
+void name_socket(int* socket, int port, int isPrint) {
+  struct sockaddr_in adress;
+  socklen_t sizeAdress= sizeof(adress);
+
+  adress.sin_family = AF_INET; 
+  adress.sin_addr.s_addr = INADDR_ANY;
+  adress.sin_port = htons(port);
+
+  if(bind(*socket, (struct sockaddr*)&adress, sizeAdress) == -1) {
+    perror("Error: Socket naming");
+    exit(1);
+  }
+
+  if(isPrint) {
+    printf(" => Socket named\n");
+  }
+}
+
+
 void close_socket(int socket) {
   if(shutdown(socket, 2)) {
     perror("Error: Close socket");

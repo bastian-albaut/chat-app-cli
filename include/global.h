@@ -42,6 +42,17 @@ extern void init_socket(int* newSocket, int isCreation, int isPrint);
 extern void connection_request(int* socket, char* ipAdress, int port, int isPrint);
 
 /**
+ * Name the socket specified in parameter
+ *
+ * @param socket The socket to name
+ * @param port The port of the socket
+ * @param isPrint If the function have to print the message
+ *
+ * @return void
+ */
+extern void name_socket(int* socket, int port, int isPrint);
+
+/**
  * Close the socket specified in parameter
  *
  * @param socket The socket to close

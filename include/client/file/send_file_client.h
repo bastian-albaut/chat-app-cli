@@ -69,16 +69,6 @@ extern void send_file(int socketServer, char* fileName);
 extern void* thread_file_transfer(void *arg);
 
 /**
- * Name the socket of the file transfer
- *
- * @param socket The socket of the file transfer
- * @param port The port of the socket
- *
- * @return void
- */
-extern void name_socket_file(int socketFile, int port);
-
-/**
  * Listen the socket for file transfer
  *
  * @return void

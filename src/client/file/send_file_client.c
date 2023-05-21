@@ -139,7 +139,7 @@ void* thread_file_transfer(void *arg) {
   // Configure the new socket to handle file transfer
   int socketFile;
   init_socket(&socketFile, 1, 1);
-  name_socket_file(socketFile, PORT_SEND_FILE_SOCKET);
+  name_socket(&socketFile, PORT_SEND_FILE_SOCKET, 1);
   listen_socket_file(socketFile);
 
   // Accept the connection of the server
@@ -200,22 +200,6 @@ void* thread_file_transfer(void *arg) {
   free(response);
 
   pthread_exit(0);
-}
-
-
-void name_socket_file(int socketFile, int port) {
-  struct sockaddr_in adress;
-  socklen_t sizeAdress= sizeof(adress);
-
-  adress.sin_family = AF_INET; 
-  adress.sin_addr.s_addr = INADDR_ANY;
-  adress.sin_port = htons(port);
-
-  if(bind(socketFile, (struct sockaddr*)&adress, sizeAdress) == -1) {
-    perror("Error: Socket naming");
-    exit(1);
-  }
-  printf(" => Named Socket file\n");
 }
 
 

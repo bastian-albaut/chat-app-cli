@@ -20,15 +20,6 @@ typedef struct ThreadArgs {
 extern void* thread_client(void* args);
 
 /**
- * Name the socket of the server
- *
- * @param port The port of the socket
- *
- * @return void
- */
-extern void name_socket_server(char* port);
-
-/**
  * Listen the socket server
  *
  * @return description
