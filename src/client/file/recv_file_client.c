@@ -98,6 +98,11 @@ void* thread_recv_file(void* args) {
   }
   printf("File content received\n");
 
+  // Close the socket and the file
+  close_socket(socketFile);
+  fclose(file);
+
+  pthread_exit(0);
 }
 
 
