@@ -121,11 +121,11 @@ char is_special_command(char* message) {
 void interrupt_handler(int signal) {
   printf("\n");
   close_all_clients();
-  printf("  =>  All client threads/sockets are closed\n");
+  printf(" => All client threads/sockets are closed\n");
   close_socket(socketServer);
-  printf("  =>  Server socket is closed\n");
+  printf(" => Server socket is closed\n");
   deletion_semaphore();
-  printf("  =>  Semaphore is deleted\n");
+  printf(" => Semaphore is deleted\n");
   printf("\n========== END OF SERVER ==========\n");
   exit(0);
 }
