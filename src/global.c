@@ -28,7 +28,7 @@ void init_socket(int* newSocket, int isCreation, int isPrint) {
   // Allow to use address again
   if(isCreation) {
     int optval = 1;
-    setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    setsockopt(*newSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   }
 
   if(isPrint) {
