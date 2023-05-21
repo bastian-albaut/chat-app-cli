@@ -69,14 +69,6 @@ extern void send_file(int socketServer, char* fileName);
 extern void* thread_file_transfer(void *arg);
 
 /**
- *
- * Initialize the socket in TCP which will be used to communicate with server to handle file transfer
- *
- * @return The socket of the file
- */
-extern int init_socket_file();
-
-/**
  * Name the socket of the file transfer
  *
  * @param socket The socket of the file transfer

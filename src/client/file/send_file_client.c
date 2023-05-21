@@ -137,7 +137,8 @@ void* thread_file_transfer(void *arg) {
   FILE* file = (FILE*) arg;
 
   // Configure the new socket to handle file transfer
-  int socketFile = init_socket_file();
+  int socketFile;
+  init_socket(&socketFile, 1, 1);
   name_socket_file(socketFile, PORT_SEND_FILE_SOCKET);
   listen_socket_file(socketFile);
 
@@ -199,23 +200,6 @@ void* thread_file_transfer(void *arg) {
   free(response);
 
   pthread_exit(0);
-}
-
-
-int init_socket_file() {
-	int socketFile = socket(PF_INET, SOCK_STREAM, 0);
-	
-  if(socketFile == -1) {
-    perror("Error: Creation of socket");
-    exit(1);
-  }
-
-  // Allow to use address again
-  int optval = 1;
-  setsockopt(socketFile, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
-  printf("Socket for file created\n");
-  return socketFile;
 }
 
 

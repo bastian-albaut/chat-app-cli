@@ -41,17 +41,6 @@ void* thread_send(void *socket) {
 }
 
 
-void init_socket_client() {
-
-  socketServerFromClient = socket(PF_INET, SOCK_STREAM, 0);
-
-  if(socketServerFromClient == -1) {
-    perror("Error: Creation of socket");
-    exit(1);
-  }
-}
-
-
 void connection_request(char* ipAdress, char* port) {
   struct sockaddr_in adress;
 

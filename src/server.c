@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Socket initialization
-  init_socket_server();
+  init_socket(&socketServer, 1, 1);
 
   // Socket naming
   name_socket_server(argv[1]);

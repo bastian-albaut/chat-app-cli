@@ -75,24 +75,6 @@ char* get_file_name_recv_file_message(char* message) {
 }
 
 
-int init_socket_send_file() {
-	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
-	
-  if(socketServer == -1) {
-    perror("Error: Creation of socket");
-    exit(1);
-  }
-
-  // Allow to use address again
-  int optval = 1;
-  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  
-  printf("Socket created\n");
-
-  return socketServer;
-}
-
-
 void name_socket_send_file(int socket, int port) {
   struct sockaddr_in adress;
   socklen_t sizeAdress= sizeof(adress);
@@ -129,7 +111,8 @@ void* thread_send_file(void* args) {
   free(data);
 
   // Create a new socket to send the file to the client
-  int socketFile = init_socket_send_file();
+  int socketFile;
+  init_socket(&socketFile, 1, 1);
   name_socket_send_file(socketFile, PORT_RECV_FILE_SOCKET);
   listen_socket_send_file(socketFile);
 

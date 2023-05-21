@@ -39,14 +39,6 @@ extern int is_good_format_recv_file_message(char* message);
 extern void* thread_recv_file(void* args);
 
 /**
- *
- * Initialize the socket in TCP which will be used to receive the file from the server
- *
- * @return The socket created
- */
-extern int init_socket_recv_file();
-
-/**
  * Send a connection request to the new soket for file transfer
  *
  * @param socketFile The socket file

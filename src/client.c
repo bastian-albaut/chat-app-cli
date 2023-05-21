@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   take_place_semaphore();
 
   // Socket initialization
-  init_socket_client();
+  init_socket(&socketServerFromClient, 0, 0);
 
   // Server connection request
   connection_request(argv[1], argv[2]);

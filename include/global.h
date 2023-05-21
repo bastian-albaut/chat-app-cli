@@ -19,6 +19,17 @@ extern int socketServer;
 extern Node* listClient;
 
 /**
+ * Initialize the socket specified in parameter in TCP mode
+ *
+ * @param newSocket The socket to initialize
+ * @param isCreation If the initialisation corresponding to the creation of the socket
+ * @param isPrint If the function have to print the message
+ *
+ * @return void
+ */
+extern void init_socket(int* newSocket, int isCreation, int isPrint);
+
+/**
  * Close the socket specified in parameter
  *
  * @param socket The socket to close

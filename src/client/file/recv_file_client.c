@@ -59,7 +59,8 @@ int is_good_format_recv_file_message(char* message) {
 void* thread_recv_file(void* args) {
 
   // Connect to the new socket create by the server
-  int socketFile = init_socket_recv_file();
+  int socketFile;
+  init_socket(&socketFile, 0, 1);
   connection_request_file_transfer(socketFile, PORT_RECV_FILE_SOCKET);
 
   // Receive the file name and size
@@ -102,21 +103,6 @@ void* thread_recv_file(void* args) {
   fclose(file);
 
   pthread_exit(0);
-}
-
-
-int init_socket_recv_file() {
-	int socketServer = socket(PF_INET, SOCK_STREAM, 0);
-	
-  if(socketServer == -1) {
-    perror("Error: Creation of socket");
-    exit(1);
-  }
-
-  
-  printf("Socket created\n");
-
-  return socketServer;
 }
 
 

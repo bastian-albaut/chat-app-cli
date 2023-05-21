@@ -20,14 +20,6 @@ typedef struct ThreadArgs {
 extern void* thread_client(void* args);
 
 /**
- *
- * Initialize the socket in TCP which will be used to communicate with clients
- *
- * @return void
- */
-extern void init_socket_server();
-
-/**
  * Name the socket of the server
  *
  * @param port The port of the socket

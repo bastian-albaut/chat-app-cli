@@ -29,14 +29,6 @@ extern void interrupt_handler(int signal);
 extern void* thread_send(void *socket);
 
 /**
- *
- * Initialize the socket of the client
- *
- * @return void
- */
-extern void init_socket_client();
-
-/**
  * Send a connection request to the server
  *
  * @param ipAdress The ip adress of the server

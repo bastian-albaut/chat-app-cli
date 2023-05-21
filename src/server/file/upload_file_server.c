@@ -36,7 +36,7 @@ void handle_send_file_message(char* message, int socketClient) {
 
   // Connect to the new socket create by the client
   int socketFile;
-  socketFile = init_socket_file();
+  init_socket(&socketFile, 0, 1);
   connection_request(socketFile, PORT_SEND_FILE_SOCKET);
 
   // Create thread to receive the content of the file
@@ -111,20 +111,6 @@ void get_file_name_and_size(char* message, char** file_name, int* file_size) {
   *file_size = atoi(file_name_end + 1);
 
   printf("file transfer request receive: %s (%d bytes)\n", *file_name, *file_size);
-}
-
-
-int init_socket_file() {
-
-  int socketFile = socket(PF_INET, SOCK_STREAM, 0);
-
-  if(socketFile == -1) {
-    perror("Error: Creation of socket");
-    exit(1);
-  }
-
-  printf("Socket file created\n");
-  return socketFile;
 }
 
 

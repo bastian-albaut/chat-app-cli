@@ -57,22 +57,6 @@ void* thread_client(void* args) {
 }
 
 
-void init_socket_server() {
-	socketServer = socket(PF_INET, SOCK_STREAM, 0);
-	
-  if(socketServer == -1) {
-    perror("Error: Creation of socket");
-    exit(1);
-  }
-
-  // Allow to use address again
-  int optval = 1;
-  setsockopt(socketServer, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  
-  printf("Socket Created");
-}
-
-
 void name_socket_server(char* port) {
   struct sockaddr_in adress;
   socklen_t sizeAdress= sizeof(adress);

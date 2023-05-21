@@ -45,14 +45,6 @@ extern int is_good_format_recv_file_message(char* message);
 extern char* get_file_name_recv_file_message(char* message);
 
 /**
- *
- * Initialize the socket in TCP which will be used to send the file to the client
- *
- * @return The socket created
- */
-extern int init_socket_send_file();
-
-/**
  * Name the socket for file transfer
  *
  * @param socket The socket to name
