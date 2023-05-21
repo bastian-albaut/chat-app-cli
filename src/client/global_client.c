@@ -150,35 +150,59 @@ void deserialize_response(char* buffer, size_t sizeBuffer, Response* response) {
 
 
 void print_response(Response* response) {
+
+  // Informative response
   if(response->code >= 100 && response->code < 200) {
     printf(BLUE "%d - %s" RESET, response->code, response->message);
   } 
-  else if(response->code >= 200 && response->code < 300) {
+  
+  // Success response
+  if(response->code >= 200 && response->code < 300) {
+
+    if(response->code == PSEUDO_ACCEPTED) {
+      printf(GREEN "%d - %s" RESET, response->code, response->message);
+      printf(GREY "\n\nType /help to see the list of commands" RESET);
+      printf("\n\n");
+      return;
+    }
+
     if(response->code == HELP_SUCCESS) {
       printf(GREEN "%s" RESET, response->message);
+      printf("\n");
+      return;
     } 
-    else if(response->code == LIST_FILE_SUCCESS) {
+    
+    if(response->code == LIST_FILE_SUCCESS) {
       printf(GREEN "\n------ List of server file(s) ------\n");
       printf("%s", response->message);
       printf("------ End list ------" RESET);
       printf("\n\n");
+      return;
     }
-    else {
-      printf(GREEN "%d - %s" RESET, response->code, response->message);
-    }
+
+    printf(GREEN "%d - %s" RESET, response->code, response->message);
   } 
-  else if(response->code >= 300 && response->code < 400) {
+
+  // Redirection response
+  if(response->code >= 300 && response->code < 400) {
+
     if(response->code == MESSAGE_GLOBAL_REDIRECT) {
       printf(YELLOW "%s: %s" RESET, response->from, response->message);
+      printf("\n");
+      return;
     } 
-    else if(response->code == MESSAGE_PRIVATE_REDIRECT) {
+
+    if(response->code == MESSAGE_PRIVATE_REDIRECT) {
       printf(YELLOW "%s (Message Privé): %s" RESET, response->from, response->message);
+      printf("\n");
+      return;
     }
-    else {
-      printf(YELLOW "%d - %s" RESET, response->code, response->message);
-    }
+
+    printf(YELLOW "%d - %s" RESET, response->code, response->message);
   } 
-  else {
+  
+  // Error response
+  if(response->code >= 400 && response->code < 500) {
     printf(RED "%d - %s" RESET , response->code, response->message);
   }
   printf("\n");
