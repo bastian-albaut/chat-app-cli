@@ -1,5 +1,5 @@
 # Executable files
-**/client
-**/server
+exClient
+exServer
 
 .vscode
