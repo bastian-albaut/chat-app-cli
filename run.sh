@@ -2,7 +2,7 @@
 
 # Compile client.c and server.c
 gcc -o exClient ./src/client.c -lpthread ./src/global.c ./src/client/global_client.c ./src/client/semaphore/semaphore_client.c ./src/client/file/list_files_client.c ./src/client/file/recv_file_client.c ./src/client/file/send_file_client.c
-gcc -o exServer ./src/server.c -lpthread ./src/global.c ./lib/list.c ./src/server/global_server.c ./src/server/semaphore/semaphore_server.c ./src/server/file/list_files_server.c ./src/server/file/download_file_server.c ./src/server/file/upload_file_server.c ./src/server/help/help_server.c ./src/server/logout/logout_server.c ./src/server/message/global_message_server.c ./src/server/message/private_message_server.c ./src/server/pseudo/pseudo_server.c 
+gcc -o exServer ./src/server.c -lpthread ./src/global.c ./lib/list.c ./lib/room.c ./src/server/global_server.c ./src/server/semaphore/semaphore_server.c ./src/server/file/list_files_server.c ./src/server/file/download_file_server.c ./src/server/file/upload_file_server.c ./src/server/help/help_server.c ./src/server/logout/logout_server.c ./src/server/message/global_message_server.c ./src/server/message/private_message_server.c ./src/server/pseudo/pseudo_server.c 
 
 # Open another new terminal window and run server
 if gnome-terminal --title="Server" -- bash -c "./exServer 7000"; then

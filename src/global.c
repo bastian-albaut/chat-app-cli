@@ -11,6 +11,7 @@
 
 int socketServer;
 Node* listClient;
+Room* listRoom;
 
 
 void init_socket(int* newSocket, int isCreation, int isPrint) {

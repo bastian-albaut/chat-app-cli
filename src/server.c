@@ -1,4 +1,5 @@
 #include "../include/list/list.h"
+#include "../include/list/room.h"
 #include "../include/constants.h"
 #include "../include/server/global_server.h"
 #include "../include/server/semaphore/semaphore_server.h"
@@ -34,6 +35,15 @@ int main(int argc, char *argv[]) {
   // Initialize the clients list
   listClient = NULL;
   init_head(&listClient);
+
+  // Initialize the rooms list
+  listRoom = NULL;
+  init_head_room(&listRoom);
+
+  // Add the defaults room
+  insert_first_room(&listRoom, 1, "Work", "Room for work and study");
+  insert_first_room(&listRoom, 2, "Chill", "Room for chill and talk");
+  display_list_room(&listRoom);
 
   // Initialize the semaphore
   deletion_semaphore();

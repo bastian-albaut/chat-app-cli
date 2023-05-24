@@ -2,6 +2,7 @@
 #define GLOBAL_H
 
 #include "./list/list.h"
+#include "./list/room.h"
 #include "constants.h"
 #include <stdio.h>
 
@@ -17,6 +18,9 @@ extern int socketServer;
 
 // List of clients connected to the server
 extern Node* listClient;
+
+// List of rooms created on the server
+extern Room* listRoom;
 
 /**
  * Initialize the socket specified in parameter in TCP mode

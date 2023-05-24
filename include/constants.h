@@ -47,13 +47,17 @@ typedef enum ErrorCode {
 
 #define RESPONSE_FROM_SERVER "Server"
 
+// File transfer
 #define FILE_DIRECTORY_CLIENT "files/client/"
 #define FILE_DIRECTORY_SERVER "files/server/"
 #define MAX_SIZE_FILE 1000000
-
 #define IP_LOCAL "127.0.0.1"
 #define PORT_SEND_FILE_SOCKET 5000
 #define PORT_RECV_FILE_SOCKET 6000
+
+// Room chat
+#define MAX_NB_ROOM 10
+#define MAX_NB_CLIENT 10
 
 /* Color for print */
 #define BLUE "\x1B[34m"
