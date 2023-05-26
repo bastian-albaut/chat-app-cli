@@ -120,6 +120,34 @@ void remove_room(Room** head, Room* room) {
     unlock_room();
 }
 
+char* get_list_rooms(Room** head) {
+
+    // Lock list for reading
+    read_lock_room();
+
+    // Check if list is empty
+    if(is_empty_room(head, 0)) {
+        unlock_room();
+        return NULL;
+    }
+
+    // Get list of rooms
+    Room *current_element = (*head)->next;
+    char* list_rooms = (char*) malloc(sizeof(char) * 1024);
+    strcpy(list_rooms, "");
+    while(current_element != *head) {
+        char* room = (char*) malloc(sizeof(char) * 1024);
+        sprintf(room, "%s - %s\n", current_element->name, current_element->description);
+        strcat(list_rooms, room);
+        current_element = current_element->next;
+    }
+
+    // Unlock list
+    unlock_room();
+
+    return list_rooms;
+}
+
 
 Room* search_room(Room** head, int number) {
     

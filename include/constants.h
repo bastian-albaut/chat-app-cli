@@ -24,6 +24,7 @@ typedef enum ErrorCode {
   FILE_TRANSFER_SUCCESS = 207,
   LIST_FILE_SUCCESS = 208,
   RECV_FILE_SUCCESS = 209,
+  LIST_ROOM_SUCCESS = 210,
 
   // Redirect response
   MESSAGE_GLOBAL_REDIRECT = 300,
@@ -41,7 +42,8 @@ typedef enum ErrorCode {
   HELP_ERROR = 408,
   SEND_FILE_ERROR = 409,
   LIST_FILE_ERROR = 410,
-  RECV_FILE_ERROR = 411
+  RECV_FILE_ERROR = 411,
+  LIST_ROOM_ERROR = 412,
 } ErrorCode;
 
 

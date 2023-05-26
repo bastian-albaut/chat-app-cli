@@ -2,6 +2,7 @@
 #define ROOM_H
 
 #include "../constants.h"
+#include <pthread.h>
 
 typedef struct ClientRoom {
     int socketClient;
@@ -73,6 +74,16 @@ extern Room* insert_first_room(Room** head, int number, char* name, char* descri
  * @return void
  */
 extern void remove_room(Room** head, Room* room);
+
+
+/**
+ * Get the list of rooms in a string
+ *
+ * @param head The head of the list
+ *
+ * @return The list of rooms in a string
+ */
+extern char* get_list_rooms(Room** head);
 
 /**
  * Search a room with the specified number in the list

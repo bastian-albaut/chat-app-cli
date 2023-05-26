@@ -147,6 +147,14 @@ void print_response(Response* response) {
       return;
     }
 
+    if(response->code == LIST_ROOM_SUCCESS) {
+        printf(GREEN "\n------ List of room(s) ------\n");
+        printf("%s", response->message);
+        printf("------ End list ------" RESET);
+        printf("\n\n");
+        return;
+    }
+
     printf(GREEN "%d - %s" RESET, response->code, response->message);
   } 
 
