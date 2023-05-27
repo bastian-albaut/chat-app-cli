@@ -58,22 +58,46 @@ int is_equal_room(Room* room1, Room* room2, int isMutexAccess) {
 }
 
 
+int is_full_room(Room** head, int isMutexAccess) {
+    
+    if(isMutexAccess) {
+        // Lock list for reading
+        read_lock_room();
+    }
+
+    int isFull = (*head)->number >= MAX_NB_ROOM;
+
+    if(isMutexAccess) {
+        // Unlock list
+        unlock_room();
+    }
+
+    return isFull;
+}
+
+
 Room* insert_first_room(Room** head, int number, char* name, char* description){
     Room *newHead = (Room*) malloc(sizeof(Room));
     
     // Lock list for writing
     write_lock_room();
 
-    // Set newHead attributes
-    newHead->number = number;
-    newHead->name = name;
-    newHead->description = description;
-    newHead->next = (*head)->next;
-    newHead->prev = *head;
+    // Check if list of room is not full
+    if(is_full_room(head, 0)) {
+        unlock_room();
+        return NULL;
+    }
+
+    // Set newRoom attributes
+    newRoom->number = number;
+    newRoom->name = name;
+    newRoom->description = description;
+    newRoom->next = (*head)->next;
+    newRoom->prev = *head;
 
     // Adjust reference of head and next element
-    newHead->next->prev = newHead;
-    (*head)->next = newHead;
+    newRoom->next->prev = newRoom;
+    (*head)->next = newRoom;
 
     // Increment number of elements in list (count)
     (*head)->number++;
@@ -81,7 +105,7 @@ Room* insert_first_room(Room** head, int number, char* name, char* description){
     // Unlock list
     unlock_room();
 
-    return newHead;
+    return newRoom;
 }
 
 

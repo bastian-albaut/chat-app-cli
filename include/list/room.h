@@ -54,6 +54,16 @@ extern int is_empty_room(Room** head, int isMutexAccess);
 extern int is_equal_room(Room* room1, Room* room2, int isMutexAccess);
 
 /**
+ * Check if the number of rooms is equal to the capacity
+ *
+ * @param head The head of the list
+ * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
+ *
+ * @return 1 if list is full | 0 if list is not full
+ */
+extern int is_full_room(Room** head, int isMutexAccess);
+
+/**
  * Add a room at start of the list
  *
  * @param head The head of the list
