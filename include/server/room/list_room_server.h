@@ -1,12 +1,12 @@
-#ifndef ROOM_SERVER_H
-#define ROOM_SERVER_H
+#ifndef LIST_ROOM_SERVER_H
+#define LIST_ROOM_SERVER_H
 
 /**
  * Detect if the message corresponding to a list rooms message (Start with /listrooms)
  *
  * @param message The string to check
  *
- * @return 1 if the message is a global message | 0 if the message is not a global message
+ * @return 1 if the message is a list rooms message | 0 if the message is not a list rooms message
  */
 extern int is_list_rooms_message(char* message);
 
@@ -29,4 +29,4 @@ extern void handle_list_rooms_message(char* message, int socketClient);
  */
 extern int is_good_format_list_rooms(char* message);
 
-#endif // ROOM_SERVER_H
+#endif // LIST_ROOM_SERVER_H

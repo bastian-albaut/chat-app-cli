@@ -10,7 +10,7 @@ void init_head_room(Room** head) {
     *head = (Room*) malloc(sizeof(Room));
     (*head)->next = *head;
     (*head)->prev = *head;
-    (*head)->number = 0; // Corresponding to count of elements in list (head is not counted)
+    (*head)->number = 0; // Corresponding to count of rooms in list (head is not counted)
 
     printf("Head of list initialized ");
     // Initialize rwlockRoom
@@ -76,8 +76,26 @@ int is_full_room(Room** head, int isMutexAccess) {
 }
 
 
+int is_full_room_list_client(Room* room, int isMutexAccess) {
+    
+    if(isMutexAccess) {
+        // Lock list for reading
+        read_lock_room();
+    }
+
+    int isFull = room->countClient >= MAX_NB_CLIENT;
+
+    if(isMutexAccess) {
+        // Unlock list
+        unlock_room();
+    }
+
+    return isFull;
+}
+
+
 Room* insert_first_room(Room** head, int number, char* name, char* description){
-    Room *newHead = (Room*) malloc(sizeof(Room));
+    Room *newRoom = (Room*) malloc(sizeof(Room));
     
     // Lock list for writing
     write_lock_room();
@@ -162,6 +180,16 @@ char* get_list_rooms(Room** head) {
     while(current_element != *head) {
         char* room = (char*) malloc(sizeof(char) * 1024);
         sprintf(room, "%s - %s\n", current_element->name, current_element->description);
+        // Add list client of room
+        // Display all clients in room
+        ClientRoom *current_client = current_element->firstClient;
+        while(current_client != NULL) {
+            char* client = (char*) malloc(sizeof(char) * NB_CHARACTERS);
+            sprintf(client, " => %s\n", current_client->pseudoClient);
+            strcat(room, client);
+            current_client = current_client->next;
+        }
+            
         strcat(list_rooms, room);
         current_element = current_element->next;
     }
@@ -173,7 +201,7 @@ char* get_list_rooms(Room** head) {
 }
 
 
-Room* search_room(Room** head, int number) {
+Room* search_room(Room** head, char* name) {
     
     // Lock list for reading
     read_lock_room();
@@ -188,7 +216,7 @@ Room* search_room(Room** head, int number) {
     Room *element_searched = NULL;
     Room *current_element = (*head)->next;
     while(current_element != *head) {
-        if(current_element->number == number) {
+        if(strcmp(current_element->name, name) == 0) {
             element_searched = current_element;
             break;
         }
@@ -200,6 +228,88 @@ Room* search_room(Room** head, int number) {
 
     return element_searched;
 }
+
+
+int add_client_to_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage) {
+    
+    // Lock list for writing
+    write_lock_room();
+
+    // Check if room is NULL
+    if(room == NULL) {
+        unlock_room();
+        return 0;
+    }
+
+    // Check if the room is full
+    if(is_full_room_list_client(room, 0)) {
+        strcpy(errorMessage, "The room is full");
+        unlock_room();
+        return 0;
+    }
+
+    // Check if client is already in room
+    ClientRoom* actualClient = search_client_in_room(room, pseudoClient, 0);
+    if(actualClient != NULL) {
+        strcpy(errorMessage, "You are already in this room");
+        unlock_room();
+        return 0;
+    }
+
+    // Add client to room
+    ClientRoom *newClient = (ClientRoom*) malloc(sizeof(ClientRoom));
+    newClient->socketClient = socketClient;
+    newClient->pseudoClient = pseudoClient;
+    newClient->next = room->firstClient;
+
+    // Adjust reference of firstClient
+    room->firstClient = newClient;
+
+    // Increment number of client in room (count)
+    room->countClient++;
+
+    printf("Client %s added to room %s\n", pseudoClient, room->name);
+    printf("Number of client in room %s : %d\n", room->name, room->countClient);
+    printf("First client: %s\n", room->firstClient->pseudoClient);
+
+    // Unlock list
+    unlock_room();
+
+    return 1;
+}
+
+ClientRoom* search_client_in_room(Room* room, char* pseudoClient, int isMutexAccess) {
+    
+    // Lock list for reading
+    if(isMutexAccess) {
+        read_lock_room();
+    }
+
+    // Check if room is NULL
+    if(room == NULL) {
+        unlock_room();
+        return NULL;
+    }
+
+    // Search client
+    ClientRoom *element_searched = NULL;
+    ClientRoom *current_element = room->firstClient;
+    while(current_element != NULL) {
+        if(strcmp(current_element->pseudoClient, pseudoClient) == 0) {
+            element_searched = current_element;
+            break;
+        }
+        current_element = current_element->next;
+    }
+
+    // Unlock list
+    if(isMutexAccess) {
+        unlock_room();
+    }
+
+    return element_searched;
+}
+
 
 void display_list_room(Room** head) {
 
@@ -218,6 +328,12 @@ void display_list_room(Room** head) {
     printf("\n------ List of room(s) ------\n");
     while(current_element != *head) {
         printf("%s - %s\n", current_element->name, current_element->description);
+        // Display all clients in room
+        ClientRoom *current_client = current_element->firstClient;
+        while(current_client != NULL) {
+            printf("    %s\n", current_client->pseudoClient);
+            current_client = current_client->next;
+        }
         current_element = current_element->next;
     }
     printf("------ End list ------\n\n");

@@ -59,21 +59,21 @@ int is_equal(Node* element1, Node* element2, int isMutexAccess) {
 
 
 Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
-    Node *newHead = (Node*) malloc(sizeof(Node));
+    Node *newNode = (Node*) malloc(sizeof(Node));
     
     // Lock list for writing
     write_lock();
 
-    // Set newHead attributes
-    newHead->number = number;
-    newHead->pseudo = pseudo;
-    newHead->thread = thread;
-    newHead->next = (*head)->next;
-    newHead->prev = *head;
+    // Set newNode attributes
+    newNode->number = number;
+    newNode->pseudo = pseudo;
+    newNode->thread = thread;
+    newNode->next = (*head)->next;
+    newNode->prev = *head;
 
     // Adjust reference of head and next element
-    newHead->next->prev = newHead;
-    (*head)->next = newHead;
+    newNode->next->prev = newNode;
+    (*head)->next = newNode;
 
     // Increment number of elements in list (count)
     (*head)->number++;
@@ -81,7 +81,7 @@ Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
     // Unlock list
     unlock();
 
-    return newHead;
+    return newNode;
 }
 
 

@@ -1,4 +1,4 @@
-#include "../../../include/server/room/room_server.h"
+#include "../../../include/server/room/list_room_server.h"
 #include "../../../include/list/room.h"
 #include "../../../include/constants.h"
 #include "../../../include/global.h"
@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <ctype.h>
 
 
 int is_list_rooms_message(char* message) {
@@ -36,13 +37,25 @@ void handle_list_rooms_message(char* message, int socketClient) {
 
 
 int is_good_format_list_rooms(char* message) {
+  // Trim leading whitespace
+  while (isspace((unsigned char)*message)) {
+    message++;
+  }
+
   // Check if the string starts with "/listrooms"
   if (strncmp(message, "/listrooms", 11) != 0) {
     return 0;
   }
 
+  // Trim trailing whitespace
+  char* end = message + strlen(message) - 1;
+  while (end > message && isspace((unsigned char)*end)) {
+    end--;
+  }
+  end[1] = '\0'; // Null-terminate the trimmed string
+
   // Check if there is no character after "/listrooms"
-  if(strlen(message + 11) != 0) {
+  if (message[11] != '\0') {
     return 0;
   }
 

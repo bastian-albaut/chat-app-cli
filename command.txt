@@ -17,6 +17,8 @@
 ║                       ║                                                     ║
 ║ /listrooms            ║ List all chat rooms                                 ║
 ║                       ║                                                     ║
+║ /joinroom <room_name> ║ Join a chat room                                    ║
+║                       ║                                                     ║
 ║ /help                 ║ List all available commands                         ║
 ╚═══════════════════════╩═════════════════════════════════════════════════════╝
                        
