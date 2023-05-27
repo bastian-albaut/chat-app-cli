@@ -8,6 +8,7 @@ typedef struct Node {
     int number; // number corresponding to count for head
     char* pseudo;
     pthread_t thread;
+    int isInRoom;
     struct Node *next;
     struct Node *prev;
 } Node;

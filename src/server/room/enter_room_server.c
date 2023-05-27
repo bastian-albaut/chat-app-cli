@@ -25,6 +25,14 @@ void handle_join_room_message(char* message, int socketClient, char* pseudoClien
         return;
     }
 
+    // Check if the client is not already in a room
+    Node* nodeClient = search_element_pseudo(&listClient, pseudoClient);
+    if(nodeClient->isInRoom == 1) {
+        char* message = "You are already in a room";
+        send_response(socketClient, JOIN_ROOM_ERROR, message, NULL);
+        return;
+    }
+
     // Get the room name
     char* roomName = get_room_name(message);
     printf("Room name: %s\n", roomName);
@@ -42,6 +50,9 @@ void handle_join_room_message(char* message, int socketClient, char* pseudoClien
         send_response(socketClient, JOIN_ROOM_ERROR, errorMessage, NULL);
         return;
     }
+
+    // Indicate that the client joined the room in the Node structure of the client
+    nodeClient->isInRoom = 1;
 
     // Send the confirmation to the client
     char* response = "You joined the room";

@@ -68,6 +68,7 @@ Node* insert_first(Node** head, int number, char* pseudo, pthread_t thread){
     newNode->number = number;
     newNode->pseudo = pseudo;
     newNode->thread = thread;
+    newNode->isInRoom = 0;
     newNode->next = (*head)->next;
     newNode->prev = *head;
 
