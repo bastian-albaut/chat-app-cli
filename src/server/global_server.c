@@ -189,6 +189,7 @@ int recv_message(int socketClient, char* message) {
     perror("Error: Receiving the message");
     exit(1);
   }
+  message[nbByteRead] = '\0';  // Null-terminate the received message
   return nbByteRead;
 }
 

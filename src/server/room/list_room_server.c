@@ -37,25 +37,13 @@ void handle_list_rooms_message(char* message, int socketClient) {
 
 
 int is_good_format_list_rooms(char* message) {
-  // Trim leading whitespace
-  while (isspace((unsigned char)*message)) {
-    message++;
-  }
-
   // Check if the string starts with "/listrooms"
   if (strncmp(message, "/listrooms", 11) != 0) {
     return 0;
   }
 
-  // Trim trailing whitespace
-  char* end = message + strlen(message) - 1;
-  while (end > message && isspace((unsigned char)*end)) {
-    end--;
-  }
-  end[1] = '\0'; // Null-terminate the trimmed string
-
   // Check if there is no character after "/listrooms"
-  if (message[11] != '\0') {
+  if(strlen(message + 11) != 0) {
     return 0;
   }
 
