@@ -48,6 +48,7 @@ void handle_quit_room_message(char* message, int socketClient, char* pseudoClien
     // Indicate that the client is not in a room in the Node structure of the client
     Node* nodeClient = search_element_pseudo(&listClient, pseudoClient);
     nodeClient->isInRoom = 0;
+    nodeClient->roomName = NULL;
 
     // Send the confirmation to the client
     char* response = "You successfully quit the room";

@@ -21,6 +21,8 @@
 ║                       ║                                                     ║
 ║ /quitroom <room_name> ║ Quit a chat room                                    ║
 ║                       ║                                                     ║
+║ /msgroom <message>    ║ Send a message in a chat room                       ║
+║                       ║                                                     ║
 ║ /help                 ║ List all available commands                         ║
 ╚═══════════════════════╩═════════════════════════════════════════════════════╝
                        

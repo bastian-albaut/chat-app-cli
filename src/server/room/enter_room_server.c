@@ -53,6 +53,8 @@ void handle_join_room_message(char* message, int socketClient, char* pseudoClien
 
     // Indicate that the client joined the room in the Node structure of the client
     nodeClient->isInRoom = 1;
+    nodeClient->roomName = malloc(strlen(roomName) + 1);
+    strcpy(nodeClient->roomName, roomName);
 
     // Send the confirmation to the client
     char* response = "You joined the room";

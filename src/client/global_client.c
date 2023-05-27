@@ -168,7 +168,13 @@ void print_response(Response* response) {
     } 
 
     if(response->code == MESSAGE_PRIVATE_REDIRECT) {
-      printf(YELLOW "%s (Message Privé): %s" RESET, response->from, response->message);
+      printf(YELLOW "%s (Private message): %s" RESET, response->from, response->message);
+      printf("\n");
+      return;
+    }
+
+    if(response->code == MESSAGE_PRIVATE_REDIRECT) {
+      printf(YELLOW "%s (Room): %s" RESET, response->from, response->message);
       printf("\n");
       return;
     }

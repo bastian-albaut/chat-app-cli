@@ -9,6 +9,7 @@ typedef struct Node {
     char* pseudo;
     pthread_t thread;
     int isInRoom;
+    char* roomName;
     struct Node *next;
     struct Node *prev;
 } Node;
