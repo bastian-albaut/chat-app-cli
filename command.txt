@@ -19,6 +19,8 @@
 ║                       ║                                                     ║
 ║ /joinroom <room_name> ║ Join a chat room                                    ║
 ║                       ║                                                     ║
+║ /quitroom <room_name> ║ Quit a chat room                                    ║
+║                       ║                                                     ║
 ║ /help                 ║ List all available commands                         ║
 ╚═══════════════════════╩═════════════════════════════════════════════════════╝
                        

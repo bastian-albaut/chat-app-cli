@@ -278,6 +278,54 @@ int add_client_to_room(Room* room, int socketClient, char* pseudoClient, char* e
     return 1;
 }
 
+
+int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage) {
+        
+    // Lock list for writing
+    write_lock_room();
+
+    // Check if room is NULL
+    if(room == NULL) {
+        unlock_room();
+        return 0;
+    }
+
+    // Check if client is in room
+    ClientRoom* actualClient = search_client_in_room(room, pseudoClient, 0);
+    if(actualClient == NULL) {
+        strcpy(errorMessage, "You are not in this room");
+        unlock_room();
+        return 0;
+    }
+
+    ClientRoom *current_element = room->firstClient;
+    ClientRoom *previous_element = NULL;
+    while(current_element != NULL) {
+        if(current_element->socketClient == socketClient) {
+            if(previous_element == NULL) {
+                room->firstClient = current_element->next;
+            } else {
+                previous_element->next = current_element->next;
+            }
+            break;
+        }
+        previous_element = current_element;
+        current_element = current_element->next;
+    }
+
+    // Decrement number of client in room (count)
+    room->countClient--;
+
+    printf("Client %s removed from room %s\n", pseudoClient, room->name);
+    printf("Number of client in room %s : %d\n", room->name, room->countClient);
+
+    // Unlock list
+    unlock_room();
+
+    return 1;
+}
+
+
 ClientRoom* search_client_in_room(Room* room, char* pseudoClient, int isMutexAccess) {
     
     // Lock list for reading

@@ -26,6 +26,7 @@ typedef enum ErrorCode {
   RECV_FILE_SUCCESS = 209,
   LIST_ROOM_SUCCESS = 210,
   JOIN_ROOM_SUCCESS = 211,
+  QUIT_ROOM_SUCCESS = 212,
 
   // Redirect response
   MESSAGE_GLOBAL_REDIRECT = 300,
@@ -46,6 +47,7 @@ typedef enum ErrorCode {
   RECV_FILE_ERROR = 411,
   LIST_ROOM_ERROR = 412,
   JOIN_ROOM_ERROR = 413,
+  QUIT_ROOM_ERROR = 414,
 } ErrorCode;
 
 

@@ -139,6 +139,18 @@ extern int is_room_full(Room* room);
 extern int add_client_to_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage);
 
 /**
+ * Remove a client from the room specified in parameter
+ *
+ * @param room The room to remove the client
+ * @param socketClient The socket of the client
+ * @param pseudoClient The pseudo of the client
+ * @param errorMessage The error message to send to the client if an error occurred
+ *
+ * @return 1 if client is remove | 0 if client is not remove
+ */
+extern int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage);
+
+/**
  * Search and return the client in the room specified in parameter
  *
  * @param room The room to search the client

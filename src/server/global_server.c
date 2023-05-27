@@ -10,6 +10,7 @@
 #include "../../include/server/semaphore/semaphore_server.h"
 #include "../../include/server/room/list_room_server.h"
 #include "../../include/server/room/enter_room_server.h"
+#include "../../include/server/room/quit_room_server.h"
 #include "../../include/list/list.h"
 #include "../../include/constants.h"
 #include "../../include/global.h"
@@ -113,6 +114,11 @@ void handle_message(char* message, int socketClient, char* pseudo, pthread_t thr
 
     if(is_join_room_message(message)) {
       handle_join_room_message(message, socketClient, pseudo);
+      return;
+    }
+
+    if(is_quit_room_message(message)) {
+      handle_quit_room_message(message, socketClient, pseudo);
       return;
     }
   }
