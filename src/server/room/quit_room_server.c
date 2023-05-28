@@ -38,6 +38,13 @@ void handle_quit_room_message(char* message, int socketClient, char* pseudoClien
         return;
     }
 
+    // If the client is the owner of the room, he can't quit the room
+    if(strcmp(roomToQuit->author, pseudoClient) == 0) {
+        char* response = "You can't quit the room because you are the owner";
+        send_response(socketClient, QUIT_ROOM_ERROR, response, NULL);
+        return;
+    }
+
     // Remove the client from the room
     char* errorMessage = malloc(sizeof(char) * NB_CHARACTERS);
     if(remove_client_from_room(roomToQuit, socketClient, pseudoClient, errorMessage) == 0) {
