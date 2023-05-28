@@ -17,6 +17,7 @@ typedef struct Room {
 	char* name;
 	char* description;
     int countClient;
+    char* author; // pseudo of the author of the room or "Server" if it's the server
     struct ClientRoom* firstClient;
     struct Room* prev;
     struct Room* next;
@@ -82,10 +83,11 @@ extern int is_full_room_list_client(Room* room, int isMutexAccess);
  * @param number The number of the room
  * @param name The name of the room
  * @param description The description of the room
+ * @param authorPseudo The pseudo of the author of the room
  *
  * @return The new room
  */
-extern Room* insert_first_room(Room** head, int number, char* name, char* description);
+extern Room* insert_first_room(Room** head, int number, char* name, char* description, char* authorPseudo);
 
 /**
  * Remove the room specified in parameter from the list

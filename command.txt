@@ -1,29 +1,31 @@
-╔═══════════════════════╦═════════════════════════════════════════════════════╗
-║        Command        ║                       Action                        ║
-╠═══════════════════════╬═════════════════════════════════════════════════════╣
-║ /all <message>        ║ Send a message to everyone                          ║
-║                       ║                                                     ║
-║ /mp <user> <message>  ║ Send a private message to a specific user           ║
-║                       ║                                                     ║
-║ /logout               ║ Request server disconnection                        ║
-║                       ║                                                     ║
-║ /listfiles local      ║ List all local files                                ║
-║                       ║                                                     ║
-║ /sendfile <file_name> ║ Upload a file to the server                         ║
-║                       ║                                                     ║
-║ /listfiles server     ║ List all files on the server                        ║
-║                       ║                                                     ║
-║ /recvfile <file_name> ║ Download a file from the server                     ║
-║                       ║                                                     ║
-║ /listrooms            ║ List all chat rooms                                 ║
-║                       ║                                                     ║
-║ /joinroom <room_name> ║ Join a chat room                                    ║
-║                       ║                                                     ║
-║ /quitroom <room_name> ║ Quit a chat room                                    ║
-║                       ║                                                     ║
-║ /msgroom <message>    ║ Send a message in a chat room                       ║
-║                       ║                                                     ║
-║ /help                 ║ List all available commands                         ║
-╚═══════════════════════╩═════════════════════════════════════════════════════╝
+╔══════════════════════════════════╦══════════════════════════════════════════╗
+║        Command                   ║           Action                         ║
+╠══════════════════════════════════╬══════════════════════════════════════════╣
+║ /all <message>                   ║ Send a message to everyone               ║
+║                                  ║                                          ║
+║ /mp <user> <message>             ║ Send a private message to a user         ║
+║                                  ║                                          ║
+║ /logout                          ║ Request server disconnection             ║
+║                                  ║                                          ║
+║ /listfiles local                 ║ List all local files                     ║
+║                                  ║                                          ║
+║ /sendfile <file_name>            ║ Upload a file to the server              ║
+║                                  ║                                          ║
+║ /listfiles server                ║ List all files on the server             ║
+║                                  ║                                          ║
+║ /recvfile <file_name>            ║ Download a file from the server          ║
+║                                  ║                                          ║
+║ /listrooms                       ║ List all chat rooms                      ║
+║                                  ║                                          ║
+║ /joinroom <room_name>            ║ Join a chat room                         ║
+║                                  ║                                          ║
+║ /quitroom <room_name>            ║ Quit a chat room                         ║
+║                                  ║                                          ║
+║ /msgroom <message>               ║ Send a message in a chat room            ║
+║                                  ║                                          ║
+║ /createroom <name> <description> ║ Send a message in a chat room            ║
+║                                  ║                                          ║          
+║ /help                            ║ List all available commands              ║
+╚══════════════════════════════════╩══════════════════════════════════════════╝
                        
                         

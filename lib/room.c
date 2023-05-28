@@ -94,7 +94,7 @@ int is_full_room_list_client(Room* room, int isMutexAccess) {
 }
 
 
-Room* insert_first_room(Room** head, int number, char* name, char* description){
+Room* insert_first_room(Room** head, int number, char* name, char* description, char* authorPseudo){
     Room *newRoom = (Room*) malloc(sizeof(Room));
     
     // Lock list for writing
@@ -110,6 +110,7 @@ Room* insert_first_room(Room** head, int number, char* name, char* description){
     newRoom->number = number;
     newRoom->name = name;
     newRoom->description = description;
+    newRoom->author = authorPseudo;
     newRoom->next = (*head)->next;
     newRoom->prev = *head;
 
@@ -179,13 +180,17 @@ char* get_list_rooms(Room** head) {
     strcpy(list_rooms, "");
     while(current_element != *head) {
         char* room = (char*) malloc(sizeof(char) * 1024);
-        sprintf(room, "%s - %s\n", current_element->name, current_element->description);
-        // Add list client of room
+        sprintf(room, "%s - %s ", current_element->name, current_element->description);
+        char* author = (char*) malloc(sizeof(char) * NB_CHARACTERS);
+        sprintf(author, BLUE "(✎ Author: %s)" GREEN, current_element->author);
+        strcat(author, "\n");
+        strcat(room, author);
         // Display all clients in room
         ClientRoom *current_client = current_element->firstClient;
         while(current_client != NULL) {
             char* client = (char*) malloc(sizeof(char) * NB_CHARACTERS);
-            sprintf(client, " => %s\n", current_client->pseudoClient);
+            sprintf(client, BLUE "   👤 %s" GREEN, current_client->pseudoClient);
+            strcat(client, "\n");
             strcat(room, client);
             current_client = current_client->next;
         }
@@ -375,7 +380,7 @@ void display_list_room(Room** head) {
     Room *current_element = (*head)->next;
     printf("\n------ List of room(s) ------\n");
     while(current_element != *head) {
-        printf("%s - %s\n", current_element->name, current_element->description);
+        printf("%s - %s (Author: %s)\n", current_element->name, current_element->description, current_element->author);
         // Display all clients in room
         ClientRoom *current_client = current_element->firstClient;
         while(current_client != NULL) {

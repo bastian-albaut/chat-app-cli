@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
   init_head_room(&listRoom);
 
   // Add the defaults room
-  insert_first_room(&listRoom, 1, "Work", "Room for work and study");
-  insert_first_room(&listRoom, 2, "Chill", "Room for chill and talk");
+  insert_first_room(&listRoom, listRoom->countClient+1, "Work", "Room for work and study", "Server");
+  insert_first_room(&listRoom, listRoom->countClient+1, "Chill", "Room for chill and talk", "Server");
   display_list_room(&listRoom);
 
   // Initialize the semaphore
