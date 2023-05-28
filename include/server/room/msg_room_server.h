@@ -44,4 +44,13 @@ extern int is_good_format_msg_room(char* message);
  */
 extern int send_to_other_clients_room(char* message, Room* room, int socketClient, char* pseudoTransmitter);
 
+/**
+ * Get the content of the message (without /msgroom)
+ *
+ * @param message The message to get the content
+ *
+ * @return The content of the message
+ */
+extern char* get_content_msg_room(char* message);
+
 #endif // MSG_ROOM_SERVER_H

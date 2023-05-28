@@ -37,8 +37,11 @@ void handle_msg_room_message(char* message, int socketClient, char* pseudoClient
     char* roomName = nodeClient->roomName;
     Room* room = search_room(&listRoom, roomName);
 
-    // Send the message to the other clients in the room
-    int result = send_to_other_clients_room(message, room, socketClient, pseudoClient);
+    // Get the content of the message
+    char* content = get_content_msg_room(message);
+
+    // Send the content to the other clients in the room
+    int result = send_to_other_clients_room(content, room, socketClient, pseudoClient);
     if(result == 1) {
       char* message = "Message send to all clients in the room";
       send_response(socketClient, MSG_ROOM_SUCCESS, message, NULL);
@@ -72,6 +75,7 @@ int is_good_format_msg_room(char* message) {
     return 1;
 }
 
+
 int send_to_other_clients_room(char* message, Room* room, int socketClient, char* pseudoTransmitter) {
     // Check if there is other clients in the room
     if(room->countClient == 1) {
@@ -96,4 +100,13 @@ int send_to_other_clients_room(char* message, Room* room, int socketClient, char
     }
 
     return 1;
+}
+
+
+char* get_content_msg_room(char* message) {
+    // Get the content of the message
+    char* content = malloc(strlen(message + 9) + 1);
+    strcpy(content, message + 9);
+
+    return content;
 }
