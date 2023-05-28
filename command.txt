@@ -1,6 +1,8 @@
 ╔══════════════════════════════════╦══════════════════════════════════════════╗
 ║        Command                   ║           Action                         ║
 ╠══════════════════════════════════╬══════════════════════════════════════════╣
+║ /help                            ║ List all available commands              ║
+║                                  ║                                          ║
 ║ /all <message>                   ║ Send a message to everyone               ║
 ║                                  ║                                          ║
 ║ /mp <user> <message>             ║ Send a private message to a user         ║
@@ -26,8 +28,6 @@
 ║ /createroom <name> <description> ║ Create a chat room                       ║
 ║                                  ║                                          ║
 ║ /deleteroom <name>               ║ Delete a chat room                       ║
-║                                  ║                                          ║          
-║ /help                            ║ List all available commands              ║
 ╚══════════════════════════════════╩══════════════════════════════════════════╝
                        
                         
