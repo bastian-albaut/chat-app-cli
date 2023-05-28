@@ -12,7 +12,7 @@ void init_head(Node** head) {
     (*head)->prev = *head;
     (*head)->number = 0; // Corresponding to count of elements in list (head is not counted)
 
-    printf("Head of list initialized ");
+    printf("List of client(s) initialization...\n ");
     // Initialize rwlock
     if(pthread_rwlock_init(&rwlock, NULL) != 0) {
         perror("pthread_rwlock_init");

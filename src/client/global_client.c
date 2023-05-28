@@ -120,14 +120,14 @@ void print_response(Response* response) {
 
   // Informative response
   if(response->code >= 100 && response->code < 200) {
-    printf(BLUE "%d - %s" RESET, response->code, response->message);
+    printf(BLUE "⚠ %s" RESET, response->message);
   } 
   
   // Success response
   if(response->code >= 200 && response->code < 300) {
 
     if(response->code == PSEUDO_ACCEPTED) {
-      printf(GREEN "%d - %s" RESET, response->code, response->message);
+      printf(GREEN "✔ %s" RESET, response->message);
       printf(GREY "\n\nType /help to see the list of commands" RESET);
       printf("\n\n");
       return;
@@ -155,7 +155,7 @@ void print_response(Response* response) {
         return;
     }
 
-    printf(GREEN "%d - %s" RESET, response->code, response->message);
+    printf(GREEN "✔ %s" RESET, response->message);
   } 
 
   // Redirection response
@@ -184,7 +184,7 @@ void print_response(Response* response) {
   
   // Error response
   if(response->code >= 400 && response->code < 500) {
-    printf(RED "%d - %s" RESET , response->code, response->message);
+    printf(RED "✘ %s" RESET , response->message);
   }
   printf("\n");
 }
@@ -220,7 +220,7 @@ void send_pseudo() {
     // Send the pseudo to the server
     char pseudo[NB_CHARACTERS];
 
-    get_input(pseudo, NB_CHARACTERS, "Please enter your pseudo:");
+    get_input(pseudo, NB_CHARACTERS, "⇩ Please enter your pseudo ⇩");
 
     send_message(socketServerFromClient, pseudo, NULL);
 

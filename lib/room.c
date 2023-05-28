@@ -12,7 +12,7 @@ void init_head_room(Room** head) {
     (*head)->prev = *head;
     (*head)->number = 0; // Corresponding to count of rooms in list (head is not counted)
 
-    printf("Head of list initialized ");
+    printf("List of room(s) initialization...\n");
     // Initialize rwlockRoom
     if(pthread_rwlock_init(&rwlockRoom, NULL) != 0) {
         perror("pthread_rwlock_init");
