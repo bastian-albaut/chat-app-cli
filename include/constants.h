@@ -29,6 +29,7 @@ typedef enum ErrorCode {
   QUIT_ROOM_SUCCESS = 212,
   MSG_ROOM_SUCCESS = 213,
   CREATE_ROOM_SUCCESS = 214,
+  DELETE_ROOM_SUCCESS = 215,
 
   // Redirect response
   MESSAGE_GLOBAL_REDIRECT = 300,
@@ -53,7 +54,8 @@ typedef enum ErrorCode {
   JOIN_ROOM_ERROR = 413,
   QUIT_ROOM_ERROR = 414,
   MSG_ROOM_ERROR = 415,
-  CREATE_ROOM_ERROR = 416
+  CREATE_ROOM_ERROR = 416,
+  DELETE_ROOM_ERROR = 417,
 } ErrorCode;
 
 

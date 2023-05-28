@@ -235,6 +235,91 @@ Room* search_room(Room** head, char* name) {
 }
 
 
+int delete_room(Room** head, Room* room) {
+        
+    // Lock list for writing
+    write_lock_room();
+
+    // Check if room is NULL
+    if(room == NULL) {
+        unlock_room();
+        return 0;
+    }
+
+    // Check if list is empty
+    if(is_empty_room(head, 0)) {
+        unlock_room();
+        return 0;
+    }
+
+    // Check if room is head
+    if(is_equal_room(*head, room, 0)) {
+        unlock_room();
+        return 0;
+    }
+
+    // Remove all clients from the room
+    char* errorMessage = malloc(sizeof(char) * NB_CHARACTERS);
+    if(remove_all_clients_from_room(room, errorMessage, 0) == 0) {
+        unlock_room();
+        return 0;
+    }
+
+    // Adjust reference of previous and next room
+    room->prev->next = room->next;
+    room->next->prev = room->prev;
+
+    // Free memory
+    free(room);
+
+    // Decrement number of elements in list (count)
+    (*head)->number--;
+
+    // Unlock list
+    unlock_room();
+
+    return 1;
+}
+
+
+int remove_all_clients_from_room(Room* room, char* errorMessage, int isMutexAccess) {
+        
+    // Lock list for writing
+    if(isMutexAccess) {
+        write_lock_room();
+    }
+
+    // Check if room is NULL
+    if(room == NULL) {
+        unlock_room();
+        return 0;
+    }
+
+    // Check if list of client in room is empty
+    if(room->countClient == 0) {
+        unlock_room();
+        return 1;
+    }
+
+    // Remove all clients from the room
+    ClientRoom *current_client = room->firstClient;
+    while(current_client != NULL) {
+        if(remove_client_from_room(room, current_client->socketClient, current_client->pseudoClient, errorMessage, 0) == 0) {
+            unlock_room();
+            return 0;
+        }
+        current_client = current_client->next;
+    }
+
+    // Unlock list
+    if(isMutexAccess) {
+        unlock_room();
+    }
+
+    return 1;
+}
+
+
 int add_client_to_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage) {
     
     // Lock list for writing
@@ -284,10 +369,12 @@ int add_client_to_room(Room* room, int socketClient, char* pseudoClient, char* e
 }
 
 
-int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage) {
+int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage, int isMutexAccess) {
         
     // Lock list for writing
-    write_lock_room();
+    if(isMutexAccess) {
+        write_lock_room();
+    }
 
     // Check if room is NULL
     if(room == NULL) {
@@ -325,7 +412,9 @@ int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, ch
     printf("Number of client in room %s : %d\n", room->name, room->countClient);
 
     // Unlock list
-    unlock_room();
+    if(isMutexAccess) {
+        unlock_room();
+    }
 
     return 1;
 }

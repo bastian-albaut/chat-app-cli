@@ -13,6 +13,7 @@
 #include "../../include/server/room/quit_room_server.h"
 #include "../../include/server/room/msg_room_server.h"
 #include "../../include/server/room/create_room_server.h"
+#include "../../include/server/room/delete_room_server.h"
 #include "../../include/list/list.h"
 #include "../../include/constants.h"
 #include "../../include/global.h"
@@ -131,6 +132,11 @@ void handle_message(char* message, int socketClient, char* pseudo, pthread_t thr
 
     if(is_create_room_message(message)) {
       handle_create_room_message(message, socketClient, pseudo);
+      return;
+    }
+
+    if(is_delete_room_message(message)) {
+      handle_delete_room_message(message, socketClient, pseudo);
       return;
     }
   }

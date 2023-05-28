@@ -23,7 +23,9 @@
 ║                                  ║                                          ║
 ║ /msgroom <message>               ║ Send a message in a chat room            ║
 ║                                  ║                                          ║
-║ /createroom <name> <description> ║ Send a message in a chat room            ║
+║ /createroom <name> <description> ║ Create a chat room                       ║
+║                                  ║                                          ║
+║ /deleteroom <name>               ║ Delete a chat room                       ║
 ║                                  ║                                          ║          
 ║ /help                            ║ List all available commands              ║
 ╚══════════════════════════════════╩══════════════════════════════════════════╝

@@ -129,6 +129,27 @@ extern Room* search_room(Room** head, char* name);
 extern int is_room_full(Room* room);
 
 /**
+ * Delete the room specified in parameter from the list
+ *
+ * @param head The head of the list
+ * @param room The room to delete
+ *
+ * @return 1 if room is deleted | 0 if room is not deleted
+ */
+extern int delete_room(Room** head, Room* room);
+
+/**
+ * Remove all clients from the room specified in parameter
+ *
+ * @param room The room to remove all clients
+ * @param errorMessage The error message to send to the client if an error occurred
+ * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
+ *
+ * @return 1 if all clients are removed | 0 if all clients are not removed
+ */
+extern int remove_all_clients_from_room(Room* room, char* errorMessage, int isMutexAccess);
+
+/**
  * Add a client to the room specified in parameter
  *
  * @param room The room to add the client
@@ -147,10 +168,11 @@ extern int add_client_to_room(Room* room, int socketClient, char* pseudoClient, 
  * @param socketClient The socket of the client
  * @param pseudoClient The pseudo of the client
  * @param errorMessage The error message to send to the client if an error occurred
+ * @param isMutexAccess 1 if mutex access is needed | 0 if mutex access is not needed
  *
  * @return 1 if client is remove | 0 if client is not remove
  */
-extern int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage);
+extern int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, char* errorMessage, int isMutexAccess);
 
 /**
  * Search and return the client in the room specified in parameter

@@ -47,7 +47,7 @@ void handle_quit_room_message(char* message, int socketClient, char* pseudoClien
 
     // Remove the client from the room
     char* errorMessage = malloc(sizeof(char) * NB_CHARACTERS);
-    if(remove_client_from_room(roomToQuit, socketClient, pseudoClient, errorMessage) == 0) {
+    if(remove_client_from_room(roomToQuit, socketClient, pseudoClient, errorMessage, 1) == 0) {
         send_response(socketClient, QUIT_ROOM_ERROR, errorMessage, NULL);
         return;
     }
