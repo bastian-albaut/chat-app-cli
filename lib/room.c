@@ -1,9 +1,10 @@
 /* List circular doubly linked with head of list */
 
+#include "../include/list/room.h"
+#include "../include/global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/list/room.h"
 #include <pthread.h>
 
 void init_head_room(Room** head) {
@@ -404,6 +405,11 @@ int remove_client_from_room(Room* room, int socketClient, char* pseudoClient, ch
         previous_element = current_element;
         current_element = current_element->next;
     }
+
+    // Renitialize isInRoom and roomName attributes of the Node corresponding to the client
+    Node* nodeClient = search_element_pseudo(&listClient, pseudoClient);
+    nodeClient->isInRoom = 0;
+    nodeClient->roomName = NULL;
 
     // Decrement number of client in room (count)
     room->countClient--;
