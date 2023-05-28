@@ -36,6 +36,13 @@ void handle_create_room_message(char* message, int socketClient, char* pseudoCli
     // Get the name of the room to create
     char* roomName = get_name_create_room(message);
 
+    // Check if a room with the same name already exists
+    if(search_room(&listRoom, roomName) != NULL) {
+        char* message = "A room with the same name already exists";
+        send_response(socketClient, CREATE_ROOM_ERROR, message, NULL);
+        return;
+    }
+
     // Get the description of the room to create
     char* roomDescription = get_description_create_room(message);
 
