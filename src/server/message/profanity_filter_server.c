@@ -52,10 +52,24 @@ void display_list_banned_words(BadWord** listBadWord) {
 }
 
 int is_banned_word(char* word, BadWord** listBadWord) {
-    // Check if any banned word is a substring of the given word
+    // Convert the current word to lowercase
+    char lowercaseWord[NB_CHARACTERS];
+    for (int i = 0; word[i] != '\0'; ++i) {
+        lowercaseWord[i] = tolower(word[i]);
+    }
+    lowercaseWord[strlen(word)] = '\0';
+
+    // Check if any banned word is a substring of the lowercase word
     BadWord* currentBadWord = *listBadWord;
     while (currentBadWord != NULL) {
-        if (strstr(word, currentBadWord->word) != NULL) {
+        // Convert the banned word to lowercase
+        char lowercaseBadWord[NB_CHARACTERS];
+        for (int i = 0; currentBadWord->word[i] != '\0'; ++i) {
+            lowercaseBadWord[i] = tolower(currentBadWord->word[i]);
+        }
+        lowercaseBadWord[strlen(currentBadWord->word)] = '\0';
+
+        if (strstr(lowercaseWord, lowercaseBadWord) != NULL) {
             return 1;
         }
         currentBadWord = currentBadWord->next;
