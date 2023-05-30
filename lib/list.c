@@ -195,12 +195,12 @@ void display_list(Node** head) {
 
     // Display all elements
     Node *current_element = (*head)->next;
-    printf("\n------ List of client(s) ------\n");
+    printf("\n========== List of client(s) ==========\n");
     while(current_element != *head) {
         printf("%d - %s\n", current_element->number, current_element->pseudo);
         current_element = current_element->next;
     }
-    printf("------ End list ------\n\n");
+    printf("================ End list ===============\n\n");
 
     // Unlock list
     unlock();

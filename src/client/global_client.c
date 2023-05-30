@@ -140,17 +140,17 @@ void print_response(Response* response) {
     } 
     
     if(response->code == LIST_FILE_SUCCESS) {
-      printf(GREEN "\n------ List of server file(s) ------\n");
+      printf(GREEN "\n========== List of server file(s) ==========\n");
       printf("%s", response->message);
-      printf("------ End list ------" RESET);
+      printf("================ End list ================" RESET);
       printf("\n\n");
       return;
     }
 
     if(response->code == LIST_ROOM_SUCCESS) {
-        printf(GREEN "\n------ List of room(s) ------\n");
+        printf(GREEN "\n==================== List of room(s) ====================\n");
         printf("%s", response->message);
-        printf("------ End list ------" RESET);
+        printf("======================== End list =======================" RESET);
         printf("\n\n");
         return;
     }

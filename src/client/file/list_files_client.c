@@ -31,13 +31,13 @@ void handle_list_file_message(char* message) {
     exit(1);
   }
 
-  printf("\n------ List of local file(s) ------\n");
+  printf("\n========== List of local file(s) ==========\n");
   while((file = readdir(directory)) != NULL) {
     if(strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0) {
       printf("%s\n", file->d_name);
     }
   }
-  printf("------ End list ------\n\n");
+  printf("================ End list =================\n\n");
   closedir(directory);
 }
 

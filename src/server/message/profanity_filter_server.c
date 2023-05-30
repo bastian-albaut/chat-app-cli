@@ -43,12 +43,12 @@ void init_banned_words(BadWord** listBadWord) {
 
 void display_list_banned_words(BadWord** listBadWord) {
     BadWord* currentBadWord = *listBadWord;
-    printf(" --------------List of banned words----------------\n");
+    printf("========== List of banned word(s) ==========\n");
     while (currentBadWord != NULL) {
         printf("%s\n", currentBadWord->word);
         currentBadWord = currentBadWord->next;
     }
-    printf(" --------------End of list----------------\n");
+    printf("================= End list =================\n\n");
 }
 
 int is_banned_word(char* word, BadWord** listBadWord) {

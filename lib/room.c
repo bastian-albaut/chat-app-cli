@@ -473,9 +473,9 @@ void display_list_room(Room** head) {
 
     // Display all elements
     Room *current_element = (*head)->next;
-    printf("\n------ List of room(s) ------\n");
+    printf("\n==================== List of room(s) ====================\n");
     while(current_element != *head) {
-        printf("%s - %s (Author: %s)\n", current_element->name, current_element->description, current_element->author);
+        printf("%s - %s (✍️  Author: %s)\n", current_element->name, current_element->description, current_element->author);
         // Display all clients in room
         ClientRoom *current_client = current_element->firstClient;
         while(current_client != NULL) {
@@ -484,7 +484,7 @@ void display_list_room(Room** head) {
         }
         current_element = current_element->next;
     }
-    printf("------ End list ------\n\n");
+    printf("======================== End list =======================\n\n");
 
     // Unlock list
     unlock_room();
