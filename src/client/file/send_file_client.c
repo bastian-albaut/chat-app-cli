@@ -153,7 +153,7 @@ void* thread_file_transfer(void *arg) {
   int nbByteRead = recv_response(socketFileServer, response);
 
   if(nbByteRead == 0) {
-    printf("The connection was cut on the server side\n");
+    printf("🚫 The connection was cut on the server side 🚫\n");
   } else if(nbByteRead == -1) {
     perror("Error: Receiving the response");
   } else {

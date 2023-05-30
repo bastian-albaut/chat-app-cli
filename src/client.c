@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     int nbByteRead = recv_response(socketServerFromClient, response);
 
     if(nbByteRead == 0 || nbByteRead == -1) {
-      printf("The connection was cut on the server side\n");
+      printf("🚫 The connection was cut on the server side 🚫\n");
       break;
     }
 
