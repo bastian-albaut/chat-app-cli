@@ -60,9 +60,10 @@ void* thread_client(void* args) {
     printf("Message receive: %s\n", message);
 
     // Apply profanity filter
-    apply_profanity_filter(socketClient, message);
-
-    printf("Filtered message: %s\n", message);
+    int isProfanity = apply_profanity_filter(socketClient, message);
+    if(isProfanity == 1) {
+        printf("Filtered message: %s\n", message);
+    }
 
     handle_message(message, socketClient, pseudo, pthread_self());
   }

@@ -43,8 +43,8 @@ extern int is_banned_word(char* word, BadWord** listBadWord);
  * @param socketClient the socket of the client who send the message
  * @param message the message to filter
  * 
- * @return void
+ * @return 1 if the mesassage was filtered, 0 if the message was not filtered
  */
-extern void apply_profanity_filter(int socketClient, char* message);
+extern int apply_profanity_filter(int socketClient, char* message);
 
 #endif // PROFANITY_MESSAGE_SERVER_H

@@ -475,7 +475,7 @@ void display_list_room(Room** head) {
     Room *current_element = (*head)->next;
     printf("\n==================== List of room(s) ====================\n");
     while(current_element != *head) {
-        printf("%s - %s (✍️  Author: %s)\n", current_element->name, current_element->description, current_element->author);
+        printf("%s - %s (Author: %s)\n", current_element->name, current_element->description, current_element->author);
         // Display all clients in room
         ClientRoom *current_client = current_element->firstClient;
         while(current_client != NULL) {

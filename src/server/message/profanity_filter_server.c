@@ -64,7 +64,7 @@ int is_banned_word(char* word, BadWord** listBadWord) {
 }
 
 
-void apply_profanity_filter(int socketClient, char* message) {
+int apply_profanity_filter(int socketClient, char* message) {
     char filteredMessage[NB_CHARACTERS]; // New string to store the filtered message
     char* word = strtok(message, " ");
     int isFirstWord = 1;
@@ -72,7 +72,6 @@ void apply_profanity_filter(int socketClient, char* message) {
 
     while (word != NULL) {
         if (is_banned_word(word, &listBadWord)) {
-            printf("Banned word found: %s\n", word);
             // Replace banned word with asterisks (*)
             memset(word, '*', strlen(word));
             isBannedWord = 1;
@@ -94,5 +93,8 @@ void apply_profanity_filter(int socketClient, char* message) {
     if (isBannedWord) {
         char* responseMessage = "Your message contains banned words";
         send_response(socketClient, FILTER_MESSAGE, responseMessage, NULL);
+        return 1;
     }
+
+    return 0;
 }
