@@ -14,6 +14,7 @@
 #include "../../include/server/room/msg_room_server.h"
 #include "../../include/server/room/create_room_server.h"
 #include "../../include/server/room/delete_room_server.h"
+#include "../../include/server/message/profanity_filter_server.h"
 #include "../../include/list/list.h"
 #include "../../include/constants.h"
 #include "../../include/global.h"
@@ -57,6 +58,11 @@ void* thread_client(void* args) {
     } 
     
     printf("Message receive: %s\n", message);
+
+    // Apply profanity filter
+    apply_profanity_filter(socketClient, message);
+
+    printf("Filtered message: %s\n", message);
 
     handle_message(message, socketClient, pseudo, pthread_self());
   }

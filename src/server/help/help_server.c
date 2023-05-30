@@ -26,7 +26,7 @@ void handle_help_message(char* message, int socketClient) {
 
   // Message follow the good format
   if(goodFormat == 1) {
-    char* filename = "command.txt";
+    char* filename = "./assets/command.txt";
     char* contentCommandFile = get_content_of_file(filename);
     send_response(socketClient, HELP_SUCCESS, contentCommandFile, NULL);
   }

@@ -9,9 +9,10 @@
 #define CAPACITY_CLIENTS 2
 
 /* Enumeration of code for response */
-typedef enum ErrorCode {
+typedef enum ResponseCode {
   // Informative response
   NO_OTHER_USERS = 100,
+  FILTER_MESSAGE = 101,
 
   // Success response
   PSEUDO_ACCEPTED = 200,
@@ -36,7 +37,6 @@ typedef enum ErrorCode {
   MESSAGE_PRIVATE_REDIRECT = 301,
   MESSAGE_ROOM_REDIRECT = 302,
 
-
   // Error response
   PSEUDO_BAD_FORMAT = 400,
   PSEUDO_ALREADY_USED = 400,
@@ -56,7 +56,7 @@ typedef enum ErrorCode {
   MSG_ROOM_ERROR = 415,
   CREATE_ROOM_ERROR = 416,
   DELETE_ROOM_ERROR = 417,
-} ErrorCode;
+} ResponseCode;
 
 
 #define RESPONSE_FROM_SERVER "Server"
@@ -72,6 +72,9 @@ typedef enum ErrorCode {
 // Room chat
 #define MAX_NB_ROOM 10
 #define MAX_NB_CLIENT 10
+
+// Profanity filter
+#define MAX_BANNED_WORDS 50
 
 /* Color for print */
 #define BLUE "\x1B[34m"

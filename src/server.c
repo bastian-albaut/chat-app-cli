@@ -3,6 +3,7 @@
 #include "../include/constants.h"
 #include "../include/server/global_server.h"
 #include "../include/server/semaphore/semaphore_server.h"
+#include "../include/server/message/profanity_filter_server.h"
 #include "../include/global.h"
 #include <stdio.h>
 #include <sys/socket.h>
@@ -52,6 +53,11 @@ int main(int argc, char *argv[]) {
 
   // Catch the SIGINT signal
   signal(SIGINT, interrupt_handler);
+
+  // Init the list of bad words
+  init_banned_words(&listBadWord);
+
+  display_list_banned_words(&listBadWord);
 
   // Loop to accept clients and create threads for them
   while(1) {

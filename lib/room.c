@@ -183,7 +183,7 @@ char* get_list_rooms(Room** head) {
         char* room = (char*) malloc(sizeof(char) * 1024);
         sprintf(room, "%s - %s ", current_element->name, current_element->description);
         char* author = (char*) malloc(sizeof(char) * NB_CHARACTERS);
-        sprintf(author, BLUE "(✎ Author: %s)" GREEN, current_element->author);
+        sprintf(author, BLUE "(✍️  Author: %s)" GREEN, current_element->author);
         strcat(author, "\n");
         strcat(room, author);
         // Display all clients in room

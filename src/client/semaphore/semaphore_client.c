@@ -9,7 +9,7 @@
 
 void init_semaphore_client() {
   // Generate the key for the semaphore 
-  int keySemaphore = ftok("command.txt", 'r');
+  int keySemaphore = ftok("./assets/command.txt", 'r');
   if (keySemaphore == -1) {
     perror("Error ftok");
     exit(1);
