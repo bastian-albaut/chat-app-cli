@@ -24,21 +24,14 @@ void handle_recv_file_message(char* message, int socketServer) {
     return;
   }
 
-  // Send the command to the server
-  send_message(socketServer, message, NULL);
-
-  // Receive the confirmation of the server
-  Response* response = malloc(sizeof(Response));
-  int nbByteRead = recv_response(socketServer, response);
-
-  if(response->code != SERVER_READY_FILE) {
-    print_response(response);
-    return;
-  }
+  // Send socket server and message to the thread
+  ThreadArgsRecvFile* args = malloc(sizeof(ThreadArgsRecvFile));
+  args->socketServer = socketServer;
+  args->message = message;
 
   // Create new thread to handle the file transfer
   pthread_t thread;
-  pthread_create(&thread, NULL, thread_recv_file, (void*)NULL);
+  pthread_create(&thread, NULL, thread_recv_file, (void*)args);
 }
 
 
@@ -58,15 +51,28 @@ int is_good_format_recv_file_message(char* message) {
 
 
 void* thread_recv_file(void* args) {
+  ThreadArgsRecvFile* data = (ThreadArgsRecvFile*) args;
+  int socketServer = data->socketServer;
+  char* message = data->message;
 
-  // Connect to the new socket create by the server
+  free(data);
+
+  // Create a new socket to receive the file from the server
   int socketFile;
-  init_socket(&socketFile, 0, 1);
-  connection_request(&socketFile, IP_LOCAL, PORT_RECV_FILE_SOCKET, 1);
+  init_socket(&socketFile, 1, 1);
+  name_socket(&socketFile, PORT_RECV_FILE_SOCKET, 1);
+  listen_socket(&socketFile, 1, 1);
 
-  // Receive the file name and size
+  // Send the command to the server (with the old socket)
+  send_message(socketServer, message, NULL);
+
+  // Accept the connection with the new socket
+  int socketServerFile = accept(socketFile, NULL, NULL);
+  printf("Connection accepted...\n");
+
+  // Receive the file name and size from the server with the new socket
   Response* response = malloc(sizeof(Response));
-  int nbByteRead = recv_response(socketFile, response);
+  int nbByteRead = recv_response(socketServerFile, response);
   char* fileName = strtok(response->message, " ");
   char* fileSizeString = strtok(NULL, " ");
   int fileSize = atoi(fileSizeString);
@@ -77,7 +83,7 @@ void* thread_recv_file(void* args) {
   // Receive the content of the file
   char buffer[1025];  // Increase buffer size by 1 for null termination
   while (fileSize > 0) {
-    int bytesRead = recv(socketFile, buffer, sizeof(buffer) - 1, 0);
+    int bytesRead = recv(socketServerFile, buffer, sizeof(buffer) - 1, 0);
     if (bytesRead == -1) {
       perror("Error receiving file");
       pthread_exit(0);
@@ -96,9 +102,10 @@ void* thread_recv_file(void* args) {
     fileSize -= bytesRead;
   }
   printf("File received\n\n");
-
-  // Close the socket and the file
+  
+  // Close the sockets and the file
   close_socket(socketFile);
+  close_socket(socketServerFile);
   fclose(file);
 
   pthread_exit(0);

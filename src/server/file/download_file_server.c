@@ -82,19 +82,10 @@ void* thread_send_file(void* args) {
 
   free(data);
 
-  // Create a new socket to send the file to the client
+  // Connect to the new socket create by the client
   int socketFile;
-  init_socket(&socketFile, 1, 1);
-  name_socket(&socketFile, PORT_RECV_FILE_SOCKET, 1);
-  listen_socket(&socketFile, 1, 1);
-
-  // Send confirmation to the client
-  char* responseMessage = "The server is ready to send the file";
-  send_response(socketClient, SERVER_READY_FILE, responseMessage, NULL);
-
-  // Accept the connection request
-  int socketClientFile = accept(socketFile, NULL, NULL);
-  printf("Connection accepted...\n");
+  init_socket(&socketFile, 0, 1);
+  connection_request(&socketFile, IP_LOCAL, PORT_RECV_FILE_SOCKET, 1);
 
   // Get the name and the size of the file
   int sizeFile = get_size_recv_file(fileName);
@@ -104,7 +95,7 @@ void* thread_send_file(void* args) {
   // Send the name and the size of the file
   char* fileNameAndSize = malloc(NB_CHARACTERS * sizeof(char));
   sprintf(fileNameAndSize, "%s %d", fileName, sizeFile);
-  send_response(socketClientFile, FILE_TRANSFER_SUCCESS, fileNameAndSize, NULL);
+  send_response(socketFile, FILE_TRANSFER_SUCCESS, fileNameAndSize, NULL);
 
   printf(" => Sending file content\n");
 
@@ -128,7 +119,7 @@ void* thread_send_file(void* args) {
     if(nbBytesRead == 0) {
       break;
     }
-    if(send(socketClientFile, buffer, nbBytesRead, 0) == -1) {
+    if(send(socketFile, buffer, nbBytesRead, 0) == -1) {
       perror("Error sending file");
       exit(1);
     }
@@ -136,9 +127,8 @@ void* thread_send_file(void* args) {
 
   printf("File send\n\n");
 
-  // Close the sockets, the file and free the memory
+  // Close the socket, the file and free the memory
   close_socket(socketFile);
-  close_socket(socketClientFile);
   fclose(file);
   free(fileName);
 

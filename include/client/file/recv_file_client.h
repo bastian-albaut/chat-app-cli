@@ -1,6 +1,12 @@
 #ifndef RECV_FILE_CLIENT_H
 #define RECV_FILE_CLIENT_H
 
+// Structure of the arguments of the thread
+typedef struct ThreadArgsRecvFile {
+  int socketServer;
+  char* message;
+} ThreadArgsRecvFile;
+
 /**
  * Detect if the message corresponding to recv file command (start with "/recvfile")
  *
