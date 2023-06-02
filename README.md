@@ -24,8 +24,15 @@ The file is located at `./assets/badWords.txt`.
 - RW lock for concurent access in read and exclusive access in write
 - Multi-threading to manage multiple clients, handle file transfer...
 
-## Run 
-Enter the following command on root of the project:
+## Installation and Usage
+1. Clone the repository:
+```bash
+git clone https://github.com/bastian-albaut/chat-app-cli.git
 ```
+2. Enter the following command on root of the project:
+```bash
 ./run.sh
 ```
+
+
+
