@@ -1,6 +1,6 @@
-# Chat Server/Client in cli
+# Chat App in CLI
 
-This project is an instant messaging that allow multiple clients to communicate, share files or be part of chat rooms...
+This project is a fast and reliable instant messaging that allow multiple clients to communicate, share files or be part of chat rooms...
 
 ![Screenshot](https://github.com/bastian-albaut/Chat-Server-Client-Cli/blob/main/docs/images/headerReadme.png)
 *Example of a communication between two clients*
