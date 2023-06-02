@@ -2,6 +2,9 @@
 
 This project is an instant messaging that allow multiple clients to communicate, share files or be part of chat rooms...
 
+![Screenshot](https://github.com/bastian-albaut/Chat-Server-Client-Cli/blob/main/docs/images/headerReadme.png)
+*Example of a communication between two clients*
+
 ## Features
 - Choose a pseudonym
 - Send a global message to all clients
@@ -22,7 +25,7 @@ The file is located at `./assets/badWords.txt`.
 - A thread is created on the server side when the client connects to manage it 
 
 ## Run 
-Enter the following command in a terminal:
+Enter the following command on root of the project:
 ```
 ./run.sh
 ```
