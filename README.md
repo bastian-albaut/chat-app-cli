@@ -22,7 +22,7 @@ The file is located at `./assets/badWords.txt`.
 ## Technical informations
 - Server side the clients are store with a Doubly Circular Linked Lists with head of list
 - RW lock for concurent access in read and exclusive access in write
-- A thread is created on the server side when the client connects to manage it 
+- Multi-threading to manage multiple clients, handle file transfer...
 
 ## Run 
 Enter the following command on root of the project:
